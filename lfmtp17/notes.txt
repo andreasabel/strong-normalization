@@ -1,0 +1,56 @@
+POPLMark Reloaded: Mechanizing Meta-Theory
+-- The ICFP Proof Contest -- 
+
+* Introduction
+  - concrete set of benchmarks intended both for measuring progress
+    and for stimulating discussion and  collaboration in mechanizing
+    the metatheory of programming languages. 
+  - Existing challenge problems: POPLmark, ORBI
+  - Shortcomings of existing challenge problems: Focus on binding
+    (POPLMark); focus on context relations and hand-crafted challenge
+    problems (ORBI).
+  - Goal: 
+    ** Focus on a realistic challlenging example (beyond type safety!)
+    ** Compare different solutions to the same specification 
+    ** Understand what automated support is needed or already present
+    ** Understand how well libraries work vs built-in support
+    ** Identify areas where more research is needed
+
+* Challenges, Challenge Problems
+  - Binding structures (the scope of solutions more or less well-understood)
+  - Reasoning of "open" terms 
+  - Contexts, Substitutions, and Renamings
+  - Inductive Definitions 
+
+* Concrete Challenge Problem: Strong Normalization for Simply-Typed Lambda-Calculus
+  - Kripke style formulation (this means it extends to richer
+    dependent type theories as well)
+  - Statements rely on relating contexts / worlds
+  - Normalization proofs have been often done to demonstrate the power
+    of a proof assistant; we now concentrate on comparin
+
+* A Call for Action!
+  - We ask the community to submit solutions!
+  - Why should I participate? -- Learn about strong normalization proofs
+  - Give a short (informal) talk at LFMTP to present their solution
+  - We plan to invite everyone who submitted a solution to contribute
+    towards a joint paper of discussing trade-offs between the
+    different solution
+
+* Criteria for Assessment
+  - Size of the necessary infrastructure for defining base language,
+    binding, substitution, renamings, contexts together with
+    substitution lemmas and other necessary lemmas.
+  - Modularity of the development, i.e. is the basic infrastructure
+    seperate from the main reasoning; can the basic infrastructure be
+    reused for other developments; is it easy to extend / generalize
+    the infrastructure
+  - Size of the main development (i.e. the main theorems we state on
+    paper)
+  - Ease of using the infrastructure for supporting binding, context,
+    etc. How easy is it to apply the appropriate lemmas in the main
+    proof
+  - Ease of development of the overall proof; what support is
+    present. 
+  
+
