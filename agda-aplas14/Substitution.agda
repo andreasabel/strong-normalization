@@ -25,7 +25,7 @@ VT : ∀ {m} → VarTm m → Cxt → Ty → Set
 VT `Var Γ a = Var Γ a
 VT `Tm  Γ a = Tm Γ a
 
-vt2tm : ∀ {Γ a} → ∀ {m} vt → VT {m} vt Γ a → Tm Γ a
+vt2tm : ∀ {Γ a m} vt → VT {m} vt Γ a → Tm Γ a
 vt2tm `Var x = var x
 vt2tm `Tm  t = t
 
@@ -50,16 +50,41 @@ mutual
   subst σ (app t u)   = app (subst σ t) (subst σ u)
   subst σ (var x)     = vt2tm _ (σ x)
 
+-- Performing substitution, inductive specification
 
 data IndSubst {m vt Γ Δ} (σ : RenSub {m} vt Γ Δ) : ∀ {τ} → Tm Γ τ → Tm Δ τ → Set where
-  var  : ∀{a t}          (x : Var Γ a) → vt2tm _ (σ x) ≡ t         → IndSubst σ (var x) t
-  abs  : ∀{a b}{t : Tm (a ∷ Γ) b}{t'} → IndSubst (lifts σ) t t' → IndSubst σ (abs t) (abs t')
-  app  : ∀{a b}{t : Tm Γ (a →̂ b)}{u : Tm Γ a}{t' u'} → IndSubst σ t t' → IndSubst σ u u' → IndSubst σ (app t u) (app t' u')
+
+  var  : ∀{a t} (x : Var Γ a)
+       → vt2tm _ (σ x) ≡ t
+       → IndSubst σ (var x) t
+
+  abs  : ∀{a b} {t : Tm (a ∷ Γ) b} {t'}
+       → IndSubst (lifts σ) t t'
+       → IndSubst σ (abs t) (abs t')
+
+  app  : ∀{a b} {t : Tm Γ (a →̂ b)} {u t' u'}
+       → IndSubst σ t t'
+       → IndSubst σ u u'
+       → IndSubst σ (app t u) (app t' u')
+
+-- Performing renaming, inductive specification
 
 data IndRen {Γ Δ} (σ : RenSub `Var Γ Δ) : ∀ {τ} → Tm Γ τ → Tm Δ τ → Set where
-  var  : ∀{a y}          (x : Var Γ a) → (σ x) ≡ y         → IndRen σ (var x) (var y)
-  abs  : ∀{a b}{t : Tm (a ∷ Γ) b}{t'} → IndRen (lifts σ) t t' → IndRen σ (abs t) (abs t')
-  app  : ∀{a b}{t : Tm Γ (a →̂ b)}{u : Tm Γ a}{t' u'} → IndRen σ t t' → IndRen σ u u' → IndRen σ (app t u) (app t' u')
+
+  var  : ∀{a y} (x : Var Γ a)
+       → (σ x) ≡ y
+       → IndRen σ (var x) (var y)
+
+  abs  : ∀{a b} {t : Tm (a ∷ Γ) b} {t'}
+       → IndRen (lifts σ) t t'
+       → IndRen σ (abs t) (abs t')
+
+  app  : ∀{a b} {t : Tm Γ (a →̂ b)} {u t' u'}
+       → IndRen σ t t'
+       → IndRen σ u u'
+       → IndRen σ (app t u) (app t' u')
+
+-- Logical equivalence between inductive and algorithmic substitution
 
 IndS→prop : ∀ {m vt Γ Δ} (σ : RenSub {m} vt Γ Δ) {τ} {t : Tm Γ τ} {t' : Tm Δ τ} → IndSubst σ t t' → subst σ t ≡ t'
 IndS→prop σ (var x ≡.refl) = ≡.refl
@@ -74,6 +99,8 @@ prop→IndS' σ (app t u)   = app (prop→IndS' σ t) (prop→IndS' σ u)
 prop→IndS : ∀ {m vt Γ Δ} (σ : RenSub {m} vt Γ Δ) {τ} {t : Tm Γ τ} {t' : Tm Δ τ} → subst σ t ≡ t' → IndSubst σ t t'
 prop→IndS _ ≡.refl = prop→IndS' _ _
 
+
+-- Logical equivalence between inductive and algorithmic renaming
 
 Ind→prop : ∀ {Γ Δ} (σ : RenSub `Var Γ Δ) {τ} {t : Tm Γ τ} {t' : Tm Δ τ} → IndRen σ t t' → subst σ t ≡ t'
 Ind→prop σ (var x ≡.refl) = ≡.refl

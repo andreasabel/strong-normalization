@@ -14,7 +14,7 @@ open import Data.Nat.Properties
   using (_+-mono_; ≤⇒≤′)
   renaming (≤-decTotalOrder to decTotalOrderℕ)
   public
-open import Data.Product using (Σ; _×_; _,_; proj₁; proj₂) renaming (map to map×) public
+open import Data.Product using (Σ; ∃; _×_; _,_; proj₁; proj₂) renaming (map to map×) public
 
 open import Function using (id; _∘_) public
 

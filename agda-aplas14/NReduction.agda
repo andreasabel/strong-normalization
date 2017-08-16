@@ -20,7 +20,7 @@ data NβEhole {n : ℕ} {Γ : Cxt} : {n' : ℕ} → {Δ : Cxt} {b a : Ty} → Tm
   abs   : ∀ {a b} {t : Tm (a ∷ Γ) b}                      → NβEhole (abs t) abs t
 
 
-mkHole : ∀ {n n' Γ Δ} {a b} (E : NβECxt Γ Δ a b n n') {t} → Σ _ \ E[t] → NβEhole E[t] E t
+mkHole : ∀ {n n' Γ Δ} {a b} (E : NβECxt Γ Δ a b n n') {t} → ∃ λ E[t] → NβEhole E[t] E t
 mkHole (appl u)  = _ , appl u
 mkHole (appr t)  = _ , appr t
 mkHole abs       = _ , abs
@@ -138,8 +138,8 @@ mkHole3 E {Es} {t} rewrite ≡.sym (lemma {t = t} Es {E = E}) = mkHole2 E {Es [ 
 
 split : ∀ {Γ} {n} {a b} (E : ECxt* Γ a b) {t₁ : Tm Γ a}{t₂ Et₁ : Tm Γ b} →
          Ehole* Et₁ E t₁ → t₁ Redex →
-         Et₁ ⟨ n ⟩⇒β t₂ → (Σ _ \ t₃ → Ehole* t₂ E t₃ × t₁ ⟨ n ⟩⇒β t₃)
-         ⊎ (Σ _ \ E₁ → Ehole* t₂ E₁ t₁ × (∀ t → E [ t ]* ⟨ n ⟩⇒β E₁ [ t ]*))
+         Et₁ ⟨ n ⟩⇒β t₂ → (∃ λ t₃ → Ehole* t₂ E t₃ × t₁ ⟨ n ⟩⇒β t₃)
+         ⊎ (∃ λ E₁ → Ehole* t₂ E₁ t₁ × (∀ t → E [ t ]* ⟨ n ⟩⇒β E₁ [ t ]*))
 split ._ [] r t⇒ = inj₁ (_ , [] , t⇒)
 split .(appl u ∷ []) (appl u ∷ []) () β
 split ._ (appl u ∷ (() ∷ eq)) r β
