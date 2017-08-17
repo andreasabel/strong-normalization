@@ -32,13 +32,13 @@ inductive ExStep : (g1 : cxt) (g2 : cxt)
 rec invRenStep : {g1 : cxt} {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]}
     [g2 |- step M[#R] M'] -> ExStep [g1 |- M] [g2 |- #R] [g2 |- M'] =
 
-  % / total m (invRenStep g1 g2 a m) /  %% Totality checker does not see termination
+%   / total m (invRenStep g1 g2 a m' m) /  
+   %% Totality checker does not see termination -- coverage error possibly due to renaming subst.
 
   mlam g1, M, #R => fn s =>
 
-  %% We would like to split on s, but limitations of Beluga force us
-  %% to go the longer route and split on M, such that the renaming
-  %% is pushed inside.
+  %% We would like to split on s:[g2 |- step M[rho] M'], 
+  %% but since Beluga's implementation of matching and unification does not take advantage of the fact that rho is a simply a renaming, it cannot unify step M[rho] M' with any of the types of step; we therefore go the longer route and split on M first; then (app M1 M2)[rho] will be normalized to app M1[rho] M2[rho] and matching on the types of step will succeed.
   case [ g1 |- M ] of
 
     %% Case application
@@ -53,17 +53,16 @@ rec invRenStep : {g1 : cxt} {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]}
       (case [g1 |- M1] of
 
       %% Case beta-redex
-      | [g1 |- abs \ x. M1'] => (case s of
+      | [g1 |- abs \ x. M1'] => 
+        (case s of
         %% We either contract the beta-redex...
         | [g2 |- rbeta] => Ex [g1 |- rbeta]
         %% ... or reduce in the left or right subterm
         | [g2 |- rappl S] =>
-            %% Totality checker complains here:
             let Ex [g1 |- S'] = % ih [g2 |- #R] [g2 |- S]
               invRenStep [g1] [g1 |- M1] [g2 |- #R] [g2 |- S]
             in  Ex [g1 |- rappl S' ]
         | [g2 |- rappr S] =>
-            %% Totality checker complains here:
             let Ex [g1 |- S'] = invRenStep [g1] [g1 |- M2]  [g2 |- #R] [g2 |- S]
             in  Ex [g1 |- rappr S' ]
         )
@@ -164,6 +163,7 @@ rec renRedS : {g2 : cxt} {#R : [g2 |-# g1]}
 LF ecxt : (tm A -> tm B) -> type =
   | eid  : ecxt \ x. x
   | eext : ecxt C -> ecxt \ x. app (C x) M
+
   ;
 
 % Closure under weakhead expansion
