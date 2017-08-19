@@ -92,7 +92,7 @@ rec invRenStep : {g1 : cxt} {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]}
   ;
 
 inductive SN : (g : cxt) {M : [ g |- tm A[] ]} ctype =
-  | Acc : ({M' : [ g |- tm A[] ]} [ g |- step M M' ] -> SN [ g |- M' ])
+  | Acc : ({M' : [ g |- tm A[] ]}{S: [ g |- step M M' ]} SN [ g |- M' ])
         -> SN [ g |- M ]
   ;
 
@@ -107,17 +107,18 @@ inductive SN : (g : cxt) {M : [ g |- tm A[] ]} ctype =
 % By IH on N ∈ SN, [ρ]N ∈ SN, thus, M' ∈ SN.
 % QED.
 
-rec renSN : {g2 : cxt} {#R : [g2 |-# g1]} {M : [g1 |- tm A[]]}
+rec renSN : {g2 : cxt} {#R : [g2 |-# g1]}{A:[ |- ty]} {M : [g1 |- tm A[]]}
        SN [g1 |- M]
     -> SN [g2 |- M[#R]] =
   % / total s (renSN g1 g2 a r m s) /  %% Totality checker not prepared for wf-induction.
-  mlam g2, #R, M => fn s => let s : SN [g1 |- M] = s in
+  mlam g2, #R, A, M => fn s => let s : SN [g1 |- M] = s in
     case s of
-    | Acc f => Acc (mlam M' => fn r =>
-        let Ex [g1 |- S] = invRenStep [g1] [g1 |- M] [g2 |- #R] r
-        in  renSN [g2] [g2 |- #R] [g1 |- _] (f [g1 |- _] [g1 |- S])
+    | Acc f => Acc (mlam M', R0 => 
+        let Ex [g1 |- S] = invRenStep [g1] [g1 |- M] [g2 |- #R] [g2 |- R0]
+        in  renSN [g2] [g2 |- #R] [ |- _] [g1 |- _] (f [g1 |- _] [g1 |- S])
       )
   ;
+
 
 stratified Red : {A : [ |- ty ]} (g : cxt) {M : [ g |- tm A[] ]} ctype =
   | RBase : SN [g |- M] -> Red [ |- base ] [g |- M]
@@ -143,7 +144,7 @@ rec renRed : {g2 : cxt} {#R : [g2 |-# g1]}
   mlam g2, #R => fn r =>
   let r : Red [|- A[]] [g1 |- M] = r in
   case r of
-    | RBase s => RBase (renSN [g2] [g2 |- #R] [g1 |- M] s)
+    | RBase s => RBase (renSN [g2] [g2 |- #R] [ |- _ ][g1 |- M] s)
     | RArr  f => RArr (mlam g', #R', N => fn r => f [g'] [g' |- #R[#R']] [g' |- N] r)
   ;
 
@@ -167,8 +168,24 @@ LF ecxt : (tm A -> tm B) -> type =
   ;
 
 % Closure under weakhead expansion
+rec stepEcxt: (g:cxt)
+              {M:[g, x:tm A[] |- tm B[]]}
+              {N:[g |- tm A[]]}
+              {C:[g, x:tm B[] |- tm T[]]}
+              [g |- ecxt \x.C[.., x]] ->
+              [g |- step C[.., app (abs \x.M) N] R] -> 
+              [g |- step C[.., M[..,N]] R] = 
+mlam M, N, C => fn e, s => 
+ case e of 
+ | [g |- eid] : [g |- ecxt \x.x] => ?%  [g |- rbeta]
+ | [g |- eext E'] : [g |-  ecxt \x.app C Q[..]] => 
+   let [g |- rappl S] = s in
+  let [g |- S'] = stepEcxt [g, x:tm _ |- M] [g |- N] [g, x:tm _ |- C] [g |- E'] [g |- S] in
+  [g |- rappl S']
+;
 
-rec whExp : {A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
+
+rec whExp : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
    {C : [g, y : tm B[] |- tm T[]]}
    {M : [g, x : tm A[] |- tm B[]]}
    {N : [g |- tm A[]]}
@@ -177,12 +194,17 @@ rec whExp : {A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
     Red [|- T] [g |- C[.., M [.., N]] ]
     -> Red [|- T] [g |- C[.., app (abs \ x. M) N] ] =
   % / total t (whExp g a b t) /  %% renSN not total
-  mlam A,B,T,C,M,N,E => fn sn,r =>
+  mlam g, A,B,T,C,M,N,E => fn sn,r =>
   case [|- T] of
-    | [|- base   ] => let RBase s = r in ?
+    | [|- base   ] => 
+      let RBase (Acc s) = r in 
+        RBase (Acc (mlam R, S' =>  
+        let [g |- S0] = stepEcxt  [g, x:tm _ |- M] [g |- N] [g, x:tm _ |- C] [g |- E] [g |- S'] in 
+         s [g |- _] [g |- S0]
+              ))
     | [|- arr U V] => let RArr f = r in
       RArr (mlam g', #S, N0 => fn s =>
-        whExp
+        whExp [g']
           [|- A]
           [|- B]
           [|- V]
@@ -190,7 +212,7 @@ rec whExp : {A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
           [g', x : tm A[] |- M[#S[..],x]]
           [g' |- N[#S]]
           [g' |- eext E[#S]]
-          (renSN [_] [_ |- #S] [_ |- N] sn)
+          (renSN [_] [_ |- #S] [ |- _ ] [_ |- N] sn)
           (f [_] [_ |- #S] [_ |- N0] s)
           )
   ;
@@ -201,7 +223,7 @@ rec betaExp : SN [g |- N]
     -> Red [|- B] [g |- M [.., N] ]
     -> Red [|- B] [g |- app (abs \ x. M) N] =
   fn s, r =>
-    whExp [|- _] [|- _] [|- _] [_ |- _] [_ |- _] [_ |- _] [_ |- eid] s r
+    whExp [_ ] [|- _] [|- _] [|- _] [_ |- _] [_ |- _] [_ |- _] [_ |- eid] s r
   ;
 
 
@@ -233,6 +255,111 @@ rec fundApp : %% {g : cxt} {M : [g |- tm (arr A[] B[])]} {N : [g |- tm A}
 
 %% Abstraction
 
+%% If SN [g |- app M x] then SN [g |- M]
+
+rec appSN : {g:cxt}{A:[ |- ty]}{B:[ |- ty]}{M:[g |- tm (arr A[] B[])]} SN [g,x:tm A[] |- app M[..] x] -> SN [g |- M] = 
+mlam g, A, B, M => fn s => 
+ let Acc s' = s in
+   Acc (mlam Q, S0 =>  
+%        let sq = s' [g_ |- _ ] [g |- rappl S0] in
+%               appSN [|- _ ] [|- _] [g |- _] sq
+?
+
+)
+ ;
+
+% If SN [g, x:tm A[] |- C[.., x]] and SN [g, x:tm A[] |- M] 
+% then SN [g, x:tm A[] |- app C[..,x] M]
+
+rec snApp : {C: [g, u:tm A[] |- tm (arr B1[] B2[])]}
+            {E:[g |- ecxt \y.C]}
+            {#p: [g |- tm A[]]}
+            SN [g |- C[.., #p]] -> SN [g |- M]
+         -> SN [g |- app C[.., #p] M] = 
+mlam C, E, #p => fn s1, s2 => Acc (mlam Q, S => ?
+%{ case s of 
+| [ g |- rappr] => ?
+| [ g |- rappl] => ?
+}%
+)
+ ;
+
+
+
+rec snAppWk: {g:cxt}{A:[ |- ty]}{C: [g, u:tm A[] |- tm (arr B1[] B2[])]}
+             {#p:[g |- tm A[]]}
+             {E:[g |- ecxt \y.C]}
+             {g':cxt}{#R:[g' |-# g]}{M:[g' |- tm B1[]]}
+             SN [g' |- M] -> SN [g |- C[.., #p]] -> 
+             SN [g' |- app C[#R, #p[#R]] M] = 
+mlam g, A, C, #p, E, g', #R, M => fn s2, s1 => 
+ let s1' = renSN [g'] [g' |- #R] [|- arr _ _] [g |- C[.., #p]] s1 in 
+ snApp [g', u:tm A[] |- C[#R[..],u]] [g' |- E[#R]] [g' |- #p[#R]] s1' s2
+;                
+%% We show two fundamental properties simultaneously:
+empty: type.
+
+rec varDontStep: {g:cxt}{A:[ |- ty]}{M': [g, x:tm A[] |- tm A[]]}
+                 [g, x:tm A[] |- step x M'] -> [ |- empty] = 
+mlam g, A, M' => fn s => let  [g, x:tm A[] |- S] = s in 
+impossible [g, x:tm A[] |- S] in [g, x:tm A[]]
+;
+
+%{ 
+We cannot inline and directly prove that s of type [g, x:tm A[] |- step x M'] does not step, as reconstruction will fail -- factoring the proof works.
+}%
+rec varSn : {g:cxt} {A:[ |- ty]} SN [g, x:tm A[] |- x] = 
+mlam g, A => Acc (mlam M', S => 
+  impossible (varDontStep [g] [|- A] [g, x:tm A[] |- M'] [g, x:tm A[] |- S])) ;
+
+
+rec redSn: {g:cxt}{A:[ |- ty]}{M:[g |- tm A[]]} 
+         Red [|- A] [g |- M] -> SN [g |- M] = 
+mlam g, A, M => fn r => case [ |- A] of 
+| [ |- base] => let RBase s = r in s 
+| [ |- arr A B] => 
+  let RArr f = r in 
+  let vsn = varSn [g] [|- A] in 
+  let vred = neutSn [g, x:tm A[]] [|- A] [ |- A] 
+                    [g, x:tm A[], y:tm A[] |- y] [g, x:tm A[] |- x] [g, x:tm A[] |- eid]  vsn in 
+  let m = redSn [g, x:tm A[]] [|- B] [g, x:tm A[] |- app M[..] x] 
+           (f [g, x:tm A[]] [g, x:tm A[] |- ..] [g, x:tm A[] |- x] vred) in 
+   appSN [g] [ |- _ ] [ |- _ ] [g |- _ ] m
+
+and neutSn: {g:cxt}{A:[|- ty]}{B:[ |- ty]}{C: [g, u:tm A[] |- tm B[]]}{#p:[g |- tm A[]]}
+        {E:[g |- ecxt \y.C]}
+        SN [g |- C[..,#p]] -> Red [ |- B] [g |- C[..,#p]] = 
+mlam g, A, B, C, #p, E => fn s => case [ |- B] of
+| [ |- base] => RBase s
+| [ |- arr B1 B2] => 
+   RArr (mlam g', #R, M => fn r => 
+     let rsn  = redSn [g'] [|- B1] [g' |- M] r in % SN [g' |- M]
+    let asn = snAppWk [g] [|- A] [g, u:tm A[] |- C] [g |- #p] [g |- E] [g'] [g' |- #R] [g' |- M] rsn s in
+      neutSn [g'] [|- A[]] [|- B2] [g', u:tm A[] |- app C[#R[..], u] M[..]] [g' |- #p[#R]] 
+      [g' |- eext E[#R[..]]]
+      asn 
+)
+%{
+and neutSn: {g:cxt}{A:[|- ty]}{B:[ |- ty]}{C: [g, u:tm A[] |- tm B[]]}
+            % {E:[g |- ecxt \y.C]}
+        SN [g, x:tm A[] |- C] -> Red [ |- B] [g, x:tm A[] |- C] = 
+mlam g, A, B, C => fn s => case [ |- B] of
+| [ |- base] => RBase s
+| [ |- arr B1 B2] => 
+     let (s : SN [g, x:tm A[] |- C]) = s in
+  RArr (mlam g', #R, M => fn r => 
+     let rsn  = redSn [g'] [|- B1] [g' |- M] r in % SN [g' |- M]
+%     let rSN = renSN [g'] [g' |- #R] [ |- (arr B1 B2)] in
+%     let rsn' = rSN [_, x: tm _ |- _ ] s in
+%     let rSN' = rSN [g, x:tm A[] |- C[.., x]] in
+    let asn = snAppWk [g] [|- A] [g, u:tm A[] |- C] [g'] [g' |- #R] [g' |- M] rsn s in
+      neutSn [g'] [|- A[]] [|- B2] [g' |- app _ M] asn
+)
+}%
+ ;
+
+
+
 %% rec fundAbs : Red
 
 %% Fundamental theorem
@@ -246,7 +373,7 @@ rec thm : {g : cxt} {M : [g |- tm A[]]}
   | {M : [g, x : tm A[] |- tm B[]]} [g |- abs \ x. M ] =>
       RArr (mlam g', #S, N => fn r =>
         betaExp 
-          ?  %% This SN proof can be obtained from the reducibility of N (r)
+          (redSn [g'] [ |- A] [g' |- N] r)
           (thm [g, x : tm A[]] [g, x : tm A[] |- M] (RCons r (renRedS [g'] [g' |- #S] s))))
   | [g |- app M N    ] =>  fundApp (thm [g] [g |- M] s) (thm [g] [g |- N] s)
   ;
