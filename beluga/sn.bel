@@ -297,9 +297,39 @@ mlam g, A, B, M => fn s =>
  ;
 
 %{
-% If step (app C[.., #p] P) M' then there exists C' s.t. M' = C'[.., #p]
+% If step (app C[.., #p] P) M' and ecxt \x.C then there exists C' s.t. M' = C'[.., #p]  where ecxt \x.C'
 
 }%
+
+LF eq: tm A ->  tm A -> type =
+ refl : eq  M M;
+
+inductive ExEcxt : (g:cxt) [g |- tm A[]] -> ctype = 
+| ExECxt : {#p:[g |- tm B[]]}{C: [g, x:tm B[] |- tm A[]]}
+           [g |- eq C[.., #p] M] 
+        -> [g |- ecxt \x.C] 
+        -> ExEcxt [g |- M];
+
+rec ecxtEx: {g:cxt}{#p:[g |- tm A[]]}{C: [g, x:tm A[] |- tm (arr B1[] B2[])]}
+           [g |- step (app C[.., #p] P) R] -> [g |- ecxt \x.C] 
+         -> ExEcxt [g |- R] = 
+mlam g, #p, C => fn s, e => case e of 
+| [g |- eid] : [g |- ecxt \x.x] => let [g |- S] = s in impossible [g |- S]
+| [g |- eext E'] : [g |-  ecxt \x.app C Q[..]] => 
+  (case s of 
+   | [g |- rappr S] => 
+     let [g |- S] : [g |- step N N'] = [g |- S] in 
+     ExECxt [g |- #p] [g, x:tm _ |- app (app (C[ .., x]) Q[..]) N'[..]] [g |- refl] 
+            [g |- eext (eext E')]
+   | [g |- rappl S]  =>       
+     let ExECxt [g |- #p] [g, x:tm _ |- C'] [g |- refl] [g |- E] = 
+         ecxtEx [g] [g |- #p] [g, x:tm _ |- C] [g |- S] [g |- E'] 
+     in 
+     ExECxt [g |- #p] [g, x:tm _ |-  _ ] [g |- refl] [g |- eext E]
+
+  )  
+;
+
 % If SN [g, x:tm A[] |- C[.., x]] and SN [g, x:tm A[] |- M] 
 % then SN [g, x:tm A[] |- app C[..,x] M]
 rec snAppAux: {g:cxt}{T:[ |- ty]}{B1:[ |- ty]}{B2:[ |- ty]}
@@ -317,27 +347,28 @@ mlam g, T, B1, B2, Q, M, C, #p,  S => fn e, s1, s2 =>
  | [g |- eext E'] : [g |-  ecxt \x.app C[..,x] P[..]] =>  case [g |- S] of 
    | [g |- rappr S'] =>  
      let Acc s2' = s2 in 
-     let sn2'    = s2' [g |- _ ] [g |- S'] in 
+     let sn2'    = s2' [g |- _ ] [g |- S'] in  
        snApp [g] [g, x:tm T[] |- app C[..,x] P[..]] [g |- eext E'] [g |- #p] s1 sn2'  
            
    | [g |- rappl S'] => 
      let Acc s1' = s1 in 
-     let sn1'    = s1' [g |- _ ] [g |- S'] in 
+     let sn1'    = s1' [g |- _ ] [g |- S'] in
+     let ExECxt [g |- #p ] [g, x:tm T[] |- C'] r e' = 
+           ecxtEx [g] [g |- #p] [g, x: tm _ |- C] [g |- S'] [g |- E'] in 
+     let [g |- refl] = r in
 % Need to know that if step (app C[.., #p] P) M' then 
 % there exists C' s.t. M' = C'[.., #p] and E0: ecxt \y.C'  
 % -- then we can appeal the the IH
-%        snApp [g] [g, x:tm T[] |- C'] [g |- E0] [g |- #p] sn1' sn2
- ?  
-
+       snApp [g] [g, x:tm T[] |- C'] e' [g |- #p] sn1' s2
 
 and snApp : {g:cxt}{C: [g, u:tm T[] |- tm (arr B1[] B2[])]}
-            {E:[g |- ecxt \y.C]}
+            [g |- ecxt \y.C] ->
             {#p: [g |- tm T[]]}
             SN [g |- C[.., #p]] -> SN [g |- M]
          -> SN [g |- app C[.., #p] M] = 
-mlam g, C, E, #p => fn s1, s2 => Acc (mlam Q, S => 
+mlam g, C => fn e => mlam #p => fn s1, s2 => Acc (mlam Q, S => 
   snAppAux [g] [ |- _ ] [ |- _ ] [ |- _ ] [g |- Q ]
-              [g |- _] [g, x:tm _ |- C] [g |- #p]   [g |- S] [g |- E]  s1 s2 
+              [g |- _] [g, x:tm _ |- C] [g |- #p]   [g |- S] e  s1 s2 
 
 )
  ;
