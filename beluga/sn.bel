@@ -5,7 +5,7 @@ LF ty : type =
   | base : ty
   | arr  : ty -> ty -> ty
   ;
-%name ty A.
+%name ty T.
 
 LF tm : ty -> type =
   | abs : (tm A -> tm B) -> tm (arr A B)
@@ -28,6 +28,23 @@ inductive ExStep : (g1 : cxt) (g2 : cxt)
   {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]} {M' : [g2 |- tm A[]]} ctype =
   | Ex : [g1 |- step M N] -> ExStep [g1 |- M] [g2 |- #R] [g2 |- N[#R]]
   ;
+
+rec renStep : {g1 : cxt}{g2:cxt}{#R : [g2 |-# g1]}
+              {M:[g1 |- tm A[]]}{M':[g1 |- tm A[]]}
+              [g1 |- step M M'] -> [g2 |- step M[#R] M'[#R]] = 
+mlam g1, g2, #R, M, N => fn s => case s of 
+| [g1 |- rbeta] => [g2 |- rbeta]
+| [g1 |- rabs \x.S] => 
+    let [g2, x:tm _ |- S'] = renStep [g1, x: tm _ ] [g2, x:tm _ ] [g2, x:tm _ |- #R[..], x] [g1,x:tm _ |- _ ] [g1, x:tm _ |- _ ] [g1, x:tm _ |- S] in 
+     [g2 |- rabs \x. S']
+| [g1 |- rappl S] => 
+   let [g2 |- S'] = renStep [g1] [g2] [g2 |- #R] [g1 |- _ ] [g1 |- _ ] [g1 |- S] in 
+     [g2 |- rappl S']
+| [g1 |- rappr S] =>   
+   let [g2 |- S'] = renStep [g1] [g2] [g2 |- #R] [g1 |- _ ] [g1 |- _ ] [g1 |- S] in 
+     [g2 |- rappr S']
+ ; 
+
 
 rec invRenStep : {g1 : cxt} {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]}
     [g2 |- step M[#R] M'] -> ExStep [g1 |- M] [g2 |- #R] [g2 |- M'] =
@@ -167,6 +184,11 @@ LF ecxt : (tm A -> tm B) -> type =
 
   ;
 
+%{
+LF mstep : tm A -> tm A -> type = 
+estep:  step M N -> ecxt C  
+-> mstep (C M) (C N) ;
+}%
 % Closure under weakhead expansion
 rec stepEcxt: (g:cxt)
               {M:[g, x:tm A[] |- tm B[]]}
@@ -256,33 +278,71 @@ rec fundApp : %% {g : cxt} {M : [g |- tm (arr A[] B[])]} {N : [g |- tm A}
 %% Abstraction
 
 %% If SN [g |- app M x] then SN [g |- M]
+%{
+rec appSNaux: {g:cxt}{A:[ |- ty]}{B:[ |- ty]}{M:[g |- tm (arr A[] B[])]} 
+              SN [g,x:tm A[] |- app M[..] x]
+           -> {Q:[g |- tm (arr A[] B[])]}[g |- step M Q,]
+           -> SN [g |- Q] = ? ;
 
+}%
 rec appSN : {g:cxt}{A:[ |- ty]}{B:[ |- ty]}{M:[g |- tm (arr A[] B[])]} SN [g,x:tm A[] |- app M[..] x] -> SN [g |- M] = 
 mlam g, A, B, M => fn s => 
  let Acc s' = s in
    Acc (mlam Q, S0 =>  
-%        let sq = s' [g_ |- _ ] [g |- rappl S0] in
-%               appSN [|- _ ] [|- _] [g |- _] sq
-?
-
+         let [g, x:tm _ |- S0'] = renStep [g] [g, x:tm A[]] [g, x:tm A[] |- ..] 
+                                         [g |- M] [g |- Q] [g |- S0] in 
+        let sq = s' [g, x:tm A[] |- _ ] [g,x:tm A[] |- rappl S0'] in
+               appSN [g] [ |- _ ] [|- _] [g |- _] sq
 )
  ;
 
+%{
+% If step (app C[.., #p] P) M' then there exists C' s.t. M' = C'[.., #p]
+
+}%
 % If SN [g, x:tm A[] |- C[.., x]] and SN [g, x:tm A[] |- M] 
 % then SN [g, x:tm A[] |- app C[..,x] M]
+rec snAppAux: {g:cxt}{T:[ |- ty]}{B1:[ |- ty]}{B2:[ |- ty]}
+              {Q:[g |- tm B2[]]}{M:[g |- tm B1[]]}
+              {C: [g, u:tm T[] |- tm (arr B1[] B2[])]}    
+              {#p: [g |- tm T[]]}
+              {S:[g |- step (app C[.., #p] M) Q]} 
+              [g |- ecxt \y.C[..,y]] -> 
+              SN [g |- C[.., #p]] -> SN [g |- M] -> 
+               SN [g |- Q] = 
+mlam g, T, B1, B2, Q, M, C, #p,  S => fn e, s1, s2 => 
+ let [g |- #p] : [g |- tm T[]] = [g |- #p] in
+ case e  of 
+ | [g |- eid ] : [g |- ecxt \x.x] =>  impossible [g |- S] 
+ | [g |- eext E'] : [g |-  ecxt \x.app C[..,x] P[..]] =>  case [g |- S] of 
+   | [g |- rappr S'] =>  
+     let Acc s2' = s2 in 
+     let sn2'    = s2' [g |- _ ] [g |- S'] in 
+       snApp [g] [g, x:tm T[] |- app C[..,x] P[..]] [g |- eext E'] [g |- #p] s1 sn2'  
+           
+   | [g |- rappl S'] => 
+     let Acc s1' = s1 in 
+     let sn1'    = s1' [g |- _ ] [g |- S'] in 
+% Need to know that if step (app C[.., #p] P) M' then 
+% there exists C' s.t. M' = C'[.., #p] and E0: ecxt \y.C'  
+% -- then we can appeal the the IH
+%        snApp [g] [g, x:tm T[] |- C'] [g |- E0] [g |- #p] sn1' sn2
+ ?  
 
-rec snApp : {C: [g, u:tm A[] |- tm (arr B1[] B2[])]}
+
+and snApp : {g:cxt}{C: [g, u:tm T[] |- tm (arr B1[] B2[])]}
             {E:[g |- ecxt \y.C]}
-            {#p: [g |- tm A[]]}
+            {#p: [g |- tm T[]]}
             SN [g |- C[.., #p]] -> SN [g |- M]
          -> SN [g |- app C[.., #p] M] = 
-mlam C, E, #p => fn s1, s2 => Acc (mlam Q, S => ?
-%{ case s of 
-| [ g |- rappr] => ?
-| [ g |- rappl] => ?
-}%
+mlam g, C, E, #p => fn s1, s2 => Acc (mlam Q, S => 
+  snAppAux [g] [ |- _ ] [ |- _ ] [ |- _ ] [g |- Q ]
+              [g |- _] [g, x:tm _ |- C] [g |- #p]   [g |- S] [g |- E]  s1 s2 
+
 )
  ;
+
+
 
 
 
@@ -294,7 +354,7 @@ rec snAppWk: {g:cxt}{A:[ |- ty]}{C: [g, u:tm A[] |- tm (arr B1[] B2[])]}
              SN [g' |- app C[#R, #p[#R]] M] = 
 mlam g, A, C, #p, E, g', #R, M => fn s2, s1 => 
  let s1' = renSN [g'] [g' |- #R] [|- arr _ _] [g |- C[.., #p]] s1 in 
- snApp [g', u:tm A[] |- C[#R[..],u]] [g' |- E[#R]] [g' |- #p[#R]] s1' s2
+ snApp [g'] [g', u:tm A[] |- C[#R[..],u]] [g' |- E[#R]] [g' |- #p[#R]] s1' s2
 ;                
 %% We show two fundamental properties simultaneously:
 empty: type.
@@ -401,3 +461,4 @@ rec thm : {g : cxt} {M : [g |- tm A[]]}
 %       | [g, x : tm A[] |- x     ] => r
 %       | [g, x : tm A[] |- #q[..]] => fundVar [g] [g |- #q] s'
 %   ;
+
