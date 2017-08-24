@@ -1,5 +1,3 @@
-{-# OPTIONS --copatterns --sized-types #-}
-
 module DeclSN where
 
 open import Data.Sum
@@ -56,12 +54,12 @@ _[_]⇒β* : ∀ {Γ} {a b} (E : ECxt* Γ a b) {t₁ t₂ : Tm Γ a} → t₁ �
 []       [ t⇒ ]⇒β* = t⇒
 (E ∷ Es) [ t⇒ ]⇒β* = Es [ E [ t⇒ ]⇒β ]⇒β*
 
-{-
-ccong*2 : ∀ {Γ a b t t'}(E : ECxt* Γ a b)
+
+cong*2 : ∀ {Γ a b t t'}(E : ECxt* Γ a b)
           → (t⇒ : t ⇒β t')
           → E [ t ]* ⇒β E [ t' ]*
 cong*2 E t⇒ =  E [ t⇒ ]⇒β*
--}
+
 
 subexpsn : ∀ {Γ a b} (E : ECxt* Γ a b) {t : Tm Γ a} → sn (E [ t ]*) -> sn t
 subexpsn E = subsn (cong*3 E)
@@ -72,9 +70,6 @@ data _Redex {Γ} : ∀ {a} → Tm Γ a → Set where
   β     : ∀ {a b}{t : Tm (a ∷ Γ) b}{u}
           → (app (abs t) u) Redex
 
--- EC→βEC : ∀ {Γ} {a b} (E : ECxt Γ a b) → βECxt Γ Γ a b
--- EC→βEC (appl u) = appl u
-
 mkHole2 : ∀ {Γ} {a b} (E : ECxt Γ a b) {t : Tm Γ a} → βEhole (E [ t ]) (EC→βEC E) t
 mkHole2 (appl u) = appl u
 
@@ -84,7 +79,7 @@ mkHole3 E {Es} {t} rewrite ≡.sym (lemma {t = t} Es {E = E}) = mkHole2 E {Es [ 
 ≡subst⇒β : ∀ {a Γ} {t t1 t' t'1 : Tm Γ a} → t ≡ t1 → t' ≡ t'1 → t ⇒β t' → t1 ⇒β t'1
 ≡subst⇒β ≡.refl ≡.refl x = x
 
-{-c
+
 split : ∀ {Γ} {a b} (E : ECxt* Γ a b) {t₁ : Tm Γ a}{t₂ Et₁ : Tm Γ b} →
          Ehole* Et₁ E t₁ → t₁ Redex →
          Et₁ ⇒β t₂ → (∃ λ t₃ → Ehole* t₂ E t₃ × t₁ ⇒β t₃)
@@ -97,7 +92,7 @@ split ._ (appl u ∷ eq) r (cong (appl .u) (appl .u) t⇒) | inj₁ (x , eq0 , t
 split ._ (_∷_ {Es = Es} (appl u) eq) r (cong (appl .u) (appl .u) t⇒) | inj₂ (Es' , eq0 , f) = inj₂ (_ , ((appl u ∷ eq0) ,
                                                         (λ t → cong (mkHole3 (appl u) {Es}) (mkHole3 (appl u) {Es'}) (f t))))
 split ._ (_∷_ {Es = Es} (appl t) eq) r (cong (appr Est) (appr .Est) t⇒) = inj₂ (_ , ((appl _ ∷ eq) ,
-      (λ t₁ → ≡subst⇒β (lemma Es) (lemma Es) (cong (appr (Es [ t₁ ]*)) (appr (Es [ t₁ ]*)) t⇒))))
+      (λ t₁ → ≡subst⇒β (lemma Es {E = appl t}) (lemma Es {E = appl _}) (_⇒β_.cong {E = (appr (Es [ t₁ ]*))} (βEhole.appr (Es [ t₁ ]*)) (appr (Es [ t₁ ]*)) t⇒))))
 
 mutual
 
@@ -129,7 +124,7 @@ mutual
     = appsn₃ {Es = E} 𝑡h (sn⇒β (antiSubst (subexpsn E 𝑡h)) t⇒)
               (mapβSN (cong*3 E (subst⇒β (sgs u) t⇒)) 𝒕h)
               (fromSN 𝒖)
-  helperCxt E (β {t = t} 𝒖) 𝒕h 𝑡h (cong (appr ._) (appr ._)               t⇒)
+  helperCxt E (β {t = t} 𝒖) 𝒕h 𝑡h (cong (appr ._) (appr ._) t⇒)
     = appsn₃ {Es = E} 𝑡h (antiSubst (subexpsn E 𝑡h))
               (mapβ*SN (cong*4 E (subst⇒β* (λ { zero → t⇒ ∷ [] ; (suc _) → [] }) t)) 𝒕h)
               (sn⇒β (fromSN 𝒖) t⇒)
@@ -152,5 +147,3 @@ mutual
   fromSNe : ∀ {i Γ a} {t : Tm Γ a} → SNe {i} t → sn t
   fromSNe (elim 𝒏 E) = acc (elimsn (fromSNe 𝒏) (mapPCxt fromSN E) 𝒏)
   fromSNe (var x)    = varsn x
-
--- -}
