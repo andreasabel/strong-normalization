@@ -137,6 +137,27 @@ rec renSN : {g2 : cxt} {#R : [g2 |-# g1]}{A:[ |- ty]} {M : [g1 |- tm A[]]}
   ;
 
 
+% Applicative contexts
+
+LF ecxt : (tm A -> tm B) -> type =
+  | eid  : ecxt \ x. x
+  | eext : ecxt C -> ecxt \ x. app (C x) M
+
+  ;
+
+% Closure of SN under weak head expansion.
+
+rec whExpSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
+   {C : [g, y : tm B[] |- tm T[]]}
+   {M : [g, x : tm A[] |- tm B[]]}
+   {N : [g |- tm A[]]}
+   {E : [g |- ecxt \y.C[.., y]]}
+   SN [g |- N]
+    -> SN [g |- C[.., M [.., N]] ]
+    -> SN [g |- C[.., app (abs \ x. M) N] ]
+  = ?
+  ;
+
 stratified Red : {A : [ |- ty ]} (g : cxt) {M : [ g |- tm A[] ]} ctype =
   | RBase : SN [g |- M] -> Red [ |- base ] [g |- M]
   | RArr  : ({g' : cxt} {#S : [g' |-# g]} {N : [g' |- tm A[]]}
@@ -174,14 +195,6 @@ rec renRedS : {g2 : cxt} {#R : [g2 |-# g1]}
     | RNil       => RNil
     | RCons r s' => RCons (renRed  [g2] [g2 |- #R] r)
                           (renRedS [g2] [g2 |- #R] s')
-  ;
-
-% Applicative contexts
-
-LF ecxt : (tm A -> tm B) -> type =
-  | eid  : ecxt \ x. x
-  | eext : ecxt C -> ecxt \ x. app (C x) M
-
   ;
 
 %{
