@@ -60,6 +60,19 @@ record _∈_ {a Γ} (t : Tm Γ a) (𝓐 : SAT a) : Set where
   field       ⇃_ : satSet 𝓐 t
 open _∈_ public
 
+-- Smallest semantic type.
+
+⟦⊥⟧ : SAT base
+⟦⊥⟧ = record
+  { satSet  = SN
+  ; satProp = record
+    { satSNe    = ne
+    ; satSN     = id
+    ; satExp    = exp
+    ; satRename = renameSN
+    }
+  }
+
 -- Semantic function type.
 
 _⟦→⟧_ : ∀ {a b} (𝓐 : SAT a) (𝓑 : SAT b) → SAT (a →̂ b)

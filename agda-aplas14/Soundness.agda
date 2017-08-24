@@ -1,5 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
-
 -- Type interpretation and soundness of typing.
 
 module Soundness where
@@ -14,8 +12,8 @@ open import SAT3
 -- Type interpretation
 
 ⟦_⟧ : (a : Ty) → SAT a
-⟦ base  ⟧  = {!!}
-⟦ a →̂ b ⟧  = ⟦ a ⟧  ⟦→⟧ ⟦ b ⟧
+⟦ base  ⟧  =  ⟦⊥⟧
+⟦ a →̂ b ⟧  =  ⟦ a ⟧  ⟦→⟧ ⟦ b ⟧
 
 -- Context interpretation (semantic substitutions)
 
@@ -61,4 +59,3 @@ sound (abs t) {σ = σ} θ = ⟦abs⟧ {𝓐 = ⟦ _ ⟧} {𝓑 = ⟦ _ ⟧} (λ
   in (≡.subst (_∈ ⟦ _ ⟧) eq (↿ (⇃ sound t (Ext (↿ (⇃ 𝑢)) ((Rename ρ θ)))))))
 
 sound (app t u) θ = ↿ (⇃ ⟦app⟧ {𝓐 = ⟦ _ ⟧} {𝓑 = ⟦ _ ⟧} (sound t θ) (↿ (⇃ sound u θ)))
--- -}
