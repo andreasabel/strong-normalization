@@ -1,7 +1,5 @@
 -- Saturated sets.
 
-{-# OPTIONS --copatterns --sized-types #-}
-
 module SAT3 where
 
 open import Library
