@@ -51,7 +51,7 @@ record SAT (a : Ty) : Set₁ where
     satProp : IsSAT satSet
 
   open IsSAT satProp public
-open SAT
+open SAT public
 
 -- Elementhood for saturated sets.
 -- We use a record to instead of just application to help Agda's unifier.
@@ -59,6 +59,11 @@ record _∈_ {a Γ} (t : Tm Γ a) (𝓐 : SAT a) : Set where
   constructor ↿_
   field       ⇃_ : satSet 𝓐 t
 open _∈_ public
+
+-- Variables inhabit saturated sets.
+
+⟦var⟧ : ∀{a} (𝓐 : SAT a) {Γ} (x : Var Γ a) → var x ∈ 𝓐
+⟦var⟧ 𝓐 x = ↿ (satSNe 𝓐 (var x))
 
 -- Smallest semantic type.
 

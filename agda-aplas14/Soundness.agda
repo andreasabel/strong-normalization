@@ -1,5 +1,7 @@
 -- Type interpretation and soundness of typing.
 
+-- Proof of strong normalization for well-typed terms.
+
 module Soundness where
 
 open import Library
@@ -7,6 +9,7 @@ open import Terms
 open import Substitution
 open import SN
 open import SN.AntiRename
+open import DeclSN using (sn; fromSN)
 open import SAT3
 
 -- Type interpretation
@@ -59,3 +62,20 @@ sound (abs t) {σ = σ} θ = ⟦abs⟧ {𝓐 = ⟦ _ ⟧} {𝓑 = ⟦ _ ⟧} (λ
   in (≡.subst (_∈ ⟦ _ ⟧) eq (↿ (⇃ sound t (Ext (↿ (⇃ 𝑢)) ((Rename ρ θ)))))))
 
 sound (app t u) θ = ↿ (⇃ ⟦app⟧ {𝓐 = ⟦ _ ⟧} {𝓑 = ⟦ _ ⟧} (sound t θ) (↿ (⇃ sound u θ)))
+
+-- Identity environment.
+
+id-θ : ∀{Γ} → ⟦ Γ ⟧C ids
+id-θ {Γ} {a} x = ⟦var⟧ ⟦ a ⟧ x
+
+-- Any well-typed term inhabits its semantic type.
+
+sound' : ∀ {a Γ} (t : Tm Γ a) → t ∈ ⟦ a ⟧
+sound' t rewrite ≡.sym (subst-id {vt = `Tm} t) = sound t id-θ
+
+-- Any well-typed term is strongly normalizing.
+
+strong-normalization :  ∀ a {Γ} (t : Tm Γ a) → sn t
+strong-normalization a t = fromSN (satSN ⟦ a ⟧ (⇃ sound' t))
+
+-- Q.E.D.

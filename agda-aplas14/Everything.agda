@@ -8,5 +8,5 @@ import SN
 import SN.AntiRename
 import Reduction
 import SAT3
-import Soundness
 import DeclSN
+import Soundness

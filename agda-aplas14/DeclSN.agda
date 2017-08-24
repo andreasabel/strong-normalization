@@ -37,7 +37,7 @@ appsn 𝒕       u       (elim 𝒏 ()) β
 
 elimsn : ∀ {Γ a b}{E : ECxt Γ a b}{t : Tm Γ a}{Et : Tm Γ b} → sn t → PCxt sn Et E t → SNe t →
          ∀ {Et' : Tm Γ b} → Et ⇒β Et' → sn Et'
-elimsn 𝒕 (appl 𝒖) 𝒏           t⇒                    = appsn 𝒕 𝒖 𝒏 t⇒
+elimsn 𝒕 (appl 𝒖) 𝒏 t⇒ = appsn 𝒕 𝒖 𝒏 t⇒
 
 
 substβsn : ∀ {i m vt a Γ} {Δ} {σ ρ : RenSub {m} vt Γ Δ} → (∀ {b} (x : Var Γ b) → vt2tm _ (σ x) ⇒β* vt2tm _ (ρ x))
