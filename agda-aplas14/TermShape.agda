@@ -27,7 +27,7 @@ substEh : ∀ {i vt Γ Δ a b} → (σ : RenSub {i} vt Γ Δ) → ∀ {E}{Et : T
             → Ehole (subst σ Et) (substEC σ E) (subst σ t)
 substEh σ (appl u) = appl (subst σ u)
 
-mkEHole : ∀ {Γ} {a b} (E : ECxt Γ a b) {t} → Σ _ \ E[t] → Ehole E[t] E t
+mkEHole : ∀ {Γ} {a b} (E : ECxt Γ a b) {t} → ∃ λ E[t] → Ehole E[t] E t
 mkEHole (appl u)  = _ , appl u
 
 

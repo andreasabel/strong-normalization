@@ -31,30 +31,30 @@ inductive ExStep : (g1 : cxt) (g2 : cxt)
 
 rec renStep : {g1 : cxt}{g2:cxt}{#R : [g2 |-# g1]}
               {M:[g1 |- tm A[]]}{M':[g1 |- tm A[]]}
-              [g1 |- step M M'] -> [g2 |- step M[#R] M'[#R]] = 
-mlam g1, g2, #R, M, N => fn s => case s of 
+              [g1 |- step M M'] -> [g2 |- step M[#R] M'[#R]] =
+mlam g1, g2, #R, M, N => fn s => case s of
 | [g1 |- rbeta] => [g2 |- rbeta]
-| [g1 |- rabs \x.S] => 
-    let [g2, x:tm _ |- S'] = renStep [g1, x: tm _ ] [g2, x:tm _ ] [g2, x:tm _ |- #R[..], x] [g1,x:tm _ |- _ ] [g1, x:tm _ |- _ ] [g1, x:tm _ |- S] in 
+| [g1 |- rabs \x.S] =>
+    let [g2, x:tm _ |- S'] = renStep [g1, x: tm _ ] [g2, x:tm _ ] [g2, x:tm _ |- #R[..], x] [g1,x:tm _ |- _ ] [g1, x:tm _ |- _ ] [g1, x:tm _ |- S] in
      [g2 |- rabs \x. S']
-| [g1 |- rappl S] => 
-   let [g2 |- S'] = renStep [g1] [g2] [g2 |- #R] [g1 |- _ ] [g1 |- _ ] [g1 |- S] in 
+| [g1 |- rappl S] =>
+   let [g2 |- S'] = renStep [g1] [g2] [g2 |- #R] [g1 |- _ ] [g1 |- _ ] [g1 |- S] in
      [g2 |- rappl S']
-| [g1 |- rappr S] =>   
-   let [g2 |- S'] = renStep [g1] [g2] [g2 |- #R] [g1 |- _ ] [g1 |- _ ] [g1 |- S] in 
+| [g1 |- rappr S] =>
+   let [g2 |- S'] = renStep [g1] [g2] [g2 |- #R] [g1 |- _ ] [g1 |- _ ] [g1 |- S] in
      [g2 |- rappr S']
- ; 
+ ;
 
 
 rec invRenStep : {g1 : cxt} {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]}
     [g2 |- step M[#R] M'] -> ExStep [g1 |- M] [g2 |- #R] [g2 |- M'] =
 
-%   / total m (invRenStep g1 g2 a m' m) /  
+%   / total m (invRenStep g1 g2 a m' m) /
    %% Totality checker does not see termination -- coverage error possibly due to renaming subst.
 
   mlam g1, M, #R => fn s =>
 
-  %% We would like to split on s:[g2 |- step M[rho] M'], 
+  %% We would like to split on s:[g2 |- step M[rho] M'],
   %% but since Beluga's implementation of matching and unification does not take advantage of the fact that rho is a simply a renaming, it cannot unify step M[rho] M' with any of the types of step; we therefore go the longer route and split on M first; then (app M1 M2)[rho] will be normalized to app M1[rho] M2[rho] and matching on the types of step will succeed.
   case [ g1 |- M ] of
 
@@ -70,7 +70,7 @@ rec invRenStep : {g1 : cxt} {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]}
       (case [g1 |- M1] of
 
       %% Case beta-redex
-      | [g1 |- abs \ x. M1'] => 
+      | [g1 |- abs \ x. M1'] =>
         (case s of
         %% We either contract the beta-redex...
         | [g2 |- rbeta] => Ex [g1 |- rbeta]
@@ -130,12 +130,33 @@ rec renSN : {g2 : cxt} {#R : [g2 |-# g1]}{A:[ |- ty]} {M : [g1 |- tm A[]]}
   % / total s (renSN g1 g2 a r m s) /  %% Totality checker not prepared for wf-induction.
   mlam g2, #R, A, M => fn s => let s : SN [g1 |- M] = s in
     case s of
-    | Acc f => Acc (mlam M', R0 => 
+    | Acc f => Acc (mlam M', R0 =>
         let Ex [g1 |- S] = invRenStep [g1] [g1 |- M] [g2 |- #R] [g2 |- R0]
         in  renSN [g2] [g2 |- #R] [ |- _] [g1 |- _] (f [g1 |- _] [g1 |- S])
       )
   ;
 
+
+% Applicative contexts
+
+LF ecxt : (tm A -> tm B) -> type =
+  | eid  : ecxt \ x. x
+  | eext : ecxt C -> ecxt \ x. app (C x) M
+
+  ;
+
+% Closure of SN under weak head expansion.
+
+rec whExpSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
+   {C : [g, y : tm B[] |- tm T[]]}
+   {M : [g, x : tm A[] |- tm B[]]}
+   {N : [g |- tm A[]]}
+   {E : [g |- ecxt \y.C[.., y]]}
+   SN [g |- N]
+    -> SN [g |- C[.., M [.., N]] ]
+    -> SN [g |- C[.., app (abs \ x. M) N] ]
+  = ?
+  ;
 
 stratified Red : {A : [ |- ty ]} (g : cxt) {M : [ g |- tm A[] ]} ctype =
   | RBase : SN [g |- M] -> Red [ |- base ] [g |- M]
@@ -176,17 +197,9 @@ rec renRedS : {g2 : cxt} {#R : [g2 |-# g1]}
                           (renRedS [g2] [g2 |- #R] s')
   ;
 
-% Applicative contexts
-
-LF ecxt : (tm A -> tm B) -> type =
-  | eid  : ecxt \ x. x
-  | eext : ecxt C -> ecxt \ x. app (C x) M
-
-  ;
-
 %{
-LF mstep : tm A -> tm A -> type = 
-estep:  step M N -> ecxt C  
+LF mstep : tm A -> tm A -> type =
+estep:  step M N -> ecxt C
 -> mstep (C M) (C N) ;
 }%
 % Closure under weakhead expansion
@@ -195,12 +208,12 @@ rec stepEcxt: (g:cxt)
               {N:[g |- tm A[]]}
               {C:[g, x:tm B[] |- tm T[]]}
               [g |- ecxt \x.C[.., x]] ->
-              [g |- step C[.., app (abs \x.M) N] R] -> 
-              [g |- step C[.., M[..,N]] R] = 
-mlam M, N, C => fn e, s => 
- case e of 
+              [g |- step C[.., app (abs \x.M) N] R] ->
+              [g |- step C[.., M[..,N]] R] =
+mlam M, N, C => fn e, s =>
+ case e of
  | [g |- eid] : [g |- ecxt \x.x] => ?%  [g |- rbeta]
- | [g |- eext E'] : [g |-  ecxt \x.app C Q[..]] => 
+ | [g |- eext E'] : [g |-  ecxt \x.app C Q[..]] =>
    let [g |- rappl S] = s in
   let [g |- S'] = stepEcxt [g, x:tm _ |- M] [g |- N] [g, x:tm _ |- C] [g |- E'] [g |- S] in
   [g |- rappl S']
@@ -218,10 +231,10 @@ rec whExp : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
   % / total t (whExp g a b t) /  %% renSN not total
   mlam g, A,B,T,C,M,N,E => fn sn,r =>
   case [|- T] of
-    | [|- base   ] => 
-      let RBase (Acc s) = r in 
-        RBase (Acc (mlam R, S' =>  
-        let [g |- S0] = stepEcxt  [g, x:tm _ |- M] [g |- N] [g, x:tm _ |- C] [g |- E] [g |- S'] in 
+    | [|- base   ] =>
+      let RBase (Acc s) = r in
+        RBase (Acc (mlam R, S' =>
+        let [g |- S0] = stepEcxt  [g, x:tm _ |- M] [g |- N] [g, x:tm _ |- C] [g |- E] [g |- S'] in
          s [g |- _] [g |- S0]
               ))
     | [|- arr U V] => let RArr f = r in
@@ -279,18 +292,18 @@ rec fundApp : %% {g : cxt} {M : [g |- tm (arr A[] B[])]} {N : [g |- tm A}
 
 %% If SN [g |- app M x] then SN [g |- M]
 %{
-rec appSNaux: {g:cxt}{A:[ |- ty]}{B:[ |- ty]}{M:[g |- tm (arr A[] B[])]} 
+rec appSNaux: {g:cxt}{A:[ |- ty]}{B:[ |- ty]}{M:[g |- tm (arr A[] B[])]}
               SN [g,x:tm A[] |- app M[..] x]
            -> {Q:[g |- tm (arr A[] B[])]}[g |- step M Q,]
            -> SN [g |- Q] = ? ;
 
 }%
-rec appSN : {g:cxt}{A:[ |- ty]}{B:[ |- ty]}{M:[g |- tm (arr A[] B[])]} SN [g,x:tm A[] |- app M[..] x] -> SN [g |- M] = 
-mlam g, A, B, M => fn s => 
+rec appSN : {g:cxt}{A:[ |- ty]}{B:[ |- ty]}{M:[g |- tm (arr A[] B[])]} SN [g,x:tm A[] |- app M[..] x] -> SN [g |- M] =
+mlam g, A, B, M => fn s =>
  let Acc s' = s in
-   Acc (mlam Q, S0 =>  
-         let [g, x:tm _ |- S0'] = renStep [g] [g, x:tm A[]] [g, x:tm A[] |- ..] 
-                                         [g |- M] [g |- Q] [g |- S0] in 
+   Acc (mlam Q, S0 =>
+         let [g, x:tm _ |- S0'] = renStep [g] [g, x:tm A[]] [g, x:tm A[] |- ..]
+                                         [g |- M] [g |- Q] [g |- S0] in
         let sq = s' [g, x:tm A[] |- _ ] [g,x:tm A[] |- rappl S0'] in
                appSN [g] [ |- _ ] [|- _] [g |- _] sq
 )
@@ -304,60 +317,60 @@ mlam g, A, B, M => fn s =>
 LF eq: tm A ->  tm A -> type =
  refl : eq  M M;
 
-inductive ExEcxt : (g:cxt) [g |- tm A[]] -> ctype = 
+inductive ExEcxt : (g:cxt) [g |- tm A[]] -> ctype =
 | ExECxt : {#p:[g |- tm B[]]}{C: [g, x:tm B[] |- tm A[]]}
-           [g |- eq C[.., #p] M] 
-        -> [g |- ecxt \x.C] 
+           [g |- eq C[.., #p] M]
+        -> [g |- ecxt \x.C]
         -> ExEcxt [g |- M];
 
 rec ecxtEx: {g:cxt}{#p:[g |- tm A[]]}{C: [g, x:tm A[] |- tm (arr B1[] B2[])]}
-           [g |- step (app C[.., #p] P) R] -> [g |- ecxt \x.C] 
-         -> ExEcxt [g |- R] = 
-mlam g, #p, C => fn s, e => case e of 
+           [g |- step (app C[.., #p] P) R] -> [g |- ecxt \x.C]
+         -> ExEcxt [g |- R] =
+mlam g, #p, C => fn s, e => case e of
 | [g |- eid] : [g |- ecxt \x.x] => let [g |- S] = s in impossible [g |- S]
-| [g |- eext E'] : [g |-  ecxt \x.app C Q[..]] => 
-  (case s of 
-   | [g |- rappr S] => 
-     let [g |- S] : [g |- step N N'] = [g |- S] in 
-     ExECxt [g |- #p] [g, x:tm _ |- app (app (C[ .., x]) Q[..]) N'[..]] [g |- refl] 
+| [g |- eext E'] : [g |-  ecxt \x.app C Q[..]] =>
+  (case s of
+   | [g |- rappr S] =>
+     let [g |- S] : [g |- step N N'] = [g |- S] in
+     ExECxt [g |- #p] [g, x:tm _ |- app (app (C[ .., x]) Q[..]) N'[..]] [g |- refl]
             [g |- eext (eext E')]
-   | [g |- rappl S]  =>       
-     let ExECxt [g |- #p] [g, x:tm _ |- C'] [g |- refl] [g |- E] = 
-         ecxtEx [g] [g |- #p] [g, x:tm _ |- C] [g |- S] [g |- E'] 
-     in 
+   | [g |- rappl S]  =>
+     let ExECxt [g |- #p] [g, x:tm _ |- C'] [g |- refl] [g |- E] =
+         ecxtEx [g] [g |- #p] [g, x:tm _ |- C] [g |- S] [g |- E']
+     in
      ExECxt [g |- #p] [g, x:tm _ |-  _ ] [g |- refl] [g |- eext E]
 
-  )  
+  )
 ;
 
-% If SN [g, x:tm A[] |- C[.., x]] and SN [g, x:tm A[] |- M] 
+% If SN [g, x:tm A[] |- C[.., x]] and SN [g, x:tm A[] |- M]
 % then SN [g, x:tm A[] |- app C[..,x] M]
 rec snAppAux: {g:cxt}{T:[ |- ty]}{B1:[ |- ty]}{B2:[ |- ty]}
               {Q:[g |- tm B2[]]}{M:[g |- tm B1[]]}
-              {C: [g, u:tm T[] |- tm (arr B1[] B2[])]}    
+              {C: [g, u:tm T[] |- tm (arr B1[] B2[])]}
               {#p: [g |- tm T[]]}
-              {S:[g |- step (app C[.., #p] M) Q]} 
-              [g |- ecxt \y.C[..,y]] -> 
-              SN [g |- C[.., #p]] -> SN [g |- M] -> 
-               SN [g |- Q] = 
-mlam g, T, B1, B2, Q, M, C, #p,  S => fn e, s1, s2 => 
+              {S:[g |- step (app C[.., #p] M) Q]}
+              [g |- ecxt \y.C[..,y]] ->
+              SN [g |- C[.., #p]] -> SN [g |- M] ->
+               SN [g |- Q] =
+mlam g, T, B1, B2, Q, M, C, #p,  S => fn e, s1, s2 =>
  let [g |- #p] : [g |- tm T[]] = [g |- #p] in
- case e  of 
- | [g |- eid ] : [g |- ecxt \x.x] =>  impossible [g |- S] 
- | [g |- eext E'] : [g |-  ecxt \x.app C[..,x] P[..]] =>  case [g |- S] of 
-   | [g |- rappr S'] =>  
-     let Acc s2' = s2 in 
-     let sn2'    = s2' [g |- _ ] [g |- S'] in  
-       snApp [g] [g, x:tm T[] |- app C[..,x] P[..]] [g |- eext E'] [g |- #p] s1 sn2'  
-           
-   | [g |- rappl S'] => 
-     let Acc s1' = s1 in 
+ case e  of
+ | [g |- eid ] : [g |- ecxt \x.x] =>  impossible [g |- S]
+ | [g |- eext E'] : [g |-  ecxt \x.app C[..,x] P[..]] =>  case [g |- S] of
+   | [g |- rappr S'] =>
+     let Acc s2' = s2 in
+     let sn2'    = s2' [g |- _ ] [g |- S'] in
+       snApp [g] [g, x:tm T[] |- app C[..,x] P[..]] [g |- eext E'] [g |- #p] s1 sn2'
+
+   | [g |- rappl S'] =>
+     let Acc s1' = s1 in
      let sn1'    = s1' [g |- _ ] [g |- S'] in
-     let ExECxt [g |- #p ] [g, x:tm T[] |- C'] r e' = 
-           ecxtEx [g] [g |- #p] [g, x: tm _ |- C] [g |- S'] [g |- E'] in 
+     let ExECxt [g |- #p ] [g, x:tm T[] |- C'] r e' =
+           ecxtEx [g] [g |- #p] [g, x: tm _ |- C] [g |- S'] [g |- E'] in
      let [g |- refl] = r in
-% Need to know that if step (app C[.., #p] P) M' then 
-% there exists C' s.t. M' = C'[.., #p] and E0: ecxt \y.C'  
+% Need to know that if step (app C[.., #p] P) M' then
+% there exists C' s.t. M' = C'[.., #p] and E0: ecxt \y.C'
 % -- then we can appeal the the IH
        snApp [g] [g, x:tm T[] |- C'] e' [g |- #p] sn1' s2
 
@@ -365,10 +378,10 @@ and snApp : {g:cxt}{C: [g, u:tm T[] |- tm (arr B1[] B2[])]}
             [g |- ecxt \y.C] ->
             {#p: [g |- tm T[]]}
             SN [g |- C[.., #p]] -> SN [g |- M]
-         -> SN [g |- app C[.., #p] M] = 
-mlam g, C => fn e => mlam #p => fn s1, s2 => Acc (mlam Q, S => 
+         -> SN [g |- app C[.., #p] M] =
+mlam g, C => fn e => mlam #p => fn s1, s2 => Acc (mlam Q, S =>
   snAppAux [g] [ |- _ ] [ |- _ ] [ |- _ ] [g |- Q ]
-              [g |- _] [g, x:tm _ |- C] [g |- #p]   [g |- S] e  s1 s2 
+              [g |- _] [g, x:tm _ |- C] [g |- #p]   [g |- S] e  s1 s2
 
 )
  ;
@@ -381,64 +394,64 @@ rec snAppWk: {g:cxt}{A:[ |- ty]}{C: [g, u:tm A[] |- tm (arr B1[] B2[])]}
              {#p:[g |- tm A[]]}
              {E:[g |- ecxt \y.C]}
              {g':cxt}{#R:[g' |-# g]}{M:[g' |- tm B1[]]}
-             SN [g' |- M] -> SN [g |- C[.., #p]] -> 
-             SN [g' |- app C[#R, #p[#R]] M] = 
-mlam g, A, C, #p, E, g', #R, M => fn s2, s1 => 
- let s1' = renSN [g'] [g' |- #R] [|- arr _ _] [g |- C[.., #p]] s1 in 
+             SN [g' |- M] -> SN [g |- C[.., #p]] ->
+             SN [g' |- app C[#R, #p[#R]] M] =
+mlam g, A, C, #p, E, g', #R, M => fn s2, s1 =>
+ let s1' = renSN [g'] [g' |- #R] [|- arr _ _] [g |- C[.., #p]] s1 in
  snApp [g'] [g', u:tm A[] |- C[#R[..],u]] [g' |- E[#R]] [g' |- #p[#R]] s1' s2
-;                
+;
 %% We show two fundamental properties simultaneously:
 empty: type.
 
 rec varDontStep: {g:cxt}{A:[ |- ty]}{M': [g, x:tm A[] |- tm A[]]}
-                 [g, x:tm A[] |- step x M'] -> [ |- empty] = 
-mlam g, A, M' => fn s => let  [g, x:tm A[] |- S] = s in 
+                 [g, x:tm A[] |- step x M'] -> [ |- empty] =
+mlam g, A, M' => fn s => let  [g, x:tm A[] |- S] = s in
 impossible [g, x:tm A[] |- S] in [g, x:tm A[]]
 ;
 
-%{ 
+%{
 We cannot inline and directly prove that s of type [g, x:tm A[] |- step x M'] does not step, as reconstruction will fail -- factoring the proof works.
 }%
-rec varSn : {g:cxt} {A:[ |- ty]} SN [g, x:tm A[] |- x] = 
-mlam g, A => Acc (mlam M', S => 
+rec varSn : {g:cxt} {A:[ |- ty]} SN [g, x:tm A[] |- x] =
+mlam g, A => Acc (mlam M', S =>
   impossible (varDontStep [g] [|- A] [g, x:tm A[] |- M'] [g, x:tm A[] |- S])) ;
 
 
-rec redSn: {g:cxt}{A:[ |- ty]}{M:[g |- tm A[]]} 
-         Red [|- A] [g |- M] -> SN [g |- M] = 
-mlam g, A, M => fn r => case [ |- A] of 
-| [ |- base] => let RBase s = r in s 
-| [ |- arr A B] => 
-  let RArr f = r in 
-  let vsn = varSn [g] [|- A] in 
-  let vred = neutSn [g, x:tm A[]] [|- A] [ |- A] 
-                    [g, x:tm A[], y:tm A[] |- y] [g, x:tm A[] |- x] [g, x:tm A[] |- eid]  vsn in 
-  let m = redSn [g, x:tm A[]] [|- B] [g, x:tm A[] |- app M[..] x] 
-           (f [g, x:tm A[]] [g, x:tm A[] |- ..] [g, x:tm A[] |- x] vred) in 
+rec redSn: {g:cxt}{A:[ |- ty]}{M:[g |- tm A[]]}
+         Red [|- A] [g |- M] -> SN [g |- M] =
+mlam g, A, M => fn r => case [ |- A] of
+| [ |- base] => let RBase s = r in s
+| [ |- arr A B] =>
+  let RArr f = r in
+  let vsn = varSn [g] [|- A] in
+  let vred = neutSn [g, x:tm A[]] [|- A] [ |- A]
+                    [g, x:tm A[], y:tm A[] |- y] [g, x:tm A[] |- x] [g, x:tm A[] |- eid]  vsn in
+  let m = redSn [g, x:tm A[]] [|- B] [g, x:tm A[] |- app M[..] x]
+           (f [g, x:tm A[]] [g, x:tm A[] |- ..] [g, x:tm A[] |- x] vred) in
    appSN [g] [ |- _ ] [ |- _ ] [g |- _ ] m
 
 and neutSn: {g:cxt}{A:[|- ty]}{B:[ |- ty]}{C: [g, u:tm A[] |- tm B[]]}{#p:[g |- tm A[]]}
         {E:[g |- ecxt \y.C]}
-        SN [g |- C[..,#p]] -> Red [ |- B] [g |- C[..,#p]] = 
+        SN [g |- C[..,#p]] -> Red [ |- B] [g |- C[..,#p]] =
 mlam g, A, B, C, #p, E => fn s => case [ |- B] of
 | [ |- base] => RBase s
-| [ |- arr B1 B2] => 
-   RArr (mlam g', #R, M => fn r => 
+| [ |- arr B1 B2] =>
+   RArr (mlam g', #R, M => fn r =>
      let rsn  = redSn [g'] [|- B1] [g' |- M] r in % SN [g' |- M]
     let asn = snAppWk [g] [|- A] [g, u:tm A[] |- C] [g |- #p] [g |- E] [g'] [g' |- #R] [g' |- M] rsn s in
-      neutSn [g'] [|- A[]] [|- B2] [g', u:tm A[] |- app C[#R[..], u] M[..]] [g' |- #p[#R]] 
+      neutSn [g'] [|- A[]] [|- B2] [g', u:tm A[] |- app C[#R[..], u] M[..]] [g' |- #p[#R]]
       [g' |- eext E[#R[..]]]
-      asn 
+      asn
 )
 %{
 and neutSn: {g:cxt}{A:[|- ty]}{B:[ |- ty]}{C: [g, u:tm A[] |- tm B[]]}
             % {E:[g |- ecxt \y.C]}
-        SN [g, x:tm A[] |- C] -> Red [ |- B] [g, x:tm A[] |- C] = 
+        SN [g, x:tm A[] |- C] -> Red [ |- B] [g, x:tm A[] |- C] =
 mlam g, A, B, C => fn s => case [ |- B] of
 | [ |- base] => RBase s
-| [ |- arr B1 B2] => 
+| [ |- arr B1 B2] =>
      let (s : SN [g, x:tm A[] |- C]) = s in
-  RArr (mlam g', #R, M => fn r => 
+  RArr (mlam g', #R, M => fn r =>
      let rsn  = redSn [g'] [|- B1] [g' |- M] r in % SN [g' |- M]
 %     let rSN = renSN [g'] [g' |- #R] [ |- (arr B1 B2)] in
 %     let rsn' = rSN [_, x: tm _ |- _ ] s in
@@ -463,7 +476,7 @@ rec thm : {g : cxt} {M : [g |- tm A[]]}
   | [g |- #p ]         =>  fundVar [g] [g |- #p] s
   | {M : [g, x : tm A[] |- tm B[]]} [g |- abs \ x. M ] =>
       RArr (mlam g', #S, N => fn r =>
-        betaExp 
+        betaExp
           (redSn [g'] [ |- A] [g' |- N] r)
           (thm [g, x : tm A[]] [g, x : tm A[] |- M] (RCons r (renRedS [g'] [g' |- #S] s))))
   | [g |- app M N    ] =>  fundApp (thm [g] [g |- M] s) (thm [g] [g |- N] s)
@@ -492,4 +505,3 @@ rec thm : {g : cxt} {M : [g |- tm A[]]}
 %       | [g, x : tm A[] |- x     ] => r
 %       | [g, x : tm A[] |- #q[..]] => fundVar [g] [g |- #q] s'
 %   ;
-

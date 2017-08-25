@@ -1,5 +1,3 @@
-{-# OPTIONS --copatterns --sized-types #-}
-
 module Substitution where
 
 open import Library

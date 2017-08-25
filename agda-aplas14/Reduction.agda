@@ -1,5 +1,3 @@
-{-# OPTIONS --copatterns --sized-types #-}
-
 module Reduction where
 
 open import Data.Sum

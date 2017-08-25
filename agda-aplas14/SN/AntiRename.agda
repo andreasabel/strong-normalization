@@ -1,5 +1,3 @@
-{-# OPTIONS --copatterns --sized-types #-}
-
 module SN.AntiRename where
 
 open import Relation.Unary using (_∈_; _⊆_)
