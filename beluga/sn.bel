@@ -145,6 +145,33 @@ LF ecxt : (tm A -> tm B) -> type =
 
   ;
 
+rec antiSubstSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
+   {M : [g, x : tm A[] |- tm B[]]}
+   {N : [g |- tm A[]]}
+   SN [g |- M [.., N] ]
+    -> SN [g, x |- M ]
+  = ?
+  ;
+
+% Closure of SN under beta expansion.
+
+rec redexSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
+   {M : [g, x : tm A[] |- tm B[]]}
+   {N : [g |- tm A[]]}
+   SN [g |- N]
+    -> SN [g, x |- M ]
+    -> SN [g |- M [.., N] ]
+    -> SN [g |- app (abs \ x. M) N ]
+  = Acc (mlam R => fn snR => case snR of
+  % Possible reducts of app (abs \ x. M) N
+  % 1. M [.., N]
+     | [g |- rbeta] => ?
+  % 2. app (abs \ x. M') N
+     | [g |- rappl S] => ?
+  % 3. app (abs \ x. M) N'
+     | [g |- rappr S] => ?
+  );
+
 % Closure of SN under weak head expansion.
 
 rec whExpSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
