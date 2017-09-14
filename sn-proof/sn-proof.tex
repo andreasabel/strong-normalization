@@ -1,0 +1,842 @@
+\documentclass{article}
+
+\newtheorem{exercise}{Exercise}[section]
+% \newenvironment{exercise}{\begin{@exercise}\rm}{\end{@exercise}}
+\newenvironment{ADDITIONAL}[1]{#1}{}
+\newenvironment{SOLUTION}[1]{\paragraph*{Solution}\begin{it}#1}{\end{it}}
+     
+%\oddsidemargin 0pt
+%\evensidemargin \oddsidemargin
+%\marginparwidth 0.5in
+     
+
+     
+% \setlength{\topmargin}{15mm}    
+\setlength{\topmargin}{5mm}    
+
+%\setlength{\textwidth}{155mm}    
+\setlength{\textwidth}{155mm}    
+%\setlength{\textwidth}{165mm}    
+\setlength{\textheight}{200mm}
+%\setlength{\textheight}{195mm}
+
+\setlength{\evensidemargin}{5mm}
+\setlength{\oddsidemargin}{5mm}
+
+
+% \usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{latexsym}
+\usepackage{amsfonts}
+\usepackage{listings}
+\usepackage{srcltx}
+\usepackage{charter}
+\usepackage{euler}
+
+\usepackage{latexsym}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{comment}
+
+\ifdefined\studentversion
+  \excludecomment{exercise}
+  \excludecomment{solution}
+  \excludecomment{additional}
+\else
+% \excludecomment{additional}
+\includecomment{exercise}
+\includecomment{solution}
+\includecomment{additional}
+\fi
+
+\newtheorem{@problem}{Exercise}[section]
+\newenvironment{problem}{\begin{@problem}\rm}{\end{@problem}}
+
+\newtheorem{@sol}{Solution}[section]
+\newenvironment{sol}{\begin{@sol}\rm}{\end{@sol}}
+
+
+\usepackage{proof}
+\usepackage{cdsty}
+
+\newcommand{\nl}{\overline{n}}
+
+\newtheorem{@axiom}{Axiom}
+\newenvironment{axiom}{\begin{@axiom}\rm}{\end{@axiom}}
+% \newtheorem{@theorem}{Theorem}[section]
+% \newenvironment{theorem}{\begin{@theorem}\rm}{\end{@theorem}}
+
+% \newtheorem{@lemma}{Lemma}[section]
+% \newenvironment{lemma}{\begin{@lemma}\rm}{\end{@lemma}}
+
+
+
+\input prelude
+
+\usepackage{graphics}
+\usepackage{graphicx}
+
+\usepackage{lstextract}
+
+% \includeonly{intro,assign,unif,memo,index,memo-implement,proving}
+% \includeonly{index} 
+
+\newcommand{\B}{\mathcal{B}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\G}{\mathcal{G}}
+\renewcommand{\H}{\mathcal{H}}
+\renewcommand{\P}{\mathcal{P}}
+\newcommand{\Q}{\mathcal{Q}}
+
+\newcommand{\SN}{\mathsf{SN}}
+\newcommand{\SNe}{\mathsf{SNe}}
+\newcommand{\csn}{\mathsf{sn}}
+\newcommand{\CR}{\mathsf{CR}}
+\newcommand{\red}{\longrightarrow}
+\newcommand{\redsn}{\longrightarrow_\csn}
+\newcommand{\redSN}{\longrightarrow_\SN}
+\newcommand{\clos}[1]{\overline{#1}}
+\newcommand{\imply}{\Longrightarrow}
+\renewcommand{\vec}[1]{\overrightarrow #1}
+
+\def\lv{\mathopen{{[\kern-0.14em[}}}    % opening [[ value delimiter
+\def\rv{\mathclose{{]\kern-0.14em]}}}   % closing ]] value delimiter
+\newcommand{\A}{\mathcal{A}}
+% \newcommand{\G}{\mathcal{G}}
+\newcommand{\den}[1]{\lv #1 \rv}
+\newcommand{\Den}[3][]{\den{#2}^{#1}_{#3}}
+\newcommand{\dent}[2]{\llparenthesis#1\rrparenthesis_{#2}}
+
+\begin{document}
+We discuss here an alternative proof method for proving normalization. We will focus here on a \emph{semantic} proof method using \emph{saturated sets}. This proof method goes back to Girard (1972) building on some previous ideas by Tait.
+
+The key question is how to prove that give a lambda-term, its evaluation terminates, i.e. normalizes.  Recall the lambda-calculus together with its reduction rules.
+
+
+\[
+\begin{array}{llcl}
+\mbox{Terms}  & M,N & \bnfas & x \mid \lambda x. M \mid M\;N \\
+\end{array}
+\]
+
+We consider as the main rule for reduction (or evaluation) applying a term to an abstraction, called \emph{$\beta$-reduction}.
+
+\[
+\begin{array}{lcl}
+%\multicolumn{3}{l}{\mbox{$\beta$-reduction}}  \\
+(\lambda x.M)\;N & \red & [N/x]M \qquad\qquad\mbox{$\beta$-reduction}
+\end{array}
+\]
+
+The $\beta$-reduction rule only applies once we have found a redex. However, we also need congruence rules to allow evaluation of arbitrary subterms. 
+
+
+\[
+\begin{array}{l}
+\infer{M\,N \red M'\,N}{M \red M'} \qquad  \infer{M\,N \red M\,N'}{N \red N'}
+\qquad
+\infer{\lambda x.M \red \lambda x.M'}{M \red M'}
+\end{array}
+\]
+
+The question then is, how do we know that reducing a well-typed lambda-term will halt? - This is equivalent to asking does a well-typed lambda-term normalize, i.e. after some reduction steps we will end up in a normal form where there are no further reductions possible. Since a normal lambda-term characterizes normal proofs, normalizing a lambda-term corresponds to normalizing proofs and demonstrates that every proof in the natural deduction system indeed has a normal proof.
+
+Proving that reduction must terminate is not a simple syntactic argument based on terms, since the $\beta$-reduction rule may yield a term which is bigger than the term we started with. We hence need to find a different inductive argument. For the simply-typed lambda-calculus, we can prove that while the expression itself does not get smaller,  the type of an expression is. This is a syntactic argument; it however does not scale to polymorphic lambda-calculus. We will here instead discuss a \emph{semantic} proof method where we define the meaning of well-typed terms using the abstract notion of \emph{reducibility candidates}. 
+
+% Unlike all the previous proofs which were syntactic and direct based on the structure of the derivation or terms, semantic proofs 
+
+\section{General idea}
+We can define the meaning of a well-typed term $M$ in the context $\Gamma$ of type $A$ as follows: for all grounding instantiations $\sigma$ providing values for the variables declared in $\Gamma$, $[\sigma]M$ is in the denotation of $A$. We write for the denotation of $A$ as $\den{A} = \A$. Similarly, the denotation of $\Gamma$ is written as $\den{\Gamma}=\G$.
+
+$\den{A}$ is interpreted as the sets of strongly normalizing terms of type $A$, i.e. $\den{A} \in \SN$. We prove that if a term is well-typed, then it is strongly normalizing in  two steps:
+
+\begin{description}
+\item[Step 1] If $M \in \den{A}$ then $M \in \SN$. 
+\item[Step 2] If $\Gamma \vdash M : A$ and $\sigma \in \den{\Gamma}$ then $[\sigma]M \in \den{A}$.
+\end{description}
+
+Therefore, we can conclude that if a term $M$ has type $A$ then $M \in \SN$, i.e. $M$ is strongly normalizing and its reduction is finite, choosing $\sigma$ to be the identity substitution. 
+\\[1em]
+We remark first, that all variables are in the denotations of a type $A$, i.e. $\textsf{Var} \subseteq \den{A}$, and variables are strongly normalizing, i.e. they are already in normal form.
+\\[1em]
+Next, we define the denotations of the base type $o$ and the function type $A \arrow B$.
+% Recall, we consider here the simply typed lambda calculus with base type $o$.
+
+% \[
+% \begin{array}{llcl}
+% \mbox{Types} & A,B,C & \bnfas & o \mid A \arrow B  
+% \end{array}
+% \]
+
+% We need to give a type interpretation (denotation) for each of the types.
+
+\begin{itemize}
+\item A term $M \in \den{o}$ iff $M$ is strongly normalizing, i.e. $M \in \SN$.
+\item A term $M \in \den{A \arrow B}$ iff $M \in \den{A} \imply \den{B}$,
+  i.e. for all $N \in \den{A}. M\;N \in \den{B}$.
+\end{itemize}
+
+We often write these definitions more compactly as follows
+
+\[
+\begin{array}{llcl}
+\mbox{Semantic base type} & \den{o} & := & \SN  \\
+\mbox{Semantic function type} & \den{A \arrow B} & := & \{ M | \forall N \in \den{A}. M\;N \in \den{B} \}
+\end{array}
+\]
+
+\section{Defining strongly normalizing terms}
+Intuitively, a term $M$ is strongly normalizing, if there exists no infinite reduction sequence. Constructively, we can define strong normalization as follows:
+
+\begin{definition}\label{def:norm}
+A term $M$ is strongly normalizing, if all its reducts are strongly
+normalizing.\\
+\[
+\infer{\csn~ M}{\forall M'.~M \red M' \imply \csn~ M'}
+\]
+\end{definition}
+
+Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof here and leave it to an exercise. 
+
+\begin{theorem}[Subterm property of strong normalization]
+Any subterm of a strongly normalizing term is strongly normalizing itself.
+% or more formally:
+%if $t \in \csn$ and $C[s] = t$ then $s \in \csn$.
+\end{theorem}
+
+
+Here, we define inductively the set of normal terms, $\SN$, and the set of neutral terms, $\SNe$,   using the following judgements:
+\\[1em]
+
+\begin{center}
+\begin{tabular}{ll}
+$M \in \SN$  & $M$ is in the set of normal terms\\
+$M \in \SNe$ & $M$ is in the set of neutral terms 
+\end{tabular}  
+\end{center}
+
+The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for proofs than its informal definition, since it allows us  to prove properties by structural induction. 
+
+\begin{figure}
+  \centering  
+\[
+\begin{array}{c}
+\multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
+\ianc{}{x\in \SNe}{} \qquad   \ibnc{R \in \SNe}{s \in \SN}{R\,M \in \SNe}{} 
+\\[1em]
+\multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
+\ianc{R \in \SNe}{R \in \SN}{} \qquad 
+\ianc{M \in \SN}{\lambda x.M \in \SN}{} \qquad
+\ibnc{M \redSN M'}{M' \in \SN}{M \in \SN}{} 
+\\[1em]
+\multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
+\ianc{N \in \SN}{(\lambda x.M)\;N \redSN [N/x]M}{} \qquad
+\ibnc{R \redSN R'}{R\;\text{is not a}\;\lambda}{R\,M \redSN R'\,M}{}
+\end{array}
+\]
+  \caption{Inductive definition of strongly normalizing terms}
+  \label{fig:sn}
+\end{figure}
+
+
+We will sketch here that these inductive definition is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}). 
+
+We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
+
+\begin{lemma}[Properties of strongly normalizing terms]$\;$
+  \begin{enumerate}
+  \item If $M \in \csn$ and $[N/x]M \in \csn$ and $N \in \csn$ 
+        then $(\lambda x.M) \;N \in \csn$.
+  \item If $M \in \csn$ and $N \in \csn$ where $M$ is not a $\lambda$
+        then $M\;N \in \csn$. (we also have $M\;N \red M'\;N$ and $M'\;N \in \csn$ as i.h.)
+  \end{enumerate} 
+\end{lemma}
+\begin{proof}
+By induction on $M \in \csn$ and $N \in \csn$.  
+\end{proof}
+
+\begin{lemma}[Closure properties of strongly normalizing terms]$\;$
+  \begin{enumerate}
+  \item If $[N/x]M \in \csn$ then $M \in \csn$.
+  \item For all variables $x$, $x \in \csn$.
+  \item If $M \in \csn$ and $N \in \csn$ where $M = x \,\vec N$ 
+     then $M\,N \in \csn$.
+   \item If $M \in \csn$ then $\lambda x.M \in \csn$.
+   \item \textbf{Expansion.} If $M \redsn M'$ and $M' \in \csn$ then $M \in \csn$
+where   
+\[
+\begin{array}{l}
+\infer{(\lambda x.M)\;N \redsn [N/x]t}{N \in \csn} 
+\qquad
+\infer{M\;N \redsn M'\;N}{M \redsn M' & M\,\text{is not a}\;\lambda}  %& s \in \csn
+  \\[1em]
+\end{array}
+\]
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+By case analysis and induction.  
+\end{proof}
+
+We can now prove our inductive definition to be sound and complete.
+
+\begin{theorem}[Soundness of $\SN$]
+  \begin{enumerate}
+  \item If $M \in SN$ then $M \in \csn$.
+  \item If $M \in SNe$ then $M \in \csn$ and $M = x\, \vec N$.
+  \item If $M \redSN M'$ then $M \redsn M'$.
+  \end{enumerate} 
+\end{theorem}
+\begin{proof}
+By mutual structural induction on the given derivation using the closure properties.   
+\end{proof}
+
+\begin{theorem}[Completeness of $\SN$]
+  \begin{enumerate}
+  \item If $R = x\,\vec N \in \csn$ then $x\,\vec N\in \SNe$.
+  \item If $R = (\lambda x.M)\,N\,\vec N \in \csn$ then $R \redSN [N/x]M\,\vec  N$.
+  \item If $R \in \csn$ then $R \in \SN$.
+  \end{enumerate}  
+\end{theorem}
+\begin{proof}
+By lexicographic induction on the height of the reduction tree of $R$ and the
+height of $R$.
+\end{proof}
+
+
+\section{Reducibility Candidates}
+One might ask, what is a good definition of a semantic type? - Rather than
+attempting the proof of the fundamental lemma directly and then trying to
+extract additional lemmas one might need about the semantic types, we follow
+Girard's technique and characterize some key properties our semantic types need
+to satisfy. If a semantic type satisfies these key properties, then our proof of the fundamental lemma will be straightforward. To put it differently, defining these key properties, will allow for a  a modular proof of the fundamental lemma.
+
+\begin{definition}[Reducibility Candidate] A set $\den{A}$ is a reducibility
+  candidate, $\den{A} \in \CR$ if the following conditions hold
+  \begin{itemize}
+  \item $\CR 1:$ If $M \in \den{A}$ then $M \in \SN$, i.e. $\den{A} \subseteq \SN$.% \\[0.5em]
+  \item $\CR 2:$ If $M \in \SNe$ then $M \in \den{A}$, i.e. $\SNe \subseteq \den{A}$. % \\[0.5em]
+  \item $\CR 3: \ibnc{M \redSN M'}{M' \in \den{A}}{M \in \den{A}}{}$, i.e. $\den{A}$ is closed under reduction.
+  \end{itemize}  
+\end{definition}
+
+The last property is often also referred to as \emph{backward closed}. We show that that all semantic types $\den{A}$ satisfy the conditions above.
+
+\begin{theorem}
+For all types $C$, $\den{C}  \in \CR$.
+\end{theorem}
+\begin{proof}
+By induction on the structure of $A$. We highlight the cases below. 
+
+\paragraph{Case: $C = o$}.\\
+\begin{enumerate}
+\item \textit{Show} \textsf{CR1}: By definition, for all $M \in \den{o}$, we have that $M \in \SN$. 
+\item \textit{Show} \textsf{CR2}: By assumption $M \in \SNe$. By the definition of $\SN$, we therefore know $M \in \SN$; by definition of $\den{o}$, $M \in \den{o}$.
+\item \textit{Show} \textsf{CR3}: Trivially true, since there is no step we can take with $\redSN$.
+\end{enumerate}
+
+  
+\paragraph{Case: $C = A \arrow B$}
+
+\begin{enumerate}
+\item \textit{Show} $\CR 1:$ if $M \in \den{A \arrow B}$, then $M \in \SN$, i.e. $\den{A \arrow B} \subseteq \SN$. \\[0.5em]
+Assume that $M \in \den{A \arrow B}$, i.e. for all $N \in \den{A}$, $M\;N \in \den{B}$ \\
+$x \in \den{A}$ \hfill by assumption $\textsf{Var} \subseteq \den{A}$ \\
+$M\;x \in \den{B}$ \hfill by previous lines \\
+$M\;x \in \SN$ \hfill by i.h. ($\CR1$) \\
+$M \in \SN$ \hfill by subterm property\\[1em]
+
+
+\item \textit{Show} $\CR2:$if $M \in \SNe$, then $M\in \den{A \arrow B}$, i.e. $\SNe \subseteq \den{A \arrow B}$. \\[0.5em]
+%
+$M \in \SNe$ \hfill by assumption\\
+Assume $N \in \den{A}$.  \\
+$N \in \SN$ \hfill by i.h. ($\CR1$) \\
+$M\;N \in \SNe$ \hfill by def. of $\SNe$ \\
+$M\;N \in \den{B}$ \hfill by i.h. ($\CR2$)\\
+$M \in \den{A \arrow B}$ \hfill by definition of $\den{A \arrow B}$.
+\\[1em]
+\item \textit{Show} $\CR3:$ if $M \redSN M'$ and $M' \in \den{A \arrow B}$, then $M \in \den{A \arrow B}$. \\[0.5em]
+$M \redSN M'$ \hfill by assumption \\
+$M' \in \den{A \arrow B}$ \hfill by assumption  \\
+for all $N' \in \den{A}, \;M'\;N' \in \den{B}$ \hfill by definition of $\den{A \arrow B}$ \\
+Assume $N \in \den{A}$ \hfill \\
+$M' \; N \in \den{B}$ \hfill by previous lines \\
+$M\;N \redSN M'\;N$ \hfill by $\redSN$ \\
+$M\;N \in \den{B}$ \hfill by i.h. ($\CR3$) \\
+$M \in \den{A \arrow B}$ \hfill by definition of $\den{A \arrow B}$
+\end{enumerate}
+\end{proof}
+
+
+\section{Proving strong normalization} 
+As mentioned before, we prove that if a term is well-typed, then it is strongly normalizing in  two steps:
+
+\begin{description}
+\item[Step 1] If $M \in \den{A}$ then $M \in \SN$. 
+\item[Step 2] If $\Gamma \vdash M : A$ and $\sigma \in \den{\Gamma}$ then $[\sigma]M \in \den{A}$.
+\end{description}
+
+The first part described in Step 1, is satisfied by the fact that $\den{A}$ must be a reducibility candidate. Hence by $\CR 1$ all terms in $\den{A}$ are strongly normalizing. We now prove the second step, which is often referred to as the \emph{Fundamental Lemma}.
+It states that if $M$ has type $A$ and we can provide ``good'' instantiation $\sigma$, which provides terms which are themselves normalizing for all the free variables in $M$, then $[\sigma]M$ is in $\den{A}$. 
+
+
+\begin{lemma}[Fundamental lemma]
+If $\Gamma \vdash M : A$ and $\sigma \in \den{\Gamma}$
+then $[\sigma]M \in \den{A}$.  
+\end{lemma}
+\begin{proof}
+By induction on $\Gamma \vdash M : A$.
+
+\paragraph{Case} $\D = \ianc{\Gamma(x) = A}{\Gamma \vdash x : A}{}$
+\\[1em]
+$\sigma \in \den{\Gamma}$ \hfill by assumption \\
+$[\sigma]x \in \den{\Gamma(x)} = \den{A}$ \hfill by definition
+
+\paragraph{Case} $\D = \ibnc{\Gamma \vdash M : A \rightarrow B}{\Gamma \vdash N : A}{\Gamma \vdash M\;N : B}{}$
+\\
+$\sigma \in \den{\Gamma}$ \hfill by assumption \\
+$[\sigma]M \in \den{A \rightarrow B} $ \hfill by i.h. \\
+for all $N' \in \den{A}. \;([\sigma]M)\;N' \in \den{B}$ \hfill by definition of $\den{A \arrow B}$ \\
+$[\sigma]N \in \den{A}$ \hfill by i.h. \\
+$[\sigma]M\;[\sigma]N \in \den{B}$ \hfill by previous lines  \\
+$[\sigma](M\;N) \in \den{B}$ \hfill by subst. definition \\
+
+
+\paragraph{Case} $\D = \ianc{\Gamma, x:A \vdash M:B}{\Gamma \vdash \lambda x.M : A \rightarrow B}{}$ 
+\\
+$\sigma \in \den{\Gamma}$ \hfill by assumption \\
+Assume $N \in \den{A}$ \hfill \\
+$(\sigma, N/x) \in \den{\Gamma, x:A}$ \hfill by definition \\
+$[\sigma, N/x]M \in \den{B}$ \hfill by i.h. \\
+$(\lambda x.[\sigma,x/x]M)\;N \redSN [\sigma, N/x]M$ \hfill by reduction $\redSN$ \\
+$(\lambda x.[\sigma,x/x]M) = [\sigma](\lambda x.M)$ \hfill by subst. def\\
+$([\sigma]\lambda x.M)\;N \in \den{B}$ \hfill by $\CR 3$ \\
+for all $N \in \den{A}.\;([\sigma]\lambda x.M)\;N \in \den{B}$ \hfill by previous lines \\
+$[\sigma](\lambda x.M) \in \den{A \arrow B}$ \hfill by definition of $\den{A \arrow B}$
+
+\end{proof}
+
+
+\begin{corollary}
+If $\Gamma \vdash M : A$ then $M \in \SN$.  
+\end{corollary}
+
+\begin{proof}
+Using the fundamental lemma with the identity substitution $\textsf{id} \in \den{\Gamma}$, we obtain  $M \in \den{A}$. By $\CR 1$, we know $M \in \SN$.
+\end{proof}
+
+\renewcommand{\inl}{\textsf{inl}\;}
+\renewcommand{\inr}{\textsf{inr}\;}
+\newcommand{\caseof}[3]{\textsf{case}\,#1\,\textsf{of inl}\,x \Rightarrow #2 \mid \textsf{inr}\,y \Rightarrow #3}
+
+
+\section{Extension: Disjoint sums}
+
+We will now extend our simply-typed lambda-calculus to disjoint sums.
+
+\[
+\begin{array}{llcl}
+\mbox{Types}  & A & \bnfas & \ldots \mid A + B\\
+\mbox{Terms}  & M & \bnfas & \ldots \mid \inl M \mid \inr M \mid \caseof{M}{N_1}{N_2}
+\end{array}
+\]
+
+Let us first extend our definition of $\SN$ and $\SNe$ (see Fig.~\ref{fig:sncase}).
+
+\begin{figure}
+ \centering
+ 
+\[
+\begin{array}{c}
+\multicolumn{1}{l}{\mbox{Neutral terms}} \\% [0.5em]
+\infer{\caseof{M}{N_1}{N_2} \in \SNe}{M \in \SNe & N_1 \in \SN & N_2 \in \SN}
+\\% [0.5em]
+%
+\multicolumn{1}{l}{\mbox{Normal terms}} \\% [0.5em]
+\infer{\inl M \in \SN}{M \in \SN} \qquad \infer{\inr M \in \SN}{M \in \SN} 
+\\% [0.5em]
+\multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
+\infer{\caseof{(\inl M)}{N_1}{N_2} \redSN [M/x]N_1}{M \in \SN & N_2 \in \SN}
+\\[0.75em]
+\infer{\caseof{(\inr M)}{N_1}{N_2} \redSN [M/x]N_2}{M \in \SN & N_1 \in \SN}
+\\[0.75em]
+\infer{\caseof{M}{N_1}{N_2} \redSN \caseof{M'}{N_1}{N_2}}{M \redSN M'}
+\end{array}
+\]
+
+   \caption{Inductive definition of strongly normalizing terms - extended for case-expressions and injections}
+   \label{fig:sncase}
+ \end{figure}
+
+
+Next, we extend our definition of semantic type to disjoint sums. A first attempt might be to define $\den{A+B}$ as follows
+
+\paragraph{Attempt 1}
+\begin{center}
+$\den{A+B} := \{\inl M \mid M \in \den{A} \} \cup \{\inr M \mid M \in \den{B} \}  $  
+\end{center}
+
+However, this definition would not satisfy the key property $\CR3$ and hence would fail to be a reducibility candidate. For example,  while $\inl y$ is in $\den{A + B}$, $(\lambda x. \inl x)\;y$ would not be in $\den{A+B}$ despite the fact that $(\lambda x. \inl x)\;y \redSN \inl y$. 
+\\[1em]
+Our definition of $\den{A+B}$ is not closed under the reduction relation $\redSN$. Let $\A$ denote the denotation of $\den{A}$. We then define the closure of $\den{A} = \A$, written as  $\clos\A$, inductively as follows:
+
+\[
+\begin{array}{c}
+\ianc{M \in \A}{M\in \clos\A}{}  \qquad
+\ianc{M \in \SNe}{M \in \clos\A}{} \qquad
+\ibnc{M \in \clos\A}{N \redSN M}{N \in \clos\A}{}
+\end{array}
+\]
+
+and we define 
+
+\[
+\begin{array}{lcl}
+\den{A + B} & = & \clos{ \{\inl M \mid M \in \den{A} \} \cup \{\inr M \mid M \in \den{B} \}  }  
+\end{array}
+\]
+
+\subsection{Semantic type $\den{A + B}$ is a reducibility candidate}
+We first extend our previous theorem which states that all denotations of types must be in $\CR$.
+
+\begin{theorem}
+For all types $C$, $\den{C}  \in \CR$.
+\end{theorem}
+\begin{proof}
+By induction on the structure of $A$. We highlight the case for disjoint sums.
+
+\paragraph{Case $C = A + B$.} 
+
+  \begin{enumerate}
+  \item \textit{Show} $\CR1$. Assume that $M \in \den{A + B}$. We consider different subcases and prove by an induction on the closure defining $\den{A + B}$ that $M \in \SN$.
+
+\paragraph{Subcase: $M \in \{\inl N \mid N \in \den{A}\}$}. Therefore $M = \inl N$. Since $N \in \den{A}$ and by i.h. ($\CR1$), $N \in \SN$. By definition of $\SN$, we have that $\inl N \in \SN$. 
+  
+\paragraph{Subcase: $M \in \{\inr N \mid N \in \den{B}\}$}. Therefore $M = \inr N$. Since $N \in \den{B}$ and by i.h. ($\CR1$), $N \in \SN$. By definition of $\SN$, we have that $\inr N \in \SN$. 
+
+\paragraph{Subcase: $M \in \SNe$}. By definition of $\SN$, we conclude that $M \in \SN$.
+
+\paragraph{Subcase: $M \in \den{A+B}$, if $M \redSN M'$ and $M' \in \den{A+B}$}.
+\\[0.5em]
+$M \redSN M'$ and $M' \in \den{A + B}$ \hfill by assumption\\
+$M' \in \SN$ \hfill by inner i.h. \\ 
+$M \in \SN$ \hfill by reduction $\redSN$
+
+ \item \textit{Show} $\CR2$.if $M \in \SNe$, then $M \in \den{A + B}$\\
+By definition of the closure, if $M \in \SNe$, we have $M \in \den{A + B}$.
+
+
+  \item \textit{Show} $\CR3$. if $M \redSN M'$ and $M' \in \den{A+B}$ 
+    then $M \in \den{A+B}$.\\
+By definition of the closure, if $M \redSN M'$ and $M' \in \den{A+B}$, we have
+$M \in \den{A+B}$.
+\end{enumerate}
+
+\end{proof}
+
+
+ \subsection{Revisiting the fundamental lemma}
+
+ We can now revisit the fundamental lemma.
+
+ \begin{lemma}[Fundamental lemma]
+ If $\Gamma \vdash M : A$ and $\sigma \in \den{\Gamma}$
+ then $[\sigma]M \in \den{A}$.  
+ \end{lemma}
+ \begin{proof}
+ By induction on $\Gamma \vdash M : A$.
+
+ \paragraph{Case} $\D = \icnc{\Gamma \vdash M : A + B}{\Gamma, x{:}A \vdash N_1 :  C}{\Gamma, y{:}B \vdash N_2 : C}
+ {\Gamma \vdash \caseof{M}{N_1}{N_2} : C}{}$
+ \\[1em]
+ $\sigma \in \den{\Gamma}$ \hfill by assumption \\
+ $[\sigma]M \in \den{A + B}$ \hfill by i.h.
+ \\[1em]
+ We consider different subcases and prove by induction on the closure defining $\den{A + B}$, that $[\sigma](\caseof{M}{M_1}{M_2}) \in \den{C}$.
+
+\paragraph{Subcase $[\sigma]M \in \{\inl N \mid N \in \den{A}\}$}$\;$\\[1em]
+$[\sigma]M = \inl N$ for some $N \in \den{A}$ \hfill by assumption \\
+$N \in \SN$ \hfill by $\CR1$ \\
+% $x \in \den{A}$, 
+$\sigma \in \den{\Gamma}$ \hfill by assumption \\
+$[\sigma, N/x] \in \den{\Gamma, x:A}$ \hfill by definition \\
+$[\sigma, N/x]M_1 \in \den{C}$ \hfill by outer i.h. \\
+$y \in \den{B}$  \hfill by definition \\
+$[\sigma, y/y] \in \den{\Gamma, y:B}$ \hfill by definition \\
+$[\sigma, y/y]M_2 \in \den{C}$ \hfill by outer i.h. \\
+$[\sigma, y/y]M_2 \in \SN$ \hfill by $\CR1$ \\
+$\caseof{(\inl N)}{[\sigma,x/x]M_1}{[\sigma, y/y]M_2} \redSN [\sigma, N/x]M_1$ \hfill by $\redSN$\\
+$\caseof{(\inl N)}{[\sigma,x/x]M_1}{[\sigma, y/y]M_2}$ \\
+$\qquad = [\sigma](\caseof{M}{M_1}{M_2}) $ \hfill by subst. definition and $[\sigma]M = \inl N$\\
+$[\sigma](\caseof{M}{M_1}{M_2}) \in \den{C}$ \hfill by $\CR3$
+
+\paragraph{Subcase $[\sigma]M \in \{\inr N \mid N \in \den{B}\}$}$\;$\\[1em]
+similar to the case above.
+
+\paragraph{Subcase: $[\sigma]M \in \SNe$}.$\;$\\
+$\sigma \in \Gamma$ \hfill by assumption \\
+$x \in \den{A}$, $y \in \den{B}$  \hfill by definition \\
+$[\sigma, y/y] \in \den{\Gamma, y:B}$ \hfill by definition \\
+$[\sigma, x/x] \in \den{\Gamma, x:A}$ \hfill by definition \\
+$[\sigma, x/x]M_1 \in \den{C}$ \hfill by outer i.h. \\
+$[\sigma, y/y]M_2 \in \den{C}$ \hfill by outer i.h. \\
+$[\sigma, y/y]M_2 \in \SN$ \hfill by $\CR1$ \\
+$[\sigma, x/x]M_1 \in \SN$ \hfill by $\CR1$ \\
+$\caseof{[\sigma]M}{[\sigma, x/x]M_1}{[\sigma, y/y]M_2} \in \SNe$ \hfill by $\SNe$ \\
+$[\sigma](\caseof{M}{M_1}{M_2}) \in \SNe$ \hfill by substitution def. \\
+$[\sigma](\caseof{M}{M_1}{M_2}) \in \den{C}$ \hfill by $\CR2$
+
+
+\paragraph{Subcase:  $[\sigma]M \in \den{A + B}$, if $[\sigma]M \redSN M'$ and $M' \in \den{A+B}$}$\;$\\
+$[\sigma]M \redSN M'$ and $M' \in \den{A+B}$ \hfill by assumption \\
+$\caseof{M'}{[\sigma,x/x]M_1}{[\sigma,y/y]M_2} \in \den{C}$ \hfill by inner i.h. \\
+$\caseof{[\sigma]M}{[\sigma,x/x]M_1}{[\sigma,y/y]M_2} $ \\
+$\qquad\redSN
+\caseof{M'}{[\sigma,x/x]M_1}{[\sigma,y/y]M_2}$ \hfill by $\redSN$\\
+$[\sigma](\caseof{M}{M_1}{M_2}) \in \den{C}$ \hfill by $\CR3$
+ \end{proof}
+
+
+ \section{Extension: Recursion}
+ \newcommand{\zero}{\mathsf{z}}
+ % \renewcommand{\suc}{\textsf{s}\;}
+ % \newcommand{\recnat}[3]{\textsf{rec} (#1,\,#2,\; #3)}
+ \newcommand{\recnat}[3]{\recmatch{}{#1}{#2}{#3}}
+ % \renewcommand{\nat}{\textsf{Nat}}
+ We now extend our simply-typed lambda-calculus to include natural numbers
+ defined by $\zero$ and $\suc t$ as well as a primitive recursion operator
+ written as $\recnat{M}{M_z}{M_s}$ where $M$ is the argument we recurse over,
+ $M_z$ describes the branch taken if $M = \zero$ and $M_s$ describes the branch
+ taken when $M = \suc N$ where $n$ will be instantiated with $N$ and $f\;n$
+ describes the recursive call.
+
+
+\[
+\begin{array}{llcl}
+\mbox{Types}  & A & \bnfas & \ldots \mid \nat \\
+\mbox{Terms}  & t & \bnfas & \ldots \mid \zero \mid \suc t \mid \recnat{t}{t_z}{t_s}
+\end{array}
+\]
+
+To clarify, we give the typing rules for the additional constructs.
+
+\[
+\begin{array}{c}
+\infer{\Gamma \vdash \zero : \nat}{} \qquad 
+\infer{\Gamma \vdash \suc M : \nat}{\Gamma \vdash M : \nat}  
+\\[1em]
+\infer{\Gamma \vdash \recnat M {M_z} {M_s} : C}{
+\Gamma \vdash M : \nat & \Gamma \vdash M_z : C & 
+\Gamma, n:\nat,\;f\,n:C \vdash M_s : C}
+\end{array}
+\]
+
+
+We again extend our definition of $\SN$ and $\SNe$.
+
+\[
+\begin{array}{c}
+\multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
+\infer{\recnat{M}{M_z}{M_s} \in \SNe}{M \in \SNe & M_z \in \SN & M_s \in \SN}\\[1em]
+\multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
+\infer{\zero \in \SN}{} \qquad \infer{\suc M \in \SN}{M \in \SN}\\[1em]
+\multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
+\infer{\recnat{\zero}{M_z}{M_s} \redSN M_z}{M_s \in SN} \\[1em]
+\infer{\recnat{(\suc N)}{M_z}{M_s} \redSN [N/n,\, f_r/f\,n]M_s}{
+  N \in \SN & M_z \in \SN & M_s \in SN & f_r = \recnat{N}{M_z}{M_s}} \\[1em]
+\infer{\recnat{M}{M_z}{M_s} \redSN \recnat{M'}{M_z}{M_s}}{M \redSN M'}
+\end{array}
+\]
+
+ \section{Extension: Natural numbers}
+Here we add natural numbers to our language and show how the language remains normalizing.
+\subsection{Semantic type $\den{\nat}$} We define the denotation of $\nat$ as
+ follows:
+
+ \[
+ \den{\nat} := \clos{\{\zero\}\cup \{\suc M \mid M \in \den{\nat}\} }
+ \]
+
+
+\subsection{Semantic type $\den{\nat}$ is a reducibility candidate}
+We again extend our previous theorem which states that all denotations of types must be in $\CR$.
+
+\begin{theorem}
+For all types $C$, $\den{C}  \in \CR$.
+\end{theorem}
+\begin{proof}
+By induction on the structure of $A$. We highlight the case for $\nat$.
+
+\paragraph{Case $C = \nat$}
+
+\begin{enumerate}
+\item \textit{Show} $\CR1$: Assume $M \in \nat$. we consider different subcases
+  and prove by induction on the closure defining $\nat$ that $M \in \SN$.
+%
+
+\paragraph{Subcase } $M = \zero$. By definition of $\SN$, $\zero \in \SN$.
+
+\paragraph{Subcase } $M = \suc N$ where $N \in \den{\nat}$.  By i.h. ($\CR1$),
+$N \in \SN$. By definition of $\SN$, $\suc N \in \SN$.
+
+ \paragraph{Subcase} $M \in \SNe$. By definition of $\SN$, $M \in \SN$.
+
+ \paragraph{Subcase} $M \in \den{\nat}$, if $M \redSN M'$ and $M' \in \den{\nat}$. 
+ \\
+ $M \redSN M'$ and $M' \in \den{\nat}$ \hfill by assumption \\
+ $M' \in \SN$ \hfill by inner i.h. \\
+ $M \in \SN$ \hfill by reduction $\redSN$
+ \end{enumerate}
+
+
+ \item \textit{Show} $\CR2$: By definition of the closure, $M \in \SNe$, then $M
+   \in \den{\nat}$. 
+
+ \item \textit{Show} $\CR3$: $M \in \nat$, if $M \redSN M'$ and $M' \in \nat$. By
+   definition of the closure, we have that $M \in \nat$.
+ \end{proof}
+
+ \subsection{Revisiting the fundamental lemma}
+
+ We can now revisit the fundamental lemma.
+ \begin{lemma}[Fundamental lemma]
+ If $\Gamma \vdash M : A$ and $\sigma \in \den{\Gamma}$
+ then $[\sigma]M \in \den{A}$.  
+ \end{lemma}
+ \begin{proof}
+ By induction on $\Gamma \vdash M : A$.
+
+ \paragraph{Case} $\D = \ianc{}{\Gamma \vdash \zero : \nat}{}$
+ \\
+ $\zero \in \den{\nat}$ \hfill by definition.
+
+
+ \paragraph{Case} $\D = \ianc{\Gamma \vdash M : \nat}{\Gamma \vdash \suc M :  \nat}{}$
+ \\
+ $\sigma \in \den{\Gamma}$ \hfill by assumption \\
+ $M \in \den{\nat}$ \hfill by i.h. \\ 
+ $\suc M \in \den{\nat}$ \hfill by definition 
+
+
+ \paragraph{Case} $\D = \icnc
+ {\Gamma \vdash M : \nat}
+{\Gamma \vdash M_z : C}
+ {\Gamma, n:\nat,\,f~n:C \vdash M_s : C}
+ {\Gamma \vdash \recnat M {M_z} {M_s} : C}{}$
+ \\
+ $\sigma \in \den{\Gamma}$ \hfill by assumption \\
+ $[\sigma]M \in \den{\nat}$ \hfill by i.h. \\[1em]
+ We distinguish cases based on $M \in \den{\nat}$ and prove by induction on $M
+ \in \den{\nat}$ that $[\sigma](\recnat M {M_z} {M_s}) \in \den{C}$.
+
+ \paragraph{Subcase } $[\sigma]M = \zero$.
+ \\
+ $n \in \den{\nat}$, $f~n \in \den{C}$ \hfill by definition \\
+ $[\sigma, n/n, f~n/f~n] \in \den{\Gamma, n:\nat, f~n:C}$ \hfill by definition \\
+ $[\sigma, n/n, f~n/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
+ $[\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
+ $[\sigma]M_z \in \den{C}$ \hfill by outer i.h. \\
+ $\recnat \zero {[\sigma]M_z} {[\sigma, n/n,f~n/f~n]M_s} \redSN [\sigma]M_z$
+ \hfill by $\redSN$ \\ 
+$\recnat \zero {[\sigma]M_z} {[\sigma, n/n,f~n/f~n]M_s} = [\sigma](\recnat{M}
+ {M_z} {M_s})$ \hfill by subst. def. and $M = \zero$\\
+ $[\sigma](\recnat{M} {M_z}{M_s} \in \den{C}$ \hfill by $\CR3$.
+
+ \paragraph{Subcase } $[\sigma]M = \suc M'$ where $M' \in \den{\nat}$.
+ \\
+ $M' \in \den{\nat}$ \hfill by assumption \\
+ $M' \in \SN$ \hfill by $\CR1$ \\
+ $[\sigma]M_z \in \den{C}$ \hfill by outer i.h. \\
+ $[\sigma]M_z \in \SN$ \hfill by $\CR1$ \\
+ $[\sigma, n/n, f~n/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
+$[\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
+ $\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} \in \den{C}$ \hfill by inner i.h. \\
+ $[\sigma, M'/x, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n] \in
+ \den{\Gamma, n:\nat, f~n:C}$ \hfill by definition \\
+ $[\sigma, M'/x, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
+ $\recnat{(\suc M')}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} $ \\
+ $\qquad \redSN
+ [\sigma, M'/x, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n]M_s$
+ \hfill by $\redSN$ \\
+ $[\sigma](\recnat{M}{M_z}{M_s}) \in \den{C}$ \hfill by $\CR3$.
+
+ \paragraph{Subcase } $[\sigma]M \in \SNe$. \\
+ $[\sigma]M_z \in \den{C}$ \hfill by outer i.h.\\
+ $[\sigma]M_z \in \SN$ \hfill by $\CR1$\\
+ $[\sigma, n/n, f~n/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
+ $[\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
+ $\recnat{[\sigma]M}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} \in \SNe$ \hfill by $\SNe$\\
+$[\sigma](\recnat{M}{M_z}{M_s}) \in \SNe$ \hfill by subst. def. \\
+$[\sigma](\recnat{M}{M_z}{M_s}) \in \den{C}$ \hfill by $\CR2$.
+
+
+ \paragraph{Subcase } $[\sigma]M \in \den{\nat}$, if $[\sigma]M \redSN M'$ and
+ $M' \in \den{\nat}$.\\
+ $[\sigma]M \redSN M'$ and $M' \in \den{\nat}$ \hfill by assumption.\\
+ $\recnat{M'}{[\sigma]M_z}{[\sigma,n/n, f~n/f~n]M_s} \in \den{C}$ \hfill by inner i.h. \\ 
+ $\recnat{[\sigma]M}{[\sigma]M_z}{[\sigma,n/n, f~n/f~n]M_s}$ \\
+ $\qquad \redSN \recnat{M'}{[\sigma]M_z}{[\sigma,n/n, f~n/f~n]M_s}$ \hfill by $\redSN$\\
+ $[\sigma](\recnat{M}{M_z}{M_s}) \in \den{C}$ \hfill by $\CR3$.
+
+
+ \end{proof}
+
+
+%  \section{Exercises}
+%  \begin{problem}
+% % \begin{exercise}
+%  The Def. \ref{def:norm}, defines strong normalization informally. We can replace this definition with a more formal definition.
+
+%  \begin{definition}[Inductive definition of strongly normalizing terms] A term $M$ is strongly normalizing, if all its reducts are strongly normalizing, i.e. 
+%  $M \csn$ if for all $M'$, if $M \red M'$ then $M' \in \csn$.  
+%  \end{definition}
+
+%  This definition gives rise to an induction principle to reason about strongly normalizing terms. To prove $\forall M \csn. P(M)$, we can assume the property holds for $P(M')$ for any $M'$ s.t. $M \red M'$. Using this induction principle, we can now prove  constructively that any subterm of a strongly normalizing term is itself normalizing.
+
+%  Before we however, precisely define our notion of subterm to simplify our reasoning. We write $M = C[N]$ for $N$ is a subterm of $M$; $C$ denotes an evaluation context, i.e. the term $M$ where we identify $N$ as a subterm at a given position. Evaluation contexts can  be defined as follows.
+
+%  \[
+%  \begin{array}{lcl}
+%  \mbox{Evaluation Context}\;C & \bnfas & [ ] \mid \lambda x. C \mid C\;N \mid M\;C
+%  \end{array}
+%  \]
+
+%  As an alternative to the congruence rules, we can redefine evaluation using evaluation contexts:
+
+%  \[
+%  \ianc{M \red N}{C[M] \red C[N]}{}
+%  \]
+
+% \begin{theorem}
+% Any subterm of a strongly normalizing term is strongly normalizing itself, i.e. if $M \csn$ and $N$ is a subterm of $M$, i.e. $M = C[N]$ then $N \in \csn$.
+% \end{theorem}
+% \end{exercise}  
+% \end{problem}
+
+
+
+% \begin{problem}
+%   \begin{exercise}
+% Extend the semantic strong normalization proof to treat $A \times B$. 
+% \begin{itemize}
+% \item Extend our definition of normal and neutral terms (i.e. $\SN$ and $\SNe$). You might also need to extend our definition of strong head reduction (i.e. $\redSN$).
+% \item Define an appropriate denotation of $\den{A \times B}$.
+% % \den{A * B} := {M | \fst(M) \in \den{A} or \snd{M} \in \den{B}}
+% \item Show that $\den{A \times B}$ is a reducibility candidate.
+% \item Show the additional cases in the fundamental lemma.
+% \end{itemize}    
+%   \end{exercise}
+% \end{problem}
+
+
+%\section{Reducibility candidates}
+%\section{Forward and backward closed}
+%\section{Fundamental lemma}
+\end{document}
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "sn-proof"
+%%% End: 

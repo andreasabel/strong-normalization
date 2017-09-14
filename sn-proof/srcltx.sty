@@ -1,0 +1,140 @@
+%%
+%% This is file `srcltx.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% srcltx.dtx  (with options: `package,latex')
+%% 
+%% This package is in the public domain. It comes with no guarantees
+%% and no reserved rights. You can use or modify this package at your
+%% own risk.
+%% Originally written by: Aleksander Simonic
+%% Current maintainer: Stefan Ulrich <ulrich@cis.uni-muenchen.de>
+%% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{srcltx}[2002/01/21 v1.2b DVI Search]
+\newif\ifSRCOK \SRCOKtrue
+\newif\ifsrc@debug@
+\newif\ifsrc@dviwin@
+\newif\ifsrc@everypar@\src@everypar@true
+\newif\ifsrc@everymath@\src@everymath@true
+\DeclareOption{active}{\SRCOKtrue}
+\DeclareOption{inactive}{\SRCOKfalse}
+\DeclareOption{debug}{\src@debug@true}
+\DeclareOption{nopar}{\global\src@everypar@false}
+\DeclareOption{nomath}{\global\src@everymath@false}
+\newcommand*\src@maybe@space{}
+\let\src@maybe@space\space
+\DeclareOption{dviwin}{\let\src@maybe@space\relax}
+\ExecuteOptions{active}
+\ProcessOptions
+\newcount\src@lastline
+\global\src@lastline=-1
+\newcommand*\src@debug{}
+\def\src@debug#1{\ifsrc@debug@\typeout{DBG: |#1|}\fi}
+\newcommand*\MainFile{}
+\def\MainFile{\jobname.tex}
+\newcommand*\CurrentInput{}
+\gdef\CurrentInput{\MainFile}
+\newcommand*\WinEdt{}
+\def\WinEdt#1{\typeout{:#1}}
+\newcommand\src@AfterFi{}
+\def\src@AfterFi#1\fi{\fi#1}
+\AtBeginDocument{%
+    \@ifpackageloaded{soul}{%
+        \let\src@SOUL@\SOUL@
+        \def\SOUL@#1{%
+            \ifSRCOK
+                \SRCOKfalse\src@SOUL@{#1}\SRCOKtrue
+            \else
+                \src@AfterFi\src@SOUL@{#1}%
+            \fi
+        }%
+    }{}%
+}
+\newcommand*\src@spec{}
+\def\src@spec{%
+    \ifSRCOK
+        \ifnum\inputlineno>\src@lastline
+            \global\src@lastline=\inputlineno
+            \src@debug{%
+                src:\the\inputlineno\src@maybe@space\CurrentInput}%
+            \special{src:\the\inputlineno\src@maybe@space\CurrentInput}%
+        \fi
+    \fi
+}
+\newcommand\src@before@file@hook{}
+\newcommand\src@after@file@hook{}
+\def\src@before@file@hook#1{%
+    \protected@xdef\CurrentInput{#1}%
+    \WinEdt{<+ \CurrentInput}%
+    \global\src@lastline=0
+    \ifSRCOK\special{src:1\CurrentInput}\fi
+}
+\def\src@after@file@hook#1{%
+    \WinEdt{<-}%
+    \global\src@lastline=\inputlineno
+    \global\advance\src@lastline by -1%
+    \gdef\CurrentInput{#1}%
+    \src@spec
+}
+\newcommand*\src@include{}
+\newcommand*\src@@include{}
+\let\src@include\include
+\AtBeginDocument{%
+    \def\include#1{%
+        \src@spec
+        \clearpage
+        \expandafter\src@@include\expandafter{\CurrentInput}{#1}%
+    }%
+}
+\def\src@@include#1#2{%
+    \src@before@file@hook{#2.tex}%
+    \src@include{#2}%
+    \src@after@file@hook{#1}%
+}
+\newcommand*\src@input{}
+\newcommand*\src@@input{}
+\newcommand*\src@@@input{}
+\let\src@input\input
+\AtBeginDocument{%
+    \def\input{\src@spec\@ifnextchar\bgroup\src@@input\@@input}%
+}
+\def\src@@input#1{%
+    \expandafter\src@@@input\expandafter{\CurrentInput}{#1}%
+}
+\def\src@@@input#1#2{%
+    \src@before@file@hook{#2}%
+    \src@input{#2}%
+    \src@after@file@hook{#1}%
+}
+\newcommand\Input{}
+\let\Input\input
+\ifsrc@everypar@
+    \newcommand*\src@everypar{}
+    \let\src@everypar\everypar
+    \newtoks\everypar
+    \src@everypar{\the\everypar\expandafter\src@spec}
+\else
+    \everypar\expandafter{\the\everypar\expandafter\src@spec}
+\fi
+\ifsrc@everymath@
+    \everymath\expandafter{\the\everymath\expandafter\src@spec}
+\fi
+\newcommand*\src@bibliography{}
+\newcommand*\src@@bibliography{}
+\let\src@bibliography\bibliography
+\def\bibliography#1{%
+    \expandafter\src@@bibliography\expandafter{\CurrentInput}{#1}%
+}
+\def\src@@bibliography#1#2{%
+    \src@before@file@hook{\jobname.bbl}%
+    \src@bibliography{#2}%
+    \src@after@file@hook{#1}%
+}
+\output\expandafter{\expandafter\SRCOKfalse\the\output}
+\endinput
+%%
+%% End of file `srcltx.sty'.

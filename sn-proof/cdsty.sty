@@ -1,0 +1,179 @@
+%%% A modification of fpstd.sty appropriate for this book.
+%%% Modifications are noted with %-cd
+%%% Modifications for article 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Environment and Miscellaneous
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\let\um=\"
+
+\newcommand{\horizline}{{\rule{\textwidth}{0.4pt}}}
+\newenvironment{dfigure*}{\begin{figure*}[tb]\horizline}{\par\vskip-\parskip
+ \horizline\end{figure*}}
+\newenvironment{symbolfootnotes}{\def\thefootnote{\fnsymbol{footnote}}}{}
+
+% \def\endproofbox{\vbox{\hrule\hbox{\vrule
+%                    \hbox to 6pt{\hfil\vbox to 6pt{\vfil}}\vrule}\hrule}}
+
+\def\endproofbox{$\Box$}
+
+
+% Refined proof environment
+
+
+\def\deflabel#1{{\rm (}{\em #1\/}{\rm )}}
+
+
+%\newtheorem{@exercise}{Exercise}[section]
+%\newenvironment{exercise}{\begin{@exercise}\rm}{\end{@exercise}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Editorials
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\long\def\ednote#1{\footnote{[{\it #1\/}]}\message{ednote!}}
+% \long\def\note#1{\begin{quote}[{\it #1\/}]\end{quote}\message{note!}}
+\newenvironment{metanote}{\begin{quote}\message{note!}[\begingroup\it}%
+                         {\endgroup]\end{quote}}
+\long\def\ignore#1{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Typesetting Deductions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newbox\tempa
+\newbox\tempb
+\newdimen\tempc
+\newbox\tempd
+
+\def\mud#1{\hfil $\displaystyle{#1}$\hfil}
+\def\rig#1{\hfil $\displaystyle{#1}$}
+
+\def\inruleanhelp#1#2#3{\setbox\tempa=\hbox{$\displaystyle{\mathstrut #2}$}%
+                        \setbox\tempd=\hbox{$\; #3$}%
+                        \setbox\tempb=\vbox{\halign{##\cr
+        \mud{#1}\cr
+        \noalign{\vskip\the\lineskip}%
+        \noalign{\hrule height 0pt}%
+        \rig{\vbox to 0pt{\vss\hbox to 0pt{\copy\tempd \hss}\vss}}\cr
+        \noalign{\hrule}%
+        \noalign{\vskip\the\lineskip}%
+        \mud{\copy\tempa}\cr}}%
+                      \tempc=\wd\tempb
+                      \advance\tempc by \wd\tempa
+                      \divide\tempc by 2 }
+
+\def\inrulean#1#2#3{{\inruleanhelp{#1}{#2}{#3}%
+                     \hbox to \wd\tempa{\hss \box\tempb \hss}}}
+\def\inrulebn#1#2#3#4{\inrulean{#1\quad\qquad #2}{#3}{#4}}
+
+\def\ian#1#2#3{{\lineskip 4pt\inrulean{#1}{#2}{#3}}}
+\def\ibn#1#2#3#4{{\lineskip 4pt\inrulebn{#1}{#2}{#3}{#4}}}
+
+\def\lowerhalf#1{\hbox{\raise -0.8\baselineskip\hbox{#1}}}
+
+\def\ianc#1#2#3{{\lineskip 4pt\lowerhalf{\inruleanhelp{#1}{#2}{#3}%
+                   \box\tempb\hskip\wd\tempd}}}
+\def\ibnc#1#2#3#4{{\lineskip 4pt\ianc{#1\quad\qquad #2}{#3}{#4}}}
+\def\icnc#1#2#3#4#5{{\lineskip 4pt\ibnc{#1\quad\qquad #2}{#3}{#4}{#5}}}
+
+\def\rulespacing{\renewcommand{\arraystretch}{3} \arraycolsep 5em}
+\def\rulestretch{\renewcommand{\arraystretch}{3}}
+
+\def\above#1#2{\begin{array}[b]{c}\relax #1\\ \relax #2\end{array}}
+\def\abovec#1#2{\begin{array}{c}\relax #1\\ \relax #2\end{array}}
+
+\def\cian#1#2#3{\ctr{\ianc{#1}{#2}{#3}}}
+\def\cibn#1#2#3#4{\ctr{\ibnc{#1}{#2}{#3}{#4}}}
+
+\def\hypd#1#2{\begin{array}[b]{c}\relax #1\\[0.5em] \relax #2\end{array}}
+\def\hypo#1#2{\begin{array}[b]{c}\relax #1\\ \vdots \\ \relax #2\end{array}}
+\def\hypoc#1#2{\begin{array}{c}\relax #1\\ \vdots \\ \relax #2\end{array}}
+\def\hypol#1#2#3{\begin{array}[b]{c}\relax #1\\ #2 \\ \relax #3\end{array}}
+\def\hypolc#1#2#3{\begin{array}{c}\relax #1\\ #2 \\ \relax #3\end{array}}
+
+\def\ctr#1{\begin{array}{c} #1\end{array}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Common abbreviations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\bnfas{\mathrel{::=}}
+\def\bnfalt{\mid}
+
+\def\lam{\lambda}
+\def\Lam{\Lambda}
+\def\arrow{\rightarrow}
+\def\oftp{\mathord{:}}
+\def\hastype{\mathrel{:}}
+
+\def\ldot{\mathord{.}\;}
+\def\ldott{\mathrel{.}}
+\def\oftpp{\mathrel{:}}
+\def\dot{\cdot}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Judgments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\vd{\null\mathrel{\vdash}}
+\def\gvd{\Gamma \vd}
+
+\def\th{\null\mathrel{\vdash\!\!\!\vdash}}
+\def\gth{\Gamma \th}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Code
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\ttuscore{{\tt\char`\_}}
+\def\ttlbrace{{\tt\char`\{}}
+\def\ttrbrace{{\tt\char`\}}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Propositions 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\impl{\supset}
+\def\orl{\vee}
+% \def\andl{\wedge}
+\def\andl{\land}
+
+
+\newcommand{\vdext}{\vdash^+}
+\newcommand{\der}{\Longrightarrow}
+\newcommand{\derext}{\overset{+}{\Longrightarrow}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Judgment
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\istrue{\;\mathsf{true}}
+\newcommand{\app}[2]{#1\;#2}
+\newcommand{\expair}[2]{(#1,\;#2)}
+\newcommand{\pair}[2]{\langle #1,\;#2\rangle}
+\newcommand{\letp}[3]{\mathsf{let}\;#1 = #2 \;\mathsf{in}\;#3}
+\newcommand{\fst}[1]{\mathsf{fst}\;#1}
+\newcommand{\snd}[1]{\mathsf{snd}\;#1}
+\newcommand{\unitt}{()}
+\newcommand{\inl}[2]{\mathsf{inl}^{#1}\;#2}
+\newcommand{\inr}[2]{\mathsf{inr}^{#1}\;#2}
+\newcommand{\match}[7]{\mathsf{case}\;#1\;\mathsf{of}\;\inl #2 #3 \rightarrow #4 \mid \inr #5 #6 \rightarrow #7}
+\newcommand{\abort}[2]{\mathsf{abort}^{#1}\;#2}
+
+\newcommand{\nat}{\mathsf{nat}}
+\newcommand{\z}{\mathsf{z}}
+\newcommand{\suc}{{\mathsf{suc}}\,}
+\newcommand{\Sig}{\mathcal{S}}
+
+\newcommand{\recmatch}[4]{\mathsf{rec}^{#1}~#2~\mathsf{with}\;{\mathsf{f}}\;\z \rightarrow #3 \mid {\mathsf{f}}\;(\suc n) \rightarrow {#4}}
+\newcommand{\recbranch}[2]{\mathsf{with}\;{\mathsf{f}}\;\z \rightarrow #1 \mid {\mathsf{f}}\;(\suc n) \rightarrow {#2}}
+
+\newcommand{\m}[1]{\mathsf{#1}}
+
+\newcommand{\reclistmatch}[4]{\mathsf{rec}^{#1}~#2~\mathsf{with}\;{\mathsf{f}}\;\m{nil} \rightarrow #3 \mid {\mathsf{f}}\;(\m{cons}\;h\;t) \rightarrow {#4}}
+\newcommand{\reclistbranch}[2]{\mathsf{with}\;{\mathsf{f}}\;\m{nil} \rightarrow #1 \mid {\mathsf{f}}\;(\m{cons}\;h\;t) \rightarrow {#2}}
+
+\newcommand{\recdeplistmatch}[4]{\mathsf{rec}^{#1}~#2~\mathsf{with}\;{\mathsf{f}}\;\{z\}\;\m{nil}
+  \rightarrow #3 \mid {\mathsf{f}}\;\{\suc m\}\;(\m{cons}\;\{m\}\; h\;t)
+  \rightarrow {#4}}
+

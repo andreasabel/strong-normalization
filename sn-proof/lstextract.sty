@@ -1,0 +1,195 @@
+%% This is file 'lstextract.sty'
+%%
+%% Copyright (C) 2012 Ryan Kavanagh <rak@debian.org>
+%%
+%% This work may be distributed and/or modified under the
+%% conditions of the LaTeX Project Public License, either version 1.3
+%% of this license or (at your option) any later version.
+%% The latest version of this license is in
+%%   http://www.latex-project.org/lppl.txt
+%% and version 1.3 or later is part of all distributions of LaTeX
+%% version 2003/12/01 or later.
+%%
+%% This work has the LPPL maintenance status ``author-maintained''.
+%%
+%% \appendfile is by Martin Scharrer and was obtained from
+%% http://tex.stackexchange.com/a/12414/6128 . It too is distributed
+%% under the LLPL 1.3c or later.
+%%
+%% \@makeother is from the verbatim package by
+%%     * Rainer Schöpf <schoepf@uni-mainz.de>
+%%     * Bernd Raichle <raichle@azu.informatik.uni-stuttgart.de>
+%%     * Chris Rowley <c.a.rowley@open.ac.uk>
+%% which is also distributed under the LLPL 1.3c or later.
+%% verbatim may be obtained from CTAN here:
+%% http://www.ctan.org/tex-archive/macros/latex/required/tools
+%
+% Usage:
+%
+% \usepackage{lstextract}
+%       or
+% \usepackage[noout]{lstextract}
+%   Pass the `noout' option to disable file output.
+%
+% \begin{extract}[a,b,c,d]
+%   Some verbatim text to be displayed using whichever lstlisting configurations
+%   are active. This text will be appended to the files a, b, c, and d.
+%
+%   To set the listings options precede `\begin{extract}[files]' with a
+%   '\lstextrset{listings options here}'.
+% \end{extract}
+%
+% \begin{extract*}
+%   Some text to be appended to the files a, b, c, and d, but not displayed.
+% \end{extract*}
+%
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{lstextract}[2012/06/18 v0.2 extracts lstlistings to files]
+
+\def\noout{out}
+\DeclareOption{noout}{\renewcommand{\noout}{noout}}
+\ProcessOptions\relax
+
+\RequirePackage{catchfile}
+\RequirePackage{ifthen}
+\RequirePackage{listings}
+
+\def\recordfile#1{appendtofile@seen@#1}
+\def\srecordfile#1{\expandafter\csname appendtofile@seen@#1\endcsname}
+\def\defrecordfile#1{%
+  \expandafter\def\csname appendtofile@seen@#1\endcsname{defined}
+}
+
+\def\lstsettings{}
+\def\lstextrset#1{%
+  \renewcommand{\lstsettings}{#1}
+}
+
+\makeatother
+\def\@makeother#1{\catcode`#112\relax}
+\makeatletter
+
+% \appendtofile appends #2 to file #1
+\newwrite\appendwrite
+\newcommand*\appendtofile[2]{%
+  \begingroup
+  \PackageWarning{extract}{\recordfile{#1}}
+  % ifundefined takes command name *without the slash*
+  \ifthenelse{\equal{\srecordfile{#1}}{defined}}{%
+    \CatchFileDef{\filecontent}{#1}{\endlinechar=`^^J\catcode\endlinechar=12%
+                                    \obeyspaces\let\do\@makeother\dospecials%
+                                    \relax}
+  }{%
+    % If we've not yet output to this file from this run, empty it
+    % Prevents having files with multiple concatenations of the same thing, one
+    % for each LaTeX run.
+    \global\defrecordfile{#1}
+    \let\filecontent\empty
+  }
+  \immediate\openout\appendwrite=#1\relax
+  \immediate\write\appendwrite{\filecontent #2}%
+  \immediate\closeout\appendwrite
+  \endgroup
+}
+
+\newread\appendingfile
+\newcommand*\appendfiletofile[2]{%
+  \begingroup
+  % ifundefined takes command name *without the slash*
+  \ifthenelse{\equal{\srecordfile{#1}}{defined}}{%
+    \CatchFileDef{\filecontent}{#1}{\endlinechar=`^^J\catcode\endlinechar=12%
+                                    \obeyspaces\let\do\@makeother\dospecials%
+                                    \relax}
+  }{%
+    %\expandafter\ifcsundef{recordfile{#1}}{%
+    % If we've not yet output to this file from this run, empty it
+    % Prevents having files with multiple concatenations of the same thing, one
+    % for each LaTeX run.
+    \global\defrecordfile{#1}
+    \let\filecontent\empty
+  }
+  \openin\appendingfile=#2
+  \immediate\openout\appendwrite=#1\relax
+  \endlinechar-1
+  \immediate\write\appendwrite{\filecontent }
+  \loop \unless\ifeof\appendingfile
+      \readline\appendingfile to\line
+      \immediate\write\appendwrite{\line}
+  \repeat
+  \immediate\closeout\appendwrite
+  \immediate\closein\appendingfile
+  \endgroup
+}
+
+
+\makeatletter
+
+% FOREACH from
+% http://stackoverflow.com/questions/2402354/split-comma-separated-parameters-in-latex
+% Need to get permission to distribute.
+
+\def\foreach#1#2#3{%
+  \@test@foreach{#1}{#2}#3,\@end@token%
+}
+
+\def\@swallow#1{}
+
+\def\@test@foreach#1#2{%
+  \@ifnextchar\@end@token%
+    {\@swallow}%
+    {\@foreach{#1}{#2}}%
+}
+
+\def\@foreach#1#2#3,#4\@end@token{%
+  #1{#2}{#3}%
+  \@test@foreach{#1}{#2}#4\@end@token%
+}
+
+\def\head#1{\@head#1,\@end@token%
+}
+
+\def\@head#1,#2\@end@token{#1}
+
+% Swap parameters
+\def\invert#1#2#3{#1#3#2}
+\def\invertI#1#2#3#4{#1#4#3#2}
+
+%\newcommand\firstunempty[3]{%
+% \ifthenelse{\equal{#2}{}}{% Do nothing if empty
+% }{
+%  #1#2#3
+% }
+%}
+
+\newcommand\appendtofilewrapper[2]{\appendtofile{#2}{#1}}
+\newcommand\appendfiletofilewrapper[2]{\appendfiletofile{#2}{#1}}
+
+\lst@RequireAspects{writefile}
+\lstnewenvironment{extract}[1][]{%
+  \ifthenelse{\equal{#1}{}}{%
+    \PackageError{extract}{extract with no filenames passed!}
+  }{}
+  \lst@BeginWriteFile{\jobname.xtr}%
+}{%
+  \lst@EndWriteFile
+  \ifthenelse{\expandafter\equal{\noout}{noout}}{}{%
+    \foreach{\appendfiletofilewrapper}{\jobname.xtr}{#1}
+  }
+  \vspace{-1.5\intextsep}
+  \lstinputlisting[\lstsettings]{\jobname.xtr}
+}
+
+\lstnewenvironment{extract*}[1][]{%
+  \ifthenelse{\equal{#1}{}}{%
+    \PackageError{extract}{extract* with no filenames passed!}
+  }{}
+  \lst@BeginWriteFile{\jobname.xtr}%
+}{%
+  \lst@EndWriteFile
+  \ifthenelse{\expandafter\equal{\noout}{noout}}{}{%
+    \foreach{\appendfiletofilewrapper}{\jobname.xtr}{#1}
+  }
+  \vspace{-1.5\intextsep}
+}
+
+\makeatother

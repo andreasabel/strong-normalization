@@ -1,0 +1,285 @@
+\usepackage{xspace}
+\usepackage{listings}
+
+% ---------------------------------------------------------------------------
+% ------------------------------ Contextual ML ------------------------------
+% ---------------------------------------------------------------------------
+
+\lstdefinelanguage{ContextualML}
+{
+  morekeywords={and, block, case, of, mlam, fn, impossible, let, in, schema,
+    some, rec, type, ctype, prop, stratified, inductive, coinductive, LF, if, then,
+    else, total},
+  keepspaces=true,
+  sensitive,
+  morecomment=[l]{\%},
+  morecomment=[n]{\%\{}{\}\%},
+  morestring=[b]"
+}[keywords,comments,strings]
+
+\lstloadlanguages{ContextualML}
+\lstset{language=ContextualML}
+
+\newdimen\zzlistingsize
+\newdimen\zzlistingsizedefault
+\zzlistingsizedefault=10pt
+\zzlistingsize=\zzlistingsizedefault
+\global\def\CommentCopter{0}
+\newcommand{\Lstbasicstyle}{\fontsize{\zzlistingsize}{1.05\zzlistingsize}\ttfamily%
+}
+\newcommand{\keywordcopter}{\fontsize{0.95\zzlistingsize}{1.0\zzlistingsize}\bf}
+\newcommand{\stupidcopter}{\if0\CommentCopter\keywordcopter\fi}
+\newcommand{\commentcopter}{\def\CommentCopter{1}\fontsize{0.95\zzlistingsize}{1.0\zzlistingsize}\rmfamily\slshape}
+
+\newcommand{\caret}{\char94}
+
+\newcommand{\LST}{\setlistingsize{\zzlistingsizedefault}}
+
+\newlength{\zzlstwidth}
+\newcommand{\setlistingsize}[1]{\zzlistingsize=#1%
+\settowidth{\zzlstwidth}{{\Lstbasicstyle~}}%
+%\setlength{\zzlstwidth}{3pt}%
+}
+\setlistingsize{\zzlistingsizedefault}
+
+% The order of the "literate" definitions is significant:
+%   later definitions shadow earlier ones.  The \\Pi definition must come
+%   *after* the \\ definition, or the first part of \\Pi --- that is, \\ --- will
+%   be matched, and instead of $\Pi$ you'll get $\lambda Pi$.
+%
+\lstset{literate={->}{{$\rightarrow~$}}2 %
+                 {=>}{{$\Rightarrow~$}}2 %
+                 {|-}{{$\vdash\,$}}2 %
+                 {..}{{$.\hspace{-0.025cm}.\hspace{-0.025cm}.$}}1 % is there any nicer way?
+                 {\\}{{$\lambda$}}1 %
+                 {\\Pi}{{$\Pi$}}1 %
+                 {\\gamma}{{$\gamma$}}1 %
+                 {\\psi}{{$\psi$}}1 %
+                 {\\sigma}{{$\sigma$}}1 %
+                 {FN}{{$\Lambda$}}1 %
+                 {<<}{\color{ForestGreen}}1 %
+                 {<<r}{\color{FireBrick}}1 %
+                 {<*}{\color{ForestGreen}}1 %
+                 {<dim}{\color{DimGrey}}1 %
+                 {>>}{\color{black}}1 %
+                 {?}{\bf{?}}1,
+        columns=[l]fullflexible,
+        basicstyle=\ttfamily\lst@ifdisplaystyle\footnotesize\fi,
+        keywordstyle=\bf,
+        identifierstyle=\relax,
+        stringstyle=\relax,
+        commentstyle=\slshape\color{DimGrey},
+        breaklines=true,
+        % breakatwhitespace=true,   % doesn't do anything (?!)
+        mathescape=true,   % interprets $...$ in listing as math mode
+        xleftmargin=0.5cm,
+      }
+
+
+% ---------------------------------------------------------------------------
+
+% %                               {^}{{$\caret$}}1 %
+% \lstset{literate=%
+% %                               {=>}{{$\Rightarrow~$}}2 %
+% %                               {==>}{{$\Longrightarrow~$}}3 %
+%                                {\\/}{{$\unty$}}2 %
+% %                               {-}{-}1 %
+% %                               {->}{{$\rightarrow~$}}2 %
+%                                {^}{{$\,\caret\,$}}1 %
+%                                {|-}{{$\vdash$}}1 %
+%                                {orelse}{{\stupidcopter orelse}$~$}3 %
+%                                {as}{{\stupidcopter as}$~$}1 %
+%                                {else}{{\stupidcopter else}$~$}3 %
+%                                {case}{{\stupidcopter case}$~$}3 %
+%                                {mlam}{{\stupidcopter mlam}$~$}3 %
+%                                {raise}{{\stupidcopter raise}$~$}4 %
+%                                {let}{{\stupidcopter let}$~$}2 %
+%                                {datatype}{{\stupidcopter datatype}$~$}6 %
+%                                {datasort}{{\stupidcopter datasort}$~$}6 %
+%                                {@@@}{\text{\$}}1 %
+%                ,
+%                columns=[l]fullflexible,
+%                basewidth=\zzlstwidth,
+%                basicstyle=\Lstbasicstyle,
+%                keywordstyle=\keywordcopter,
+%                identifierstyle=\relax,
+% %               stringstyle=\relax,
+%                commentstyle=\commentcopter,
+% %               prebreak={\mbox{$\space\swarrow$}},
+% %               postbreak={\mbox{$\space\searrow$}},
+%                showstringspaces=false,
+%                breaklines=true,
+%                breakatwhitespace=true,
+%                mathescape=true,
+% %               tabsize=8,
+%                texcl=false}
+
+% \setlistingsize{11pt}
+
+% \usepackage{pstricks,pst-node,pst-tree}
+\usepackage{graphics}
+\usepackage{graphicx}
+
+\newdimen\zzfontsz
+\newcommand{\fontsz}[2]{\zzfontsz=#1%
+{\fontsize{\zzfontsz}{1.2\zzfontsz}\selectfont{#2}}}
+
+\newcommand{\mathsz}[2]{\text{\fontsz{#1}{$#2$}}}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\renewcommand{\Tilde}{\textsf{\char"7E}}
+
+\newcommand{\arrayenv}[1]{\renewcommand{\arraystretch}{1} \begin{array}[t]{@{}c@{}}#1\end{array}}
+\newcommand{\arrayenvc}[1]{\renewcommand{\arraystretch}{1} \begin{array}[c]{@{}c@{}}#1\end{array}}
+\newcommand{\arrayenvr}[1]{\renewcommand{\arraystretch}{1} \begin{array}[t]{@{}r@{}}#1\end{array}}
+\newcommand{\arrayenvbr}[1]{\renewcommand{\arraystretch}{1} \begin{array}[b]{@{}r@{}}#1\end{array}}
+\newcommand{\arrayenvl}[1]{\renewcommand{\arraystretch}{1} \begin{array}[t]{@{}l@{}}#1\end{array}}
+\newcommand{\arrayenvb}[1]{\renewcommand{\arraystretch}{1}  \begin{array}[b]{@{}c@{}}#1\end{array}} 
+\newcommand{\arrayenvbl}[1]{\renewcommand{\arraystretch}{1}  \begin{array}[b]{@{}l@{}}#1\end{array}}
+
+\newcommand{\subtype}{\leq}
+
+\newcommand{\union}{\mathrel{\cup}}
+\newcommand{\sect}{\mathrel{\cap}}
+
+\newcommand{\unit}{\texttt{()}}
+\newcommand{\Unit}{\textsf{unit}}
+\newcommand{\bang}{\texttt{!}}
+\renewcommand{\gets}{\mathop{\texttt{:=}}}
+
+\newcommand{\down}{\mathrel{\,\Downarrow\,}}
+\newcommand{\step}{\mathrel{\,\Rightarrow\,}}
+\newcommand{\mstep}{\longrightarrow^*}
+
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathcal{E}}
+\newcommand{\F}{\mathcal{F}}
+
+\newcommand{\Rsectintro}{\textsc{$\sectty$intro}\xspace}
+\newcommand{\Rsectelim}[1]{\textsc{$\sectty$elim{#1}}\xspace}
+
+\newcommand{\TIf}{\textsc{t-if}}
+\newcommand{\TPlus}{\textsc{t-plus}}
+\newcommand{\TMult}{\textsc{t-mult}}
+\newcommand{\TEq}{\textsc{t-eq}}
+\newcommand{\TApp}{\textsc{t-app}}
+\newcommand{\TSub}{\textsc{t-sub}}
+\newcommand{\TFn}{\textsc{t-fn}}
+\newcommand{\TFun}{\textsc{t-fun}}
+\newcommand{\TPair}{\textsc{t-pair}}
+\newcommand{\TFst}{\textsc{t-fst}}
+\newcommand{\TSnd}{\textsc{t-snd}}
+\newcommand{\TVar}{\textsc{t-var}}
+\newcommand{\TNum}{\textsc{t-num}}
+\newcommand{\TTrue}{\textsc{t-true}}
+\newcommand{\TFalse}{\textsc{t-false}}
+
+\newcommand{\TBinaryPrimop}{\textsc{t-binary-primop}\xspace}
+\newcommand{\TUnaryPrimop}{\textsc{t-unary-primop}\xspace}
+\newcommand{\TTuple}{\textsc{t-tuple}\xspace}
+\newcommand{\TTupleSyn}{\textsc{t-tuple-syn}\xspace}
+\newcommand{\TRec}{\textsc{t-rec}\xspace}
+\newcommand{\TAnno}{\textsc{t-anno}\xspace}
+
+\newcommand{\TLet}{\textsc{t-let}\xspace}
+\newcommand{\TLetSyn}{\textsc{t-let-syn}\xspace}
+\newcommand{\TDecs}{\textsc{t-decs}\xspace}
+\newcommand{\TByName}{\textsc{t-by-name}}
+\newcommand{\TByVal}{\textsc{t-by-val}}
+\newcommand{\TByValTuple}{\textsc{t-by-val-tuple}}
+
+\newcommand{\SIFT}{\textsc{s-iftrue}\xspace}
+\newcommand{\SIFF}{\textsc{s-iffalse}\xspace}
+\newcommand{\SIF}{\textsc{s-if}\xspace}
+\newcommand{\SAppFnStep}{\textsc{s-app-fn}\xspace}
+\newcommand{\SAppArgStep}{\textsc{s-app-arg}\xspace}
+\newcommand{\SAppBeta}{\textsc{s-app}\xspace}
+
+\newcommand{\BAnno}{\textsc{b-anno}\xspace}
+\newcommand{\BAnnoFn}{\textsc{b-anno-fn}\xspace}
+\newcommand{\BAnnoNonFn}{\textsc{b-anno-non-fn}\xspace}
+\newcommand{\BIFT}{\textsc{b-iftrue}\xspace}
+\newcommand{\BIFF}{\textsc{b-iffalse}\xspace}
+\newcommand{\BOp}{\textsc{b-op}\xspace}
+\newcommand{\BPlus}{\textsc{b-plus}\xspace}
+\newcommand{\BEq}{\textsc{b-eq}\xspace}
+\newcommand{\BLet}{\textsc{b-let}\xspace}
+\newcommand{\BNum}{\textsc{b-num}\xspace}
+\newcommand{\BVar}{\textsc{b-var}\xspace}
+\newcommand{\BIF}{\textsc{b-if}\xspace}
+\newcommand{\BTrue}{\textsc{b-true}\xspace}
+\newcommand{\BFalse}{\textsc{b-false}\xspace}
+\newcommand{\BFun}{\textsc{b-fun}\xspace}
+\newcommand{\BRec}{\textsc{b-rec}\xspace}
+
+\newcommand{\Int}{\textsf{int}}
+\newcommand{\Float}{\textsf{float}}
+\newcommand{\Bool}{\textsf{bool}}
+\newcommand{\Real}{\textsf{real}}
+\newcommand{\String}{\textsf{string}}
+\newcommand{\Char}{\textsf{char}}
+\newcommand{\Ref}{~\textsf{ref}}
+\newcommand{\Array}{~\textsf{array}}
+\newcommand{\norm}{\mathrel{\,\uparrow\,}}
+\newcommand{\neut}{\mathrel{\,\downarrow\,}}
+\newcommand{\neutG}{\Gamma^{\downarrow}}
+\newcommand{\syn}{\mathrel{\,\Rightarrow\,}}
+\newcommand{\chk}{\mathrel{\,\Leftarrow\,}}
+\newcommand{\arr}{\mathrel{\texttt{->}}}
+% \newcommand{\arrow}{\arr}
+\newcommand{\entails}{\vdash}
+\newcommand{\such}{~|~}
+\newcommand{\sectty}{\mathrel{\text{\&}}}
+
+\newcommand{\tmtrue}{\textsf{true}}
+\newcommand{\tmfalse}{\textsf{false}}
+\newcommand{\tmif}[3]{\textsf{if\;} #1 \textsf{\;then\;} #2 \textsf{\;else\;} #3}
+\newcommand{\tmfun}[3]{\textsf{fun } #1 (#2) = #3}
+\newcommand{\tmfn}[2]{\textsf{fn } #1\;\texttt{=>}\;#2}
+\newcommand{\tmapp}[2]{#1\;#2}
+\newcommand{\tmrec}[3]{\textsf{rec } {#1}\,:\,{#2}\;\texttt{=>}\;#3}
+\newcommand{\tmlet}[3]{\textsf{let } #1 = #2 \textsf{\;in\;} #3\; \textsf{end}}
+
+ \newcommand{\tmfst}[1]{\textsf{fst}\;{#1}\xspace}
+ \newcommand{\tmsnd}[1]{\textsf{snd}\;{#1}\xspace}
+
+% Numerical expressions
+\newcommand{\tmzero}{\textsf{z}}
+\newcommand{\tmsucc}{\textsf{succ}}
+\newcommand{\tmpred}{\textsf{pred}}
+\newcommand{\tmiszero}{\textsf{iszero}}
+
+
+\newcommand{\BLetn}{\textsc{b-letn}\xspace}
+\newcommand{\BLetp}{\textsc{b-letpair}\xspace}
+\newcommand{\BPair}{\textsc{b-pair}\xspace}
+\newcommand{\BFst}{\textsc{b-fst}\xspace}
+\newcommand{\BSnd}{\textsc{b-snd}\xspace}
+\newcommand{\BFn}{\textsc{b-fn}\xspace}
+\newcommand{\BApp}{\textsc{b-app}\xspace}
+
+\newcommand{\unif}{\doteq}
+\newcommand{\totp}{\Rightarrow}
+\newcommand{\emp}{\emptyset}
+\newcommand{\TT}{\textsf{tt}}
+
+% \newcommand{\D}{{\cal{D}}}
+\newcommand{\FV}{\mathsf{FV}}
+
+% \newcommand{\m}[1]{\mbox{\lstinline!#1!}}
+\newcommand{\mlam}[2]{\m{mlam}\; #1 \Rightarrow #2}
+\newcommand{\fn}[2]{\m{fn}\;#1 \Rightarrow #2}
+\newcommand{\rec}[2]{\m{rec}\;#1 = #2}
+\newcommand{\boxm}[2]{\m{box}(#1.\,#2)}
+\newcommand{\letboxm}[3]{\m{let}\,[#1]\;{=}\;#2\;\m{in}\;#3}
+\newcommand{\casev}[2]{\m{case}\;#1\;\m{of}\;#2}
+\newcommand{\casebox}[2]{\casev{#1}{#2}}
+\newcommand{\casearm}[2]{#1 \Rightarrow #2}
+\newcommand{\branch}[4] {\Pibox #1.#2:#3 \Rightarrow #4}
+

@@ -1,0 +1,155 @@
+%%% Beluga style file
+%%% Contains commonly used abbreviations and definitions
+%%
+
+\newenvironment{note}{\begin{quote}\message{note!}\it}{\end{quote}}
+% \spnewtheorem{attempt}{Attempt}{\bfseries}{\itshape}
+\newtheorem{attempt}{Attempt}
+% \newtheorem{lem}[theorem]{Lemma}
+% \newtheorem{cor}[theorem]{Corollary}
+% \newcommand{\bnfas}{\mathrel{::=}}
+
+\newcommand{\syn}{\Rightarrow}
+\newcommand{\chk}{\Leftarrow}
+
+
+\newcommand{\fn}[1]{\mathsf{fn}\,#1.\,}
+\newcommand{\apply}[2]{\mathsf{apply}(#1, #2)}
+\newcommand{\app}[1]{\mathsf{app}\; #1\; }
+%\newcommand{\app}[2]{#1\; #2}
+%\renewcommand{\lam}[1]{\mathsf{lam}\,#1.\,}
+\newcommand{\sapp}[1]{#1\;;\;}
+\newcommand{\snil}{\mathsf{nil}}
+
+\renewcommand{\lam}[1]{\lambda#1.\,}
+\newcommand{\lamb}[1]{\lam{#1}}
+% \newcommand{\lam}[2]{\mathsf{lam}\,#1\,.\,#2}
+\newcommand{\lamt}[2]{\mathsf{lam}\,#1{:}#2\,.\,}
+% \renewcommand{\arr}[2]{\mathsf{arrow}\,#1\,#2}
+\newcommand{\arr}[2]{#1 \Rightarrow #2}
+
+\newcommand{\equal}[2]{\mathsf{equal}\;#1\,  \,#2}
+\newcommand{\shape}[2]{\mathsf{shape}\;#1\,  \,#2}
+\newcommand{\varocc}[2]{\mathsf{var{-}occ}\;#1\;#2}
+\newcommand{\varTOcc}[2]{\mathsf{varT{-}occ}\;#1\;#2}
+\newcommand{\varEOcc}[2]{\mathsf{varE{-}occ}\;#1\;#2}
+
+\newcommand{\varT}[1]{\mathsf{varT}\;#1}
+\newcommand{\varE}[1]{\mathsf{varE}\;#1}
+
+\newcommand{\cntEVar}[2]{\mathsf{cntEV}\;#1~#2}
+\newcommand{\cntTVar}[2]{\mathsf{cntTV}\;#1~#2}
+
+\newcommand{\step}{\mathrel{\,\longrightarrow\,}}
+
+% \newcommand{\step}[2]{\mathsf{step}\;#1~#2}
+\renewcommand{\hastype}[2]{\mathsf{type\_of}\;#1~#2}
+
+\newcommand{\lftype}{\;\mathsf{type}}
+\newcommand{\ctxtype}{\;\mathsf{ctx}\_\mathsf{type}}
+
+\newcommand{\ctxkind}{\;\mathsf{ctx}\_\mathsf{kind}}
+\newcommand{\lfkind}{\;\mathsf{kind}}
+\newcommand{\ctx}{\;\mathsf{ctx}}
+
+\newcommand{\m}[1]{\ensuremath{\mathsf{#1}}}
+\newcommand{\proj}{\ensuremath{\m{proj}}}
+
+\newcommand{\edot}{\cdot}
+\newcommand{\id}{\m{id}}
+\newcommand{\lb}{{[\![}}
+\newcommand{\rb}{{]\!]}}
+\newcommand{\msub}[1]{\lb #1 \rb}
+\newcommand{\Pibox}{\Pi^{\scriptscriptstyle\Box}}
+\newcommand{\Sigmabox}{\Sigma^{\scriptscriptstyle\Box}}
+\newcommand{\purePsi}{\overline{\Psi}}
+\newcommand{\purePhi}{\overline{\Phi}}
+
+\newcommand{\boxm}[2]{\m{box}(#1.\,#2)}
+\newcommand{\boxp}[2]{\m{pbox}(#1.\,#2)}
+\newcommand{\letboxm}[3]{\m{let}\,\m{box}\;#1\;{=}\;#2\;\m{in}\;#3}
+\newcommand{\boxs}[2]{\m{sbox}(#1.\,#2)}
+\newcommand{\letboxs}[3]{\m{let}\,\m{sbox}\;#1\;{=}\;#2\;\m{in}\;#3}
+\newcommand{\casev}[2]{\m{case}\;#1\;\m{of}\;#2}
+\newcommand{\casebox}[2]{\casev{#1}{#2}}
+\newcommand{\caseboxs}[2]{\casev{#1}{#2}}
+\newcommand{\casearm}[2]{#1 \mapsto #2}
+\newcommand{\rec}[2]{\m{rec}\;#1 . #2}
+\newcommand{\mlam}[2]{\lambda^{\scriptscriptstyle\Box} #1.\,#2}
+\newcommand{\ctxi}[1]{\lceil #1 \rceil}
+\newcommand{\itp}[1]{\lceil #1 \rceil}
+
+\newcommand{\Bnfalt}{\!\!\!\bnfalt}
+
+\newcommand{\Psihat}{\hat{\Psi}}
+\newcommand{\Phihat}{\hat{\Phi}}
+\newcommand{\psihat}{\hat{\psi}}
+
+
+\newcommand{\HSM}[3]{{\lb #1\rb}_{#2}^{\raisebox{-2pt}[5pt][0pt]{\scriptsize\ensuremath{#3}}}}
+\newcommand{\HSMr}[2]{\HSM{#1}{#2}{\mathsf{R}}}
+\newcommand{\HSMs}[2]{\HSM{#1}{#2}{\mathsf{S}}}
+\newcommand{\HSMn}[2]{\HSM{#1}{#2}{\mathsf{N}}}
+\newcommand{\HSMETA}[4]{\HSM{#1}{#2}{#3} \, (#4)}
+\newcommand{\HSMETAr}[3]{\HSMETA{#1}{#2}{\mathsf{R}}{#3}}
+\newcommand{\HSMETAs}[3]{\HSMETA{#1}{#2}{\mathsf{S}}{#3}}
+\newcommand{\HSMETAn}[3]{\HSMETA{#1}{#2}{\mathsf{N}}{#3}}
+\newcommand{\HSMtar}[2]{\HSMETAr{#1}{\alpha[\erPsi]}{#2}}
+\newcommand{\HSMtas}[2]{\HSMETAs{#1}{\alpha[\erPsi]}{#2}}
+\newcommand{\HSMtan}[2]{\HSMETAn{#1}{\alpha[\erPsi]}{#2}}
+
+\newcommand{\HSMtarS}[2]{\HSMETAr{#1}{\Phi[\Psi]}{#2}}
+\newcommand{\HSMtasS}[2]{\HSMETAs{#1}{\Phi[\Psi]}{#2}}
+\newcommand{\HSMtanS}[2]{\HSMETAn{#1}{\Phi[\Psi]}{#2}}
+
+\newcommand{\HSfun}[3]{{[#1]}_{#2}^{\raisebox{-1pt}[5pt][0pt]{\scriptsize\ensuremath{#3}}}}
+\newcommand{\HS}[4]{\HSfun{#1}{#2}{#3} \, (#4)}
+\newcommand{\HSn}[3]{\HS{#1}{#2}{\mathsf{N}}{#3}}
+\newcommand{\HSr}[3]{\HS{#1}{#2}{\mathsf{R}}{#3}}
+\newcommand{\HSs}[3]{\HS{#1}{#2}{\mathsf{S}}{#3}}
+\newcommand{\HSa}[3]{\HSfun{#1}{#2}{\mathsf{A}} \, #3}
+
+\newcommand{\HSMx}[3]{\HS{M/x}{#1}{#2}{#3}}
+\newcommand{\HSMu}[3]{\HS{\Psihat.M/u}{#1}{#2}{#3}}
+
+\newcommand{\MHSn}[1]{\HSn{M/x}{\alpha}{#1}}
+\newcommand{\MHSr}[1]{\HSr{M/x}{\alpha}{#1}}
+\newcommand{\MHSs}[1]{\HSs{M/x}{\alpha}{#1}}
+\newcommand{\MHSa}[1]{\HSa{M/x}{\alpha}{#1}}
+
+\newcommand{\FV}{\m{FV}}
+\newcommand{\dom}{\m{dom}}
+\newcommand{\FMV}{\m{FMV}}
+\newcommand{\FCV}{\m{FCV}}
+\newcommand{\FSV}{\m{FSV}}
+\newcommand{\MV}{\m{MV}}
+\newcommand{\V}{\m{V}}
+
+\newcommand{\erasure}[1]{\ensuremath{|#1|}}
+
+\newcommand{\erase}[1]{{\bar{#1}}}
+\newcommand{\erPsi}{{\erase{\psi}}}
+\newcommand{\erPhi}{{\erase{\phi}}}
+
+\newcommand{\etal}{{et al.}}
+\newcommand{\eg}{e.g.\ }
+\newcommand{\ie}{i.e.\ }
+\newcommand{\ala}{\`a la\ }
+\newcommand{\Wolog}{W.l.o.g.\ }
+\newcommand{\wolog}{w.l.o.g.\ }
+\newcommand{\visavis}{vis-\`a-vis\ }
+
+\newcommand{\substctx}[2]{\lb #1/#2 \rb}
+\newcommand{\Pctx}{\substctx{\Psi}{\psi}}
+% \newcommand{\PMu}{\lb \Psihat.R/u\rb_{P[\Psi]}}
+\newcommand{\PMu}{\lb R/u\rb_{P[\Psi]}}
+% \newcommand{\Psub}{\lb \Psihat.\sigma/ s \rb}
+\newcommand{\Psub}{\lb \sigma/ s \rb}
+\newcommand{\Pmsub}{\lb x/p\rb}
+
+\newcommand{\entails}{\vdash}
+
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}

@@ -149,7 +149,7 @@ rec antiSubstSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
    {M : [g, x : tm A[] |- tm B[]]}
    {N : [g |- tm A[]]}
    SN [g |- M [.., N] ]
-    -> SN [g, x |- M ]
+    -> SN [g, x : tm A[] |- M ]
   = ?
   ;
 
@@ -159,10 +159,11 @@ rec redexSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
    {M : [g, x : tm A[] |- tm B[]]}
    {N : [g |- tm A[]]}
    SN [g |- N]
-    -> SN [g, x |- M ]
+    -> SN [g, x: tm A[] |- M ]
     -> SN [g |- M [.., N] ]
     -> SN [g |- app (abs \ x. M) N ]
-  = Acc (mlam R => fn snR => case snR of
+  = mlam g, A, B, T, M , N => fn sn, sm, ss => 
+  Acc (mlam R, S => case [g |- S] of
   % Possible reducts of app (abs \ x. M) N
   % 1. M [.., N]
      | [g |- rbeta] => ?

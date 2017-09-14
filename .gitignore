@@ -1,2 +1,6 @@
 *~
 *.agdai
+*.log
+*.aux
+*.pdf
+*.synctex.gz
