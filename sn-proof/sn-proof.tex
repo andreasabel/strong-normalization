@@ -1,5 +1,5 @@
 \documentclass{article}
-
+\usepackage{enumitem}
 \newtheorem{exercise}{Exercise}[section]
 % \newenvironment{exercise}{\begin{@exercise}\rm}{\end{@exercise}}
 \newenvironment{ADDITIONAL}[1]{#1}{}
@@ -109,6 +109,10 @@
 \newcommand{\Den}[3][]{\den{#2}^{#1}_{#3}}
 \newcommand{\dent}[2]{\llparenthesis#1\rrparenthesis_{#2}}
 
+
+\long\def\ednote#1{\footnote{[{\it #1\/}]}\message{ednote!}}
+% \long\def\note#1{\begin{quote}[{\it #1\/}]\end{quote}\message{note!}}
+
 \begin{document}
 We discuss here an alternative proof method for proving normalization. We will focus here on a \emph{semantic} proof method using \emph{saturated sets}. This proof method goes back to Girard (1972) building on some previous ideas by Tait.
 
@@ -173,7 +177,7 @@ Next, we define the denotations of the base type $o$ and the function type $A \a
 % We need to give a type interpretation (denotation) for each of the types.
 
 \begin{itemize}
-\item A term $M \in \den{o}$ iff $M$ is strongly normalizing, i.e. $M \in \SN$.
+\item A term $M \in \den{o}$ iff $M\hastype o$ and $M$ is strongly normalizing, i.e. $M \in \SN$.
 \item A term $M \in \den{A \arrow B}$ iff $M \in \den{A} \imply \den{B}$,
   i.e. for all $N \in \den{A}. M\;N \in \den{B}$.
 \end{itemize}
@@ -198,7 +202,7 @@ normalizing.\\
 \]
 \end{definition}
 
-Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof here and leave it to an exercise. 
+Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof here and leave it to an exercise\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
 
 \begin{theorem}[Subterm property of strong normalization]
 Any subterm of a strongly normalizing term is strongly normalizing itself.
@@ -224,7 +228,7 @@ The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for 
 \[
 \begin{array}{c}
 \multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
-\ianc{}{x\in \SNe}{} \qquad   \ibnc{R \in \SNe}{s \in \SN}{R\,M \in \SNe}{} 
+\ianc{}{x\in \SNe}{} \qquad   \ibnc{R \in \SNe}{M \in \SN}{R\,M \in \SNe}{} 
 \\[1em]
 \multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
 \ianc{R \in \SNe}{R \in \SN}{} \qquad 
@@ -247,9 +251,9 @@ We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal def
 
 \begin{lemma}[Properties of strongly normalizing terms]$\;$
   \begin{enumerate}
-  \item If $M \in \csn$ and $[N/x]M \in \csn$ and $N \in \csn$ 
-        then $(\lambda x.M) \;N \in \csn$.
-  \item If $M \in \csn$ and $N \in \csn$ where $M$ is not a $\lambda$
+  \item\label{pp1} If $M \in \csn$ and $[N/x]M \in \csn$ and $N \in \csn$ 
+        then $(\lambda x.M) \;N \in \csn$.\ednote{by first part of closure lemma, $M \in \csn$ non needed }
+  \item\label{pp2} If $M \in \csn$ and $N \in \csn$ where $M$ is not a $\lambda$
         then $M\;N \in \csn$. (we also have $M\;N \red M'\;N$ and $M'\;N \in \csn$ as i.h.)
   \end{enumerate} 
 \end{lemma}
@@ -259,16 +263,16 @@ By induction on $M \in \csn$ and $N \in \csn$.
 
 \begin{lemma}[Closure properties of strongly normalizing terms]$\;$
   \begin{enumerate}
-  \item If $[N/x]M \in \csn$ then $M \in \csn$.
-  \item For all variables $x$, $x \in \csn$.
-  \item If $M \in \csn$ and $N \in \csn$ where $M = x \,\vec N$ 
+  \item\label{cp1} If $[N/x]M \in \csn$ then $M \in \csn$.
+  \item\label{cp2} For all variables $x$, $x \in \csn$.
+  \item\label{c31} If $M \in \csn$ and $N \in \csn$ where $M = x \,\vec N$ 
      then $M\,N \in \csn$.
-   \item If $M \in \csn$ then $\lambda x.M \in \csn$.
-   \item \textbf{Expansion.} If $M \redsn M'$ and $M' \in \csn$ then $M \in \csn$
-where   
+   \item\label{cp4} If $M \in \csn$ then $\lambda x.M \in \csn$.
+   \item\label{cp5} {$\csn$-backward closure:} If $M \redsn M'$ and $M' \in \csn$ then
+     $M \in \csn$ where
 \[
 \begin{array}{l}
-\infer{(\lambda x.M)\;N \redsn [N/x]t}{N \in \csn} 
+\infer{(\lambda x.M)\;N \redsn [N/x]M}{N \in \csn} 
 \qquad
 \infer{M\;N \redsn M'\;N}{M \redsn M' & M\,\text{is not a}\;\lambda}  %& s \in \csn
   \\[1em]
@@ -276,13 +280,20 @@ where
 \]
 \end{enumerate}
 \end{lemma}
-\begin{proof}
-By case analysis and induction.  
+\begin{proof}\mbox{}
+  \begin{enumerate}
+  \item todo
+  \item Immediate by definition.
+  \item todo
+  \item By induction on the given derivation
+  \item todo
+  \end{enumerate}
 \end{proof}
 
 We can now prove our inductive definition to be sound and complete.
 
 \begin{theorem}[Soundness of $\SN$]
+\mbox{}
   \begin{enumerate}
   \item If $M \in SN$ then $M \in \csn$.
   \item If $M \in SNe$ then $M \in \csn$ and $M = x\, \vec N$.
@@ -290,10 +301,15 @@ We can now prove our inductive definition to be sound and complete.
   \end{enumerate} 
 \end{theorem}
 \begin{proof}
-By mutual structural induction on the given derivation using the closure properties.   
+By mutual structural induction on the given derivations using the closure properties. 
+\begin{enumerate}
+\item $\xi$-case uses Property~\ref{cp4}. REduction case uses~\ref{cp5}
+\item Variable case uses~\ref{cp2}, application uses~\ref{pp2}
+\item Follows by approriate calls to induction hypotheses
+\end{enumerate}
 \end{proof}
 
-\begin{theorem}[Completeness of $\SN$]
+\begin{theorem}[Completeness of $\SN$]\mbox{}
   \begin{enumerate}
   \item If $R = x\,\vec N \in \csn$ then $x\,\vec N\in \SNe$.
   \item If $R = (\lambda x.M)\,N\,\vec N \in \csn$ then $R \redSN [N/x]M\,\vec  N$.
