@@ -57,6 +57,7 @@
 \newtheorem{@sol}{Solution}[section]
 \newenvironment{sol}{\begin{@sol}\rm}{\end{@sol}}
 
+\newcommand{\ext}[1]{\geq_{#1}}
 
 \usepackage{proof}
 \usepackage{cdsty}
@@ -121,7 +122,8 @@ The key question is how to prove that give a lambda-term, its evaluation termina
 
 \[
 \begin{array}{llcl}
-\mbox{Terms}  & M,N & \bnfas & x \mid \lambda x. M \mid M\;N \\
+\mbox{Terms}  & M,N & \bnfas & x \mid \lambda x{:A}. M \mid M\;N \\
+\mbox{Types} & A, B & \bnfas & \base \mid A \arrow B
 \end{array}
 \]
 
@@ -130,20 +132,29 @@ We consider as the main rule for reduction (or evaluation) applying a term to an
 \[
 \begin{array}{lcl}
 %\multicolumn{3}{l}{\mbox{$\beta$-reduction}}  \\
-(\lambda x.M)\;N & \red & [N/x]M \qquad\qquad\mbox{$\beta$-reduction}
+\Gamma \vdash (\lambda x{:}A.M)\;N & \red & \Gamma \vdash [N/x]M \qquad\qquad\mbox{$\beta$-reduction}
 \end{array}
 \]
 
 The $\beta$-reduction rule only applies once we have found a redex. However, we also need congruence rules to allow evaluation of arbitrary subterms. 
 
-
 \[
 \begin{array}{l}
-\infer{M\,N \red M'\,N}{M \red M'} \qquad  \infer{M\,N \red M\,N'}{N \red N'}
-\qquad
-\infer{\lambda x.M \red \lambda x.M'}{M \red M'}
+\infer{\Gamma \vdash M\,N \red M'\,N}{\Gamma \vdash M \red M'} \qquad  
+% \infer{\Gamma \vdash M\,N \red M\,N'}{N \red N'}
+% \qquad
+\infer{\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M'}{\Gamma, x{:}A \vdash M \red M'}
 \end{array}
 \]
+
+To allow for weak head reductions, we rely on evaluation contexts.
+
+\[
+\begin{array}{lcl}
+\mbox{Evaluation Context}~E & \bnfas & {\_} ~\mid E~M  
+\end{array}
+\]
+
 
 The question then is, how do we know that reducing a well-typed lambda-term will halt? - This is equivalent to asking does a well-typed lambda-term normalize, i.e. after some reduction steps we will end up in a normal form where there are no further reductions possible. Since a normal lambda-term characterizes normal proofs, normalizing a lambda-term corresponds to normalizing proofs and demonstrates that every proof in the natural deduction system indeed has a normal proof.
 
@@ -151,45 +162,46 @@ Proving that reduction must terminate is not a simple syntactic argument based o
 
 % Unlike all the previous proofs which were syntactic and direct based on the structure of the derivation or terms, semantic proofs 
 
-\section{General idea}
-We can define the meaning of a well-typed term $M$ in the context $\Gamma$ of type $A$ as follows: for all grounding instantiations $\sigma$ providing values for the variables declared in $\Gamma$, $[\sigma]M$ is in the denotation of $A$. We write for the denotation of $A$ as $\den{A} = \A$. Similarly, the denotation of $\Gamma$ is written as $\den{\Gamma}=\G$.
+\section{Semantic Interpretation}
 
-$\den{A}$ is interpreted as the sets of strongly normalizing terms of type $A$, i.e. $\den{A} \in \SN$. We prove that if a term is well-typed, then it is strongly normalizing in  two steps:
 
-\begin{description}
-\item[Step 1] If $M \in \den{A}$ then $M \in \SN$. 
-\item[Step 2] If $\Gamma \vdash M : A$ and $\sigma \in \den{\Gamma}$ then $[\sigma]M \in \den{A}$.
-\end{description}
+\begin{itemize}
+\item $\Gamma \models M : \base$ iff $\Gamma \vdash M\hastype \base$ and $M$ is strongly normalizing, i.e. $(\Gamma \vdash M) \in \SN$.
+\item $\Gamma \models M : A \arrow B$ iff for all $\Gamma' \ext{\rho} \Gamma$ and $\Gamma' \vdash N :A$ if $\Gamma' \models N : A \imply \Gamma' \models M[\rho]~N : B$,
+\end{itemize}
 
-Therefore, we can conclude that if a term $M$ has type $A$ then $M \in \SN$, i.e. $M$ is strongly normalizing and its reduction is finite, choosing $\sigma$ to be the identity substitution. 
-\\[1em]
-We remark first, that all variables are in the denotations of a type $A$, i.e. $\textsf{Var} \subseteq \den{A}$, and variables are strongly normalizing, i.e. they are already in normal form.
-\\[1em]
-Next, we define the denotations of the base type $o$ and the function type $A \arrow B$.
-% Recall, we consider here the simply typed lambda calculus with base type $o$.
+% We sometimes write these definitions more compactly as follows
 
 % \[
 % \begin{array}{llcl}
-% \mbox{Types} & A,B,C & \bnfas & o \mid A \arrow B  
+% \mbox{Semantic base type} & \den{o} & := & \SN  \\
+% \mbox{Semantic function type} & \den{A \arrow B} & := & \{ M | \forall \Gamma' \ext{\rho} \Gamma,~\forall \Gamma' \vdash N : A.~ \Gamma'\ models N : A \ \in \den{A}. M\;N \in \den{B} \}
 % \end{array}
 % \]
 
-% We need to give a type interpretation (denotation) for each of the types.
 
-\begin{itemize}
-\item A term $M \in \den{o}$ iff $M\hastype o$ and $M$ is strongly normalizing, i.e. $M \in \SN$.
-\item A term $M \in \den{A \arrow B}$ iff $M \in \den{A} \imply \den{B}$,
-  i.e. for all $N \in \den{A}. M\;N \in \den{B}$.
-\end{itemize}
+\section{General idea}
 
-We often write these definitions more compactly as follows
+We prove that if a term is well-typed, then it is strongly normalizing in  two steps:
 
-\[
-\begin{array}{llcl}
-\mbox{Semantic base type} & \den{o} & := & \SN  \\
-\mbox{Semantic function type} & \den{A \arrow B} & := & \{ M | \forall N \in \den{A}. M\;N \in \den{B} \}
-\end{array}
-\]
+\begin{description}
+\item[Step 1] If $\Gamma \models M : A$ then $(\Gamma \vdash M) \in \SN$. 
+\item[Step 2] If $\Gamma \vdash M : A$ and $\Gamma' \models \sigma : \Gamma$ then $\Gamma' \models [\sigma]M : A$.
+\end{description}
+
+Therefore, we can conclude that if a term $M$ has type $A$ then $M \in \SN$, i.e. $M$ is strongly normalizing and its reduction is finite, choosing $\sigma$ to be the identity substitution. 
+% \\[1em]
+% We remark first, that all variables are in the semantic type $A$ and variables are strongly normalizing, i.e. they are already in normal form.
+
+% % \begin{lemma}~\\
+%   \begin{itemize}
+%   \item If $\Gamma \vdash x : A$ then $\Gamma \models x : A$
+%   \item If $\Gamma \vdash x : A$ then $(\Gamma \vdash x) \in \SN$.
+%   \end{itemize}
+  
+% \end{lemma}
+
+These are of course statements we need to prove.
 
 \section{Defining strongly normalizing terms}
 Intuitively, a term $M$ is strongly normalizing, if there exists no infinite reduction sequence. Constructively, we can define strong normalization as follows:
@@ -198,14 +210,15 @@ Intuitively, a term $M$ is strongly normalizing, if there exists no infinite red
 A term $M$ is strongly normalizing, if all its reducts are strongly
 normalizing.\\
 \[
-\infer{\csn~ M}{\forall M'.~M \red M' \imply \csn~ M'}
+\infer{(\Gamma \vdash M) \in \csn}{\forall M'.~\Gamma \vdash M \red M' \imply (\Gamma \vdash M') \in \csn}
 \]
 \end{definition}
 
-Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof here and leave it to an exercise\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
+Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
 
 \begin{theorem}[Subterm property of strong normalization]
-Any subterm of a strongly normalizing term is strongly normalizing itself.
+% Any subterm of a strongly normalizing term is strongly normalizing itself.za
+If $(\Gamma \vdash M) \in \csn$ and $\Gamma \vdash C[N] = M$ then $(\Gamma \vdash N) \in \csn$.
 % or more formally:
 %if $t \in \csn$ and $C[s] = t$ then $s \in \csn$.
 \end{theorem}
@@ -216,8 +229,8 @@ Here, we define inductively the set of normal terms, $\SN$, and the set of neutr
 
 \begin{center}
 \begin{tabular}{ll}
-$M \in \SN$  & $M$ is in the set of normal terms\\
-$M \in \SNe$ & $M$ is in the set of neutral terms 
+$(\Gamma \vdash M) \in \SN$  & $M$ is in the set of normal terms\\
+$(\Gamma \vdash M) \in \SNe$ & $M$ is in the set of neutral terms 
 \end{tabular}  
 \end{center}
 
@@ -228,16 +241,16 @@ The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for 
 \[
 \begin{array}{c}
 \multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
-\ianc{}{x\in \SNe}{} \qquad   \ibnc{R \in \SNe}{M \in \SN}{R\,M \in \SNe}{} 
+\ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{} \qquad   \ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{} 
 \\[1em]
 \multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
-\ianc{R \in \SNe}{R \in \SN}{} \qquad 
-\ianc{M \in \SN}{\lambda x.M \in \SN}{} \qquad
-\ibnc{M \redSN M'}{M' \in \SN}{M \in \SN}{} 
+\ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{} \qquad 
+\ianc{\Gamma, x{:}A \vdash M \in \SN}{\Gamma \vdash \lambda x{:}A.M \in \SN}{} \qquad
+\ibnc{\Gamma \vdash M \redSN M'}{\Gamma \vdash M' \in \SN}{\Gamma \vdash M \in \SN}{} 
 \\[1em]
 \multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
-\ianc{N \in \SN}{(\lambda x.M)\;N \redSN [N/x]M}{} \qquad
-\ibnc{R \redSN R'}{R\;\text{is not a}\;\lambda}{R\,M \redSN R'\,M}{}
+\ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M}{} \qquad
+\ibnc{\Gamma \vdash R \redSN R'}{R\;\text{is not a}\;\lambda}{\Gamma \vdash R\,M \redSN R'\,M}{}
 \end{array}
 \]
   \caption{Inductive definition of strongly normalizing terms}
