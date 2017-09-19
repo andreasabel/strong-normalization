@@ -160,10 +160,15 @@ The question then is, how do we know that reducing a well-typed lambda-term will
 
 Proving that reduction must terminate is not a simple syntactic argument based on terms, since the $\beta$-reduction rule may yield a term which is bigger than the term we started with. We hence need to find a different inductive argument. For the simply-typed lambda-calculus, we can prove that while the expression itself does not get smaller,  the type of an expression is. This is a syntactic argument; it however does not scale to polymorphic lambda-calculus. We will here instead discuss a \emph{semantic} proof method where we define the meaning of well-typed terms using the abstract notion of \emph{reducibility candidates}. 
 
+
 % Unlike all the previous proofs which were syntactic and direct based on the structure of the derivation or terms, semantic proofs 
 
 \section{Semantic Interpretation}
-
+Working with well-typed terms means we need to be more careful to
+consider a term within its typing context. In particular, when we
+define the semantic interpretation of $\Gamma \models M : A \arrow B$
+we must consider all extensions of $\Gamma$ (described by $\Gamma'
+\ext \rho \Gamma$) in which we may use $M$.
 
 \begin{itemize}
 \item $\Gamma \models M : \base$ iff $\Gamma \vdash M\hastype \base$ and $M$ is strongly normalizing, i.e. $(\Gamma \vdash M) \in \SN$.
@@ -201,7 +206,7 @@ Therefore, we can conclude that if a term $M$ has type $A$ then $M \in \SN$, i.e
   
 % \end{lemma}
 
-These are of course statements we need to prove.
+% These are of course statements we need to prove.
 
 \section{Defining strongly normalizing terms}
 Intuitively, a term $M$ is strongly normalizing, if there exists no infinite reduction sequence. Constructively, we can define strong normalization as follows:
@@ -258,36 +263,42 @@ The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for 
 \end{figure}
 
 
-We will sketch here that these inductive definition is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}). 
+We will sketch here that the inductive definition of $\SN$ and $\SNe$ is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}). 
 
 We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
 
 \begin{lemma}[Properties of strongly normalizing terms]$\;$
   \begin{enumerate}
-  \item\label{pp1} If $M \in \csn$ and $[N/x]M \in \csn$ and $N \in \csn$ 
-        then $(\lambda x.M) \;N \in \csn$.\ednote{by first part of closure lemma, $M \in \csn$ non needed }
-  \item\label{pp2} If $M \in \csn$ and $N \in \csn$ where $M$ is not a $\lambda$
-        then $M\;N \in \csn$. (we also have $M\;N \red M'\;N$ and $M'\;N \in \csn$ as i.h.)
+  \item\label{pp1} If $\Gamma \vdash M \in \csn$ 
+                  and $\Gamma \vdash   [N/x]M \in \csn$
+                  and $\Gamma \vdash N \in \csn$ 
+                 then $\Gamma \vdash (\lambda x.M) \;N \in \csn$.\ednote{by first part of closure lemma, $M \in \csn$ non needed }
+  \item\label{pp2} If $\Gamma \vdash M \in \csn$
+                  and $\Gamma \vdash N \in \csn$ where $M$ is not a $\lambda$
+                 then $\Gamma \vdash M\;N \in \csn$. (we also have $\Gamma
+                 \vdash M\;N \red M'\;N$ and $\Gamma \vdash M'\;N \in \csn$ as i.h.)
   \end{enumerate} 
 \end{lemma}
 \begin{proof}
-By induction on $M \in \csn$ and $N \in \csn$.  
+By induction on $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.  
 \end{proof}
 
-\begin{lemma}[Closure properties of strongly normalizing terms]$\;$
+\begin{lemma}[Closure properties of strongly normalizing terms]\label{lm:closn}$\;$
   \begin{enumerate}
-  \item\label{cp1} If $[N/x]M \in \csn$ then $M \in \csn$.
-  \item\label{cp2} For all variables $x$, $x \in \csn$.
-  \item\label{c31} If $M \in \csn$ and $N \in \csn$ where $M = x \,\vec N$ 
-     then $M\,N \in \csn$.
-   \item\label{cp4} If $M \in \csn$ then $\lambda x.M \in \csn$.
-   \item\label{cp5} {$\csn$-backward closure:} If $M \redsn M'$ and $M' \in \csn$ then
-     $M \in \csn$ where
+  \item\label{cp1} If $\Gamma \vdash [N/x]M \in \csn$ then $\Gamma
+    \vdash M \in \csn$.
+  \item\label{cp2} For all variables $x:A \in \Gamma$, $\Gamma \vdash x \in \csn$.
+  \item\label{c31} If $\Gamma \vdash C[x] \in \csn$ and $\Gamma \vdash N \in \csn$ 
+     then $\Gamma \vdash C[x]\,N \in \csn$.
+   \item\label{cp4} If $\Gamma,x{:}A \vdash M \in \csn$ then $\Gamma \vdash \lambda x.M \in \csn$.
+   \item\label{cp5} {$\csn$-backward closure:} If $\Gamma \vdash M
+     \redsn M'$ and $\Gamma \vdash M' \in \csn$ then
+     $\Gamma \vdash M \in \csn$ where
 \[
 \begin{array}{l}
-\infer{(\lambda x.M)\;N \redsn [N/x]M}{N \in \csn} 
+\infer{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M}{\Gamma \vdash N \in \csn} 
 \qquad
-\infer{M\;N \redsn M'\;N}{M \redsn M' & M\,\text{is not a}\;\lambda}  %& s \in \csn
+\infer{\Gamma \vdash M\;N \redsn M'\;N}{\Gamma \vdash M \redsn M' & M\,\text{is not a}\;\lambda}  %& s \in \csn
   \\[1em]
 \end{array}
 \]
@@ -308,15 +319,39 @@ We can now prove our inductive definition to be sound and complete.
 \begin{theorem}[Soundness of $\SN$]
 \mbox{}
   \begin{enumerate}
-  \item If $M \in SN$ then $M \in \csn$.
-  \item If $M \in SNe$ then $M \in \csn$ and $M = x\, \vec N$.
-  \item If $M \redSN M'$ then $M \redsn M'$.
+  \item If $\Gamma \vdash M \in SN$ then $\Gamma \vdash M \in \csn$.
+  \item If $\Gamma \vdash C[x] \in SNe$ then $\Gamma \vdash C[x] \in \csn$.
+  \item If $\Gamma \vdash M \redSN M'$ then $\Gamma \vdash M \redsn M'$.
   \end{enumerate} 
 \end{theorem}
 \begin{proof}
-By mutual structural induction on the given derivations using the closure properties. 
+By mutual structural induction on the given derivations using the
+closure properties. \\[1em]
+\noindent
+1. If $\Gamma \vdash M \in SN$ then $\Gamma \vdash M \in \csn$.
+
+\paragraph{Case} $\D = \ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{}$ 
+\\[1em]
+$R = C[x] $ \hfill since $\Gamma \vdash R \in \SNe$ \\
+$\Gamma \vdash R \in \csn$ \hfill by IH (2)
+
+\paragraph{Case} $\D = \ianc{\Gamma, x{:}A \vdash M \in \SN}
+                           {\Gamma  \vdash \lambda x{:}A.M \in \SN}{}$
+\\[1em]
+$\Gamma, x{:}A \vdash M \in \csn$ \hfill by IH (1) \\
+$\Gamma \vdash \lambda x{:}A.M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp4})
+
+\paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M'}{
+                             \Gamma \vdash M' \in \SN}
+                            {\Gamma \vdash M \in \SN}{} $
+\\[1em]
+$\Gamma \vdash M' \in \csn$ \hfill by IH(1)\\
+$\Gamma \vdash M \redsn M'$ \hfill by IH(3)\\
+$\Gamma \vdash M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5})
+\\[1em]
+
 \begin{enumerate}
-\item $\xi$-case uses Property~\ref{cp4}. REduction case uses~\ref{cp5}
+\item $\xi$-case uses Property~\ref{cp4}. Reduction case uses~\ref{cp5}
 \item Variable case uses~\ref{cp2}, application uses~\ref{pp2}
 \item Follows by approriate calls to induction hypotheses
 \end{enumerate}
