@@ -432,20 +432,20 @@ closure properties. \\[1em]
 \paragraph{Case} $\D = \ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{}$ 
 \\[1em]
 $R = C[x] $ \hfill since $\Gamma \vdash R \in \SNe$ \\
-$\Gamma \vdash R \in \csn$ \hfill by IH(\ref{cp2})
+$\Gamma \vdash R \in \csn$ \hfill by IH(1)
 
 \paragraph{Case} $\D = \ianc{\Gamma, x{:}A \vdash M \in \SN}
                            {\Gamma  \vdash \lambda x{:}A.M \in \SN}{}$
 \\[1em]
-$\Gamma, x{:}A \vdash M \in \csn$ \hfill by IH(\ref{cp1}) \\
+$\Gamma, x{:}A \vdash M \in \csn$ \hfill by IH(1) \\
 $\Gamma \vdash \lambda x{:}A.M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp4})
 
 \paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M'}{
                              \Gamma \vdash M' \in \SN}
                             {\Gamma \vdash M \in \SN}{} $
 \\[1em]
-$\Gamma \vdash M' \in \csn$ \hfill by IH(\ref{cp1})\\
-$\Gamma \vdash M \redsn M'$ \hfill by IH(\ref{cp3})\\
+$\Gamma \vdash M' \in \csn$ \hfill by IH(1)\\
+$\Gamma \vdash M \redsn M'$ \hfill by IH(3)\\
 $\Gamma \vdash M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5})
 \\[1em]
 \noindent
@@ -461,8 +461,8 @@ $\Gamma \vdash x \in \csn$
 \paragraph{Case}$\D = \ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{}$
 \\
 $C'[x] = R$ \hfill since $C[x] = R\;M$\\
-$\Gamma \vdash C'[x] \in \csn$ \hfill by IH(\ref{cp2}) \\
-$\Gamma \vdash M \in \csn$ \hfill by IH(\ref{cp1})\\
+$\Gamma \vdash C'[x] \in \csn$ \hfill by IH(2) \\
+$\Gamma \vdash M \in \csn$ \hfill by IH(1)\\
 $\Gamma \vdash C'[x]\;M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp3})\\
 $\Gamma \vdash C[x] \in \csn$ \hfill since $C[x] = C'[x]~M$
 \\[1em]
@@ -471,12 +471,12 @@ $\Gamma \vdash C[x] \in \csn$ \hfill since $C[x] = C'[x]~M$
 
 \paragraph{Case} $\D = \ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M}{}$
 \\[1em]
-$\Gamma \vdash N \in \csn$ \hfill by IH(\ref{cp3}) \\
+$\Gamma \vdash N \in \csn$ \hfill by IH(1) \\
 $\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M$ \hfill by def. of $\redsn$
 
 \paragraph{Case} $\D = \ibnc{\Gamma \vdash R \redSN R'}{R\;\text{is not a}\;\lambda}{\Gamma \vdash R\,M \redSN R'\,M}{}$
 \\[1em]
-$\Gamma \vdash R \redsn R'$ \hfill by IH(\ref{cp3}) \\
+$\Gamma \vdash R \redsn R'$ \hfill by IH(3) \\
 ${\Gamma \vdash R\,M \redsn R'\,M}$ \hfill by def. or $\redsn$
 
 \end{proof}
