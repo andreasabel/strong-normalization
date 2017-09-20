@@ -141,8 +141,8 @@ The $\beta$-reduction rule only applies once we have found a redex. However, we 
 \[
 \begin{array}{l}
 \infer{\Gamma \vdash M\,N \red M'\,N}{\Gamma \vdash M \red M'} \qquad  
-% \infer{\Gamma \vdash M\,N \red M\,N'}{N \red N'}
-% \qquad
+\infer{\Gamma \vdash M\,N \red M\,N'}{N \red N'}
+ \qquad
 \infer{\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M'}{\Gamma, x{:}A \vdash M \red M'}
 \end{array}
 \]
@@ -151,7 +151,7 @@ To allow for weak head reductions, we rely on evaluation contexts.
 
 \[
 \begin{array}{lcl}
-\mbox{Evaluation Context}~E & \bnfas & {\_} ~\mid E~M  
+\mbox{Evaluation Context}~C & \bnfas & {\_} ~\mid C~M  
 \end{array}
 \]
 
@@ -283,13 +283,51 @@ We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal def
 By induction on $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.  
 \end{proof}
 
+\begin{lemma}[Evaluation Contexts]\label{lm:ecxt}$\;$
+If $\Gamma \vdash C[x]~N \red R$ then there exists an
+    evaluation context $C'$ s.t. $R = C'[x]$.
+\end{lemma}
+\begin{proof}
+By induction on the structure of evaluation contexts.
+
+\paragraph{Case}  $C[x] = x$ 
+\\[1em]
+$Gamma \vdash x~N \red R$ \hfill by assumption
+Impossible since $x~N$ does not step.
+
+\paragraph{Case} $C[x] = C_0[x]~M$ \\[1em]
+$\Gamma \vdash (C_0[x]~M)~N \red R$ \hfill by assumption\\[1em]
+\textbf{Sub-case} $\ianc{\Gamma \vdash (C_0[x]~M) \red R}{\Gamma  \vdash (C_0[x]~M)\,N \red R\,N}{}$
+\\[1em]
+There exists an evaluation context $C_1[x] = R$ \hfill by IH \\
+Therefore there exists an evaluation context $C'[x] = C_1[x]~N$
+\\[1em]
+\textbf{Sub-case} $\ianc{\Gamma \vdash N \red N'}{\Gamma \vdash (C_0[x]~M)\,N \red (C_0[x]~M)\,N'}{}$
+\\[1em]
+Hence there exists an evaluation context $C'$ s.t. $C'[x] = (C_0[x]~M)\,N'$. 
+
+\end{proof}
+
+% Closure of SN under WH Expansion
+% 1.
+% If $\Gamma \vdash N \in \csn$
+% and $\Gamma \vdash C[M[N/x]] \in \csn$ 
+% then $\Gamma \vdash C[ (lam x.M)~N] \in \csn$.
+% 2.
+% If $\Gamma \vdash C[ (lam x.M)~N ] \red R$
+% then $\Gamma \vdash C[ M[N/x] } \red R$
+% 
+% 3.
+
 \begin{lemma}[Closure properties of strongly normalizing terms]\label{lm:closn}$\;$
   \begin{enumerate}
   \item\label{cp1} If $\Gamma \vdash [N/x]M \in \csn$ then $\Gamma
     \vdash M \in \csn$.
   \item\label{cp2} For all variables $x:A \in \Gamma$, $\Gamma \vdash x \in \csn$.
-  \item\label{c31} If $\Gamma \vdash C[x] \in \csn$ and $\Gamma \vdash N \in \csn$ 
+  \item\label{cp3} If $\Gamma \vdash C[x] \in \csn$ and $\Gamma \vdash N \in \csn$ 
      then $\Gamma \vdash C[x]\,N \in \csn$.
+  \item\label{cp3b} If $\Gamma \vdash C[x]~M \red R$ and $\Gamma \in C[x] \in
+\csn$ and $\Gamma \vdash M \in \csn$ then $\Gamma \vdash R \in \csn$. 
    \item\label{cp4} If $\Gamma,x{:}A \vdash M \in \csn$ then $\Gamma \vdash \lambda x.M \in \csn$.
    \item\label{cp5} {$\csn$-backward closure:} If $\Gamma \vdash M
      \redsn M'$ and $\Gamma \vdash M' \in \csn$ then
@@ -304,14 +342,75 @@ By induction on $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.
 \]
 \end{enumerate}
 \end{lemma}
-\begin{proof}\mbox{}
-  \begin{enumerate}
-  \item todo
-  \item Immediate by definition.
-  \item todo
-  \item By induction on the given derivation
-  \item todo
-  \end{enumerate}
+\begin{proof}\mbox{}~\\[1em]
+\noindent
+\fbox{\ref{cp2}.  For all variables $x:A \in \Gamma$, $\Gamma \vdash x \in \csn$.}
+\\[1em]
+$\forall M'.~\Gamma \vdash x \red M' \imply (\Gamma \vdash M') \in \csn$ \hfill since $\Gamma \vdash x \red M'$ is impossible
+\\
+$\Gamma \vdash x \in \csn$
+\\[1em]
+\fbox{
+%  \begin{tabular}{lp{11cm}}
+\ref{cp3}.  If $\Gamma \vdash C[x] \in \csn$ and $\Gamma \vdash N \in \csn$ 
+     then $\Gamma \vdash C[x]\,N \in \csn$.\\
+% \ref{cp3b}. & If $\Gamma \vdash C[x]~M \red R$ and $\Gamma \in C[x] \in
+% \csn$ and $\Gamma \vdash M \in \csn$ then $\Gamma \vdash R \in \csn$.    
+%  \end{tabular}
+ }
+
+\paragraph{Case}$\D = 
+\ianc{\forall M'.~\Gamma \vdash C[x] \red M' \imply (\Gamma \vdash M') \in \csn}
+     {(\Gamma \vdash C[x]) \in \csn}{}$
+\\[1em]
+\textbf{Sub-case}: $C[x] = x$ 
+\\
+impossible
+\\[1em]
+\textbf{Sub-case}: $C[x] = C_0[x]~M$ 
+\\[1em]
+Assume $\Gamma \vdash (C_0[x]~M)~N \red Q$\\
+$\Gamma \vdash N \in \csn$ \hfill by assumption \\
+$\Gamma \vdash C_0[x]~M \in \csn$ \hfill by assumption \\
+%
+%$C[x]  \red R$ and $R = C_1[x]$ \hfill by Lemma \ref{lm:ecxt} \\
+%$\Gamma \vdash C_1[x] \in \csn$ \hfill by previous lines \\
+%$\Gamma \vdash C_1[x]~N \in \csn$ \hfill by IH(\ref{cp3}) \\
+$\Gamma \vdash Q \in \csn$ \hfill by IH(\ref{cp3b})\\
+$\Gamma \vdash C[x]\,N \in \csn$ \hfill by def. $\csn$
+\\[1em]
+\noindent
+\fbox{\ref{cp3b}. 
+If $\Gamma \vdash C[x]~M \red R$ and $\Gamma \vdash C[x] \in \csn$ 
+and $\Gamma \vdash M \in \csn$ 
+then $\Gamma \vdash R \in \csn$. }
+\\[1em]
+Proof by simultaneous induction on $\Gamma \vdash C[x] \in \csn$ and
+$\Gamma \vdash M \in \csn$.
+\\[0.5em]
+\textbf{Sub-case} $\ianc{\Gamma \vdash C[x] \red M'}{\Gamma \vdash C[x]\,N \red M'\,N}{}$
+\\[1em]
+$\Gamma \vdash M' \in \csn$ \hfill by assumption $\Gamma \vdash C[x] \in \csn$ \\
+$M'~N = C_0[x]$ \hfill by lemma \ref{lm:ecxt} \\
+$M' = C_1[x]$ and hence $\Gamma \vdash C_1[x] \in \csn$ \hfill by def. evaluation contexts \\
+$\Gamma \vdash N \in \csn$ \hfill by assumption \\
+$\Gamma \vdash C_1[x]~N \in \csn$ \hfill by IH(\ref{cp3}) since
+$\Gamma \vdash C_1[x] \in \csn$ is smaller than $\Gamma \vdash C[x] \in \csn$
+\\[1em]
+\\[1em]
+\textbf{Sub-case} $\ianc{\Gamma \vdash N\red N'}{\Gamma \vdash C[x]\,N \red C[x]\,N'}{}$
+\\[1em]
+$\Gamma \vdash N' \in \csn$ \hfill by assumption $\Gamma \vdash N \in
+\csn$ \\
+$\Gamma \vdash C[x]~N' \in \csn$ \hfill by IH(\ref{cp3})
+
+  % \begin{enumerate}
+  % \item todo
+  % \item Immediate by definition.
+  % \item todo
+  % \item By induction on the given derivation
+  % \item todo
+  % \end{enumerate}
 \end{proof}
 
 We can now prove our inductive definition to be sound and complete.
@@ -319,8 +418,8 @@ We can now prove our inductive definition to be sound and complete.
 \begin{theorem}[Soundness of $\SN$]
 \mbox{}
   \begin{enumerate}
-  \item If $\Gamma \vdash M \in SN$ then $\Gamma \vdash M \in \csn$.
-  \item If $\Gamma \vdash C[x] \in SNe$ then $\Gamma \vdash C[x] \in \csn$.
+  \item If $\Gamma \vdash M \in \SN$ then $\Gamma \vdash M \in \csn$.
+  \item If $\Gamma \vdash C[x] \in \SNe$ then $\Gamma \vdash C[x] \in \csn$.
   \item If $\Gamma \vdash M \redSN M'$ then $\Gamma \vdash M \redsn M'$.
   \end{enumerate} 
 \end{theorem}
@@ -328,33 +427,58 @@ We can now prove our inductive definition to be sound and complete.
 By mutual structural induction on the given derivations using the
 closure properties. \\[1em]
 \noindent
-1. If $\Gamma \vdash M \in SN$ then $\Gamma \vdash M \in \csn$.
+1. If $\Gamma \vdash M \in \SN$ then $\Gamma \vdash M \in \csn$.
 
 \paragraph{Case} $\D = \ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{}$ 
 \\[1em]
 $R = C[x] $ \hfill since $\Gamma \vdash R \in \SNe$ \\
-$\Gamma \vdash R \in \csn$ \hfill by IH (2)
+$\Gamma \vdash R \in \csn$ \hfill by IH(\ref{cp2})
 
 \paragraph{Case} $\D = \ianc{\Gamma, x{:}A \vdash M \in \SN}
                            {\Gamma  \vdash \lambda x{:}A.M \in \SN}{}$
 \\[1em]
-$\Gamma, x{:}A \vdash M \in \csn$ \hfill by IH (1) \\
+$\Gamma, x{:}A \vdash M \in \csn$ \hfill by IH(\ref{cp1}) \\
 $\Gamma \vdash \lambda x{:}A.M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp4})
 
 \paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M'}{
                              \Gamma \vdash M' \in \SN}
                             {\Gamma \vdash M \in \SN}{} $
 \\[1em]
-$\Gamma \vdash M' \in \csn$ \hfill by IH(1)\\
-$\Gamma \vdash M \redsn M'$ \hfill by IH(3)\\
+$\Gamma \vdash M' \in \csn$ \hfill by IH(\ref{cp1})\\
+$\Gamma \vdash M \redsn M'$ \hfill by IH(\ref{cp3})\\
 $\Gamma \vdash M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5})
 \\[1em]
+\noindent
+2. If $\Gamma \vdash C[x] \in \SNe$ then $\Gamma \vdash C[x] \in \csn$.
 
-\begin{enumerate}
-\item $\xi$-case uses Property~\ref{cp4}. Reduction case uses~\ref{cp5}
-\item Variable case uses~\ref{cp2}, application uses~\ref{pp2}
-\item Follows by approriate calls to induction hypotheses
-\end{enumerate}
+\paragraph{Case} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{}$
+\\[1em]
+$C = \_ $ \hfill since $C[x] = x$\\
+$\forall M'.~\Gamma \vdash x \red M' \imply (\Gamma \vdash M') \in \csn$ \hfill since $\Gamma \vdash x \red M'$ is impossible
+\\
+$\Gamma \vdash x \in \csn$
+
+\paragraph{Case}$\D = \ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{}$
+\\
+$C'[x] = R$ \hfill since $C[x] = R\;M$\\
+$\Gamma \vdash C'[x] \in \csn$ \hfill by IH(\ref{cp2}) \\
+$\Gamma \vdash M \in \csn$ \hfill by IH(\ref{cp1})\\
+$\Gamma \vdash C'[x]\;M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp3})\\
+$\Gamma \vdash C[x] \in \csn$ \hfill since $C[x] = C'[x]~M$
+\\[1em]
+\noindent
+3.  If $\Gamma \vdash M \redSN M'$ then $\Gamma \vdash M \redsn M'$.
+
+\paragraph{Case} $\D = \ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M}{}$
+\\[1em]
+$\Gamma \vdash N \in \csn$ \hfill by IH(\ref{cp3}) \\
+$\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M$ \hfill by def. of $\redsn$
+
+\paragraph{Case} $\D = \ibnc{\Gamma \vdash R \redSN R'}{R\;\text{is not a}\;\lambda}{\Gamma \vdash R\,M \redSN R'\,M}{}$
+\\[1em]
+$\Gamma \vdash R \redsn R'$ \hfill by IH(\ref{cp3}) \\
+${\Gamma \vdash R\,M \redsn R'\,M}$ \hfill by def. or $\redsn$
+
 \end{proof}
 
 \begin{theorem}[Completeness of $\SN$]\mbox{}

@@ -384,7 +384,7 @@ rec snAppAux: {g:cxt}{T:[ |- ty]}{B1:[ |- ty]}{B2:[ |- ty]}
 mlam g, T, B1, B2, Q, M, C, #p,  S => fn e, s1, s2 =>
  let [g |- #p] : [g |- tm T[]] = [g |- #p] in
  case e  of
- | [g |- eid ] : [g |- ecxt \x.x] =>  impossible [g |- S]
+ | [g |- eid ] : [g |- ecxt \x.x] =>  impossible [g |- S] % seems fishy ...
  | [g |- eext E'] : [g |-  ecxt \x.app C[..,x] P[..]] =>  case [g |- S] of
    | [g |- rappr S'] =>
      let Acc s2' = s2 in
