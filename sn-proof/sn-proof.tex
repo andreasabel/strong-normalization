@@ -267,12 +267,11 @@ We will sketch here that the inductive definition of $\SN$ and $\SNe$ is sound a
 
 We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
 
-\begin{lemma}[Properties of strongly normalizing terms]$\;$
+\begin{lemma}[Properties of strongly normalizing terms]\label{lem:psn}$\;$
   \begin{enumerate}
-  \item\label{pp1} If $\Gamma \vdash M \in \csn$ 
-                  and $\Gamma \vdash   [N/x]M \in \csn$
+  \item\label{pp1} If $\Gamma \vdash   [N/x]M \in \csn$
                   and $\Gamma \vdash N \in \csn$ 
-                 then $\Gamma \vdash (\lambda x.M) \;N \in \csn$.\ednote{by first part of closure lemma, $M \in \csn$ non needed }
+                 then $\Gamma \vdash (\lambda x.M) \;N \in \csn$.
   \item\label{pp2} If $\Gamma \vdash M \in \csn$
                   and $\Gamma \vdash N \in \csn$ where $M$ is not a $\lambda$
                  then $\Gamma \vdash M\;N \in \csn$. (we also have $\Gamma
@@ -292,7 +291,7 @@ By induction on the structure of evaluation contexts.
 
 \paragraph{Case}  $C[x] = x$ 
 \\[1em]
-$Gamma \vdash x~N \red R$ \hfill by assumption
+$\Gamma \vdash x~N \red R$ \hfill by assumption\\
 Impossible since $x~N$ does not step.
 
 \paragraph{Case} $C[x] = C_0[x]~M$ \\[1em]
@@ -321,7 +320,8 @@ Hence there exists an evaluation context $C'$ s.t. $C'[x] = (C_0[x]~M)\,N'$.
 
 \begin{lemma}[Closure properties of strongly normalizing terms]\label{lm:closn}$\;$
   \begin{enumerate}
-%   \item\label{cp1} If $\Gamma \vdash [N/x]M \in \csn$ then $\Gamma
+%   \item\label{cp1} If $\Gamma \vdash [N/x]M \in \csn$ and $\Gamma
+%   \vdash N \in \csn$ then $\Gamma
 %    \vdash M \in \csn$.
   \item\label{cp2} For all variables $x:A \in \Gamma$, $\Gamma \vdash x \in \csn$.
   \item\label{cp3} If $\Gamma \vdash C[x] \in \csn$ and $\Gamma \vdash N \in \csn$ 
@@ -344,6 +344,7 @@ Hence there exists an evaluation context $C'$ s.t. $C'[x] = (C_0[x]~M)\,N'$.
 \end{lemma}
 \begin{proof}\mbox{}~\\[1em]
 \noindent
+
 \fbox{\ref{cp2}.  For all variables $x:A \in \Gamma$, $\Gamma \vdash x \in \csn$.}
 \\[1em]
 $\forall M'.~\Gamma \vdash x \red M' \imply (\Gamma \vdash M') \in \csn$ \hfill since $\Gamma \vdash x \red M'$ is impossible
@@ -403,6 +404,31 @@ $\Gamma \vdash C_1[x] \in \csn$ is smaller than $\Gamma \vdash C[x] \in \csn$
 $\Gamma \vdash N' \in \csn$ \hfill by assumption $\Gamma \vdash N \in
 \csn$ \\
 $\Gamma \vdash C[x]~N' \in \csn$ \hfill by IH(\ref{cp3})
+\\[1em]
+\fbox{\ref{cp5}. If $\Gamma \vdash M\redsn M'$ and $\Gamma \vdash M' \in \csn$ then
+     $\Gamma \vdash M \in \csn$. }
+\\[1em]
+Proof by induction on the first derivation.
+\\
+\paragraph{Case}$\D = \ianc{\Gamma \vdash N \in \csn}
+                          {\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M}{}$
+\\
+$\Gamma \vdash [N/x]M \in \csn$ \hfill by assumption \\
+$\Gamma \vdash (\lambda x.M)\;N \in \csn$ \hfill by Lemma \ref{lem:psn}(\ref{pp1})
+
+
+\paragraph{Case} $\D = 
+\ianc {\Gamma \vdash M \redsn M' \qquad M\,\text{is not a}\;\lambda}
+      {\Gamma \vdash M\;N \redsn M'\;N}{}$
+\\
+$\Gamma \vdash M'\;N \in \csn$ \hfill by assumption \\
+
+??
+% IH If $\Gamma \vdash M' \csn then $\Gamma \vdash M \csn$
+%  H \Gamma \vdash M'\;N \in \csn
+% --------------------------------------
+%    \Gamma \vdash M\;N \in \csn
+
 
   % \begin{enumerate}
   % \item todo
