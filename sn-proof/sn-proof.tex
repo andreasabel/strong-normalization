@@ -219,68 +219,32 @@ normalizing.\\
 \]
 \end{definition}
 
-Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
-
-\begin{theorem}[Subterm property of strong normalization]
-% Any subterm of a strongly normalizing term is strongly normalizing itself.za
-If $(\Gamma \vdash M) \in \csn$ and $\Gamma \vdash C[N] = M$ then $(\Gamma \vdash N) \in \csn$.
-% or more formally:
-%if $t \in \csn$ and $C[s] = t$ then $s \in \csn$.
-\end{theorem}
-
-
-Here, we define inductively the set of normal terms, $\SN$, and the set of neutral terms, $\SNe$,   using the following judgements:
-\\[1em]
-
-\begin{center}
-\begin{tabular}{ll}
-$(\Gamma \vdash M) \in \SN$  & $M$ is in the set of normal terms\\
-$(\Gamma \vdash M) \in \SNe$ & $M$ is in the set of neutral terms 
-\end{tabular}  
-\end{center}
-
-The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for proofs than its informal definition, since it allows us  to prove properties by structural induction. 
-
-\begin{figure}
-  \centering  
-\[
-\begin{array}{c}
-\multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
-\ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{} \qquad   \ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{} 
-\\[1em]
-\multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
-\ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{} \qquad 
-\ianc{\Gamma, x{:}A \vdash M \in \SN}{\Gamma \vdash \lambda x{:}A.M \in \SN}{} \qquad
-\ibnc{\Gamma \vdash M \redSN M'}{\Gamma \vdash M' \in \SN}{\Gamma \vdash M \in \SN}{} 
-\\[1em]
-\multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
-\ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M}{} \qquad
-\ibnc{\Gamma \vdash R \redSN R'}{R\;\text{is not a}\;\lambda}{\Gamma \vdash R\,M \redSN R'\,M}{}
-\end{array}
-\]
-  \caption{Inductive definition of strongly normalizing terms}
-  \label{fig:sn}
-\end{figure}
-
-
-We will sketch here that the inductive definition of $\SN$ and $\SNe$ is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}). 
-
-We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
 
 \begin{lemma}[Properties of strongly normalizing terms]\label{lem:psn}$\;$
   \begin{enumerate}
   \item\label{pp1} If $\Gamma \vdash   [N/x]M \in \csn$
                   and $\Gamma \vdash N \in \csn$ 
                  then $\Gamma \vdash (\lambda x.M) \;N \in \csn$.
-  \item\label{pp2} If $\Gamma \vdash M \in \csn$
-                  and $\Gamma \vdash N \in \csn$ where $M$ is not a $\lambda$
-                 then $\Gamma \vdash M\;N \in \csn$. (we also have $\Gamma
-                 \vdash M\;N \red M'\;N$ and $\Gamma \vdash M'\;N \in \csn$ as i.h.)
+  \item\label{pp2} If $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$
+    then $\Gamma \vdash M~N \in \csn$.
+  \item If $\Gamma \vdash [N/x]M \in \csn$ and $\Gamma \vdash N \in
+    \csn$ then $\Gamma, x{:}A \vdash M \in \csn$.
+  \item If $\Gamma, x{:}A \vdash M \in \csn$ then $\Gamma \vdash
+    \lambda x.M \in \csn$
+  \item If $\Gamma, x{:}A \vdash M \in \csn$ and $\Gamma \vdash N \in
+   \csn$ then $\Gamma \vdash [M/x]N \in \csn$.  
+ \item If $\Gamma \vdash M~N \in \csn$ then $\Gamma \vdash M \in \csn$.
+%   \item\label{pp2} If $\Gamma \vdash M \in \csn$
+%                  and $\Gamma \vdash N \in \csn$ where $M$ is not a $\lambda$
+%                 then $\Gamma \vdash M\;N \in \csn$. (we also have $\Gamma
+%                 \vdash M\;N \red M'\;N$ and $\Gamma \vdash M'\;N \in \csn$ as i.h.)
   \end{enumerate} 
 \end{lemma}
 \begin{proof}
-By induction on $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.  
+Most of them are by induction on $M$ or direct. % By induction on $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.  
 \end{proof}
+
+
 
 \begin{lemma}[Evaluation Contexts]\label{lm:ecxt}$\;$
 If $\Gamma \vdash C[x]~N \red R$ then there exists an
@@ -438,6 +402,59 @@ $\Gamma \vdash M'\;N \in \csn$ \hfill by assumption \\
   % \item todo
   % \end{enumerate}
 \end{proof}
+
+
+Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
+
+\begin{theorem}[Subterm property of strong normalization]
+% Any subterm of a strongly normalizing term is strongly normalizing itself.za
+If $(\Gamma \vdash M) \in \csn$ and $\Gamma \vdash C[N] = M$ then $(\Gamma \vdash N) \in \csn$.
+% or more formally:
+%if $t \in \csn$ and $C[s] = t$ then $s \in \csn$.
+\end{theorem}
+
+
+Here, we define inductively the set of normal terms, $\SN$, and the set of neutral terms, $\SNe$,   using the following judgements:
+\\[1em]
+
+\begin{center}
+\begin{tabular}{ll}
+$(\Gamma \vdash M) \in \SN$  & $M$ is in the set of normal terms\\
+$(\Gamma \vdash M) \in \SNe$ & $M$ is in the set of neutral terms 
+\end{tabular}  
+\end{center}
+
+The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for proofs than its informal definition, since it allows us  to prove properties by structural induction. 
+
+\begin{figure}
+  \centering  
+\[
+\begin{array}{c}
+\multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
+\ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{} \qquad   \ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{} 
+\\[1em]
+\multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
+\ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{} \qquad 
+\ianc{\Gamma, x{:}A \vdash M \in \SN}{\Gamma \vdash \lambda x{:}A.M \in \SN}{} \qquad
+\ibnc{\Gamma \vdash M \redSN M'}{\Gamma \vdash M' \in \SN}{\Gamma \vdash M \in \SN}{} 
+\\[1em]
+\multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
+\ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M}{} \qquad
+\ibnc{\Gamma \vdash R \redSN R'}{R\;\text{is not a}\;\lambda}{\Gamma \vdash R\,M \redSN R'\,M}{}
+\end{array}
+\]
+  \caption{Inductive definition of strongly normalizing terms}
+  \label{fig:sn}
+\end{figure}
+
+
+We will sketch here that the inductive definition of $\SN$ and $\SNe$ is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}). 
+
+We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
+
+
+
+
 
 We can now prove our inductive definition to be sound and complete.
 
