@@ -23,6 +23,7 @@
 \setlength{\evensidemargin}{5mm}
 \setlength{\oddsidemargin}{5mm}
 
+\newcommand{\hs}[1]{\hspace{#1}}
 
 % \usepackage{fullpage}
 \usepackage{amsmath}
@@ -222,18 +223,17 @@ normalizing.\\
 
 \begin{lemma}[Properties of strongly normalizing terms]\label{lem:psn}$\;$
   \begin{enumerate}
-  \item\label{pp1} If $\Gamma \vdash   [N/x]M \in \csn$
-                  and $\Gamma \vdash N \in \csn$ 
-                 then $\Gamma \vdash (\lambda x.M) \;N \in \csn$.
   \item\label{pp2} If $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$
     then $\Gamma \vdash M~N \in \csn$.
-  \item If $\Gamma \vdash [N/x]M \in \csn$ and $\Gamma \vdash N \in
+  \item\label{pp3} If $\Gamma \vdash [N/x]M \in \csn$ and $\Gamma \vdash N \in
     \csn$ then $\Gamma, x{:}A \vdash M \in \csn$.
-  \item If $\Gamma, x{:}A \vdash M \in \csn$ then $\Gamma \vdash
-    \lambda x.M \in \csn$
-  \item If $\Gamma, x{:}A \vdash M \in \csn$ and $\Gamma \vdash N \in
-   \csn$ then $\Gamma \vdash [M/x]N \in \csn$.  
- \item If $\Gamma \vdash M~N \in \csn$ then $\Gamma \vdash M \in \csn$.
+  \item\label{pp4} If $\Gamma, x{:}A \vdash M \in \csn$ then $\Gamma \vdash  \lambda x.M \in \csn$
+  \item\label{pp5} If $\Gamma, x{:}A \vdash M \in \csn$ and $\Gamma \vdash N \in
+   \csn$ then $\Gamma \vdash [N/x]M \in \csn$.  
+  \item\label{pp6} If $\Gamma \vdash M~N \in \csn$ then $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.
+  \item\label{pp7} If $\Gamma \vdash \lambda x{:}A.M \in \csn$ 
+    then $\Gamma, x{:}A \vdash M \in \csn$.
+
 %   \item\label{pp2} If $\Gamma \vdash M \in \csn$
 %                  and $\Gamma \vdash N \in \csn$ where $M$ is not a $\lambda$
 %                 then $\Gamma \vdash M\;N \in \csn$. (we also have $\Gamma
@@ -241,8 +241,140 @@ normalizing.\\
   \end{enumerate} 
 \end{lemma}
 \begin{proof}
-Most of them are by induction on $M$ or direct. % By induction on $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.  
+Proven simultaneously.
+\\[1em]
+\fbox{\ref{pp2}. If $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$
+    then $\Gamma \vdash M~N \in \csn$. }
+\\[1em]
+By simultaneous induction on $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.\\[1em]
+Assume $\Gamma \vdash M~N \red Q$
+\paragraph{Sub-case:} $\D = \ianc
+ {\Gamma \vdash M \red M'}
+ {\Gamma \vdash M\,N \red M'\,N}{}$ and $Q = M'~N$
+\\[1em]
+$\Gamma \vdash M' \in \csn$ \hfill by using assumption $\Gamma \vdash M \in \csn$ \\
+$\Gamma \vdash M'~N \in \csn$ \hfill by IH \\
+$\Gamma \vdash Q \in \csn$ \hfill since $Q = M'~N$
+% $\Gamma \vdash M~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash M~N \red Q$.
+
+\paragraph{Sub-case:} $\D = \ianc
+ {\Gamma \vdash N \red N'}
+ {\Gamma \vdash M\,N \red M\,N'}{}$ and $Q = M~N'$
+\\[1em]
+$\Gamma \vdash N' \in \csn$ \hfill by using assumption $\Gamma \vdash N \in \csn$ \\
+$\Gamma \vdash M~N' \in \csn$ \hfill by IH \\
+$\Gamma \vdash Q \in \csn$ \hfill since $Q = M~N'$
+% $\Gamma \vdash M~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash M~N \red Q$.
+
+\paragraph{Sub-case:} $\D = \Gamma \vdash (\lambda x{:}A.M)\;N  \red  \Gamma \vdash [N/x]M$
+\\[1em]
+$\Gamma \vdash \lambda x{:}A.M \in \csn$ \hfill by assumption \\
+$\Gamma \vdash N \in \csn$ \hfill by assumption \\
+$\Gamma, x{:}A \vdash M \in \csn$ \hfill Property \ref{pp7}\\
+$\Gamma \vdash [N/x]M \in \csn$ \hfill by Property \ref{pp5}
+\\[1em]
+$\Gamma \vdash M~N \in \csn$ \hfill since $\Gamma \vdash M~N \red Q$ was arbitrary.
+\\[1em]
+%
+\fbox{\ref{pp3}. If $\Gamma \vdash [N/x]M \in \csn$ and $\Gamma \vdash N \in
+    \csn$ then $\Gamma, x{:}A \vdash M \in \csn$.}
+\\[1em]
+By induction on $M$.
+\paragraph{Sub-case:} $M = x$ \\
+$\Gamma, x{:}A \vdash x \in \csn$ \hfill trivial since there is no reduction $x \red x$
+
+\paragraph{Sub-case:} $M = M_1~M_2$ \\
+$[N/x](M_1~M_2) = [N/x]M_1~[N/x]M_2$ \hfill by def. of subst. \\
+$\Gamma \vdash [N/x]M_1 \in \csn$ \hfill by Property \ref{pp6} \\
+$\Gamma \vdash [N/x]M_2 \in \csn$ \hfill by Property \ref{pp6} \\
+$\Gamma, x{:}A \vdash M_1 \in \csn$ \hfill by IH \\
+$\Gamma, x{:}A \vdash M_2 \in \csn$ \hfill by IH \\
+$\Gamma, x{:}A \vdash M_1~M_2 \in \csn$ \hfill by Property \ref{pp2}
+%
+
+\paragraph{Sub-case:} $M = \lambda y{:}B.M'$ \\
+$[N/x](\lambda y{:}B. [N/x]M'$ \hfill by def. subst. \\
+$\Gamma, y{:}B \vdash [N/x]M' \in \csn$ \hfill by Property \ref{pp7}\\
+$\Gamma, y{:}B, x{:}A \vdash M' \in \csn$ \hfill by IH \\
+$\Gamma, x{:}A, y{:}B \vdash M' \in \csn$ \hfill by exchange \\
+$\Gamma, x{:}A \vdash \lambda y{:}B.M' \in \csn$ \hfill by Property \ref{pp4}
+\\[1em]
+%
+\fbox{\ref{pp4}. If $\Gamma, x{:}A \vdash M \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M \in \csn$}
+\\[1em]
+Induction on $\Gamma, x{:}A \vdash M \in \csn$\\[1em]
+Assume $\Gamma \vdash \lambda x{:}A.M \red Q$ \\
+$\Gamma, x{:}A \vdash M \red M'$ and $Q = \lambda x{:}A.M'$ \hfill by reduction rule for $\lambda$.\\
+$\Gamma \vdash M' \in \csn$ \hfill by assumption $\Gamma, x{:}A \vdash M \in \csn$ \\
+$\Gamma \vdash \lambda x{:}A.M' \in \csn$ \hfill by IH \\
+$\Gamma \vdash Q \in \csn$ \hfill since $Q = \lambda x{:}A.M'$\\
+$\Gamma \vdash \lambda x.M \in \csn$ \hfill since $\Gamma \vdash \lambda x.M \red Q$ was arbitrary
+\\[1em]
+\fbox{\ref{pp5}. If $\Gamma, x{:}A \vdash M \in \csn$ and $\Gamma \vdash N \in
+   \csn$ then $\Gamma \vdash [N/x]M \in \csn$.  }
+\\[1em]
+Induction on $M$.
+% \\[1em]
+\paragraph{Sub-case:} $M = x$
+\\
+$\Gamma \vdash [N/x]x \in \csn$ \hfill by assumption $\Gamma \vdash N \in \csn$
+%
+\paragraph{Sub-case:} $M = M_1~M_2$
+\\
+$\Gamma,x{:}A \vdash M_1~M_2 \in \csn$ \hfill by assumption \\
+$\Gamma, x{:}A \vdash M_1 \in \csn$ and $\Gamma, x{:}A \vdash M_2 \in \csn$ \hfill by Property \ref{pp6} \\
+$\Gamma \vdash [N/x]M_1 \in \csn$ \hfill by IH \\
+$\Gamma \vdash [N/x]M_2 \in \csn$ \hfill by IH \\
+$\Gamma \vdash [N/x]M_1~[N/x]M_2 \in \csn$ \hfill by Property \ref{pp2}\\
+$\Gamma \vdash [N/x](M_1~M_2) \in \csn$ \hfill by subst. def.
+%
+\paragraph{Sub-case:} $M = \lambda y{:}B.M'$
+\\
+$\Gamma, x{:}A \vdash \lambda y{:}B.M' \in \csn$ \hfill by assumption \\
+$\Gamma, x{:}A, y{:}B \vdash M' \in \csn$ \hfill by Property \ref{pp7}\\
+$\Gamma, y{:}B, x{:}A \vdash M' \in \csn$ \hfill by exchange \\
+$\Gamma, y{:}B \vdash N \in \csn$ \hfill by weakening\\
+$\Gamma, y{:}B \vdash [N/x]M' \in \csn$ \hfill by IH \\
+$\Gamma \vdash \lambda y{:}B. [N/x]M' \in \csn$ \hfill by Property \ref{pp4}\\
+$\Gamma \vdash [N/x](\lambda y{:}B.M') \in \csn$ \hfill by subst. def
+\\[1em]
+\fbox{\ref{pp6}. If $\Gamma \vdash M~N \in \csn$ then $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.}
+\\[1em]
+We prove first: If $\Gamma \vdash M~N \in \csn$ then $\Gamma \vdash M \in \csn$. Proving $\Gamma \vdash M~N \in \csn$ implies also $\Gamma \vdash N \in \csn$ is similar.
+\\[0.5em]
+Assume $\Gamma \vdash M \red M'$\\
+$\Gamma \vdash M~N \red M'~N$ \hfill by reduction rule for application \\
+$\Gamma \vdash M'~N \in \csn$ \hfill by assumption $\Gamma \vdash M~N \in \csn$\\
+$\Gamma \vdash M' \in \csn$ \hfill by IH\\
+$\Gamma \vdash M \in \csn$ \hfill since $\Gamma \vdash M \red M'$ was arbitrary
+\\[1em]
+\fbox{\ref{pp7}. If $\Gamma \vdash \lambda x{:}A.M \in \csn$ 
+    then $\Gamma, x{:}A \vdash M \in \csn$. }
+\\[1em]
+By induction on $\Gamma \vdash \lambda x{:}A.M \in \csn$.
+\\[1em]
+Assume  $\Gamma, x{:}A \vdash M \red M'$\\
+$\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M'$ \hfill by reduction rules for $\lambda$\\
+$\Gamma \vdash \lambda x{:}A. M' \in \csn$ \hfill by assumption $\Gamma \vdash \lambda x{:}A.M\in\csn$\\
+$\Gamma, x{:}A \vdash M' \in \csn$ \hfill by IH\\
+$\Gamma, x{:}A \vdash M \in \csn$ \hfill since  $\Gamma, x{:}A \vdash M \red M'$ was arbitrary
+\\[1em]
 \end{proof}
+
+
+\begin{corollary}\label{cor:psn}~
+  \begin{enumerate}
+  \item \label{pp1} If $\Gamma \vdash   [N/x]M \in \csn$
+                  and $\Gamma \vdash N \in \csn$ 
+                 then $\Gamma \vdash (\lambda x.M) \;N \in \csn$.
+  \end{enumerate}
+\end{corollary}
+\begin{proof}
+  Property \ref{pp1} follows directly from Lemma
+  \ref{lem:psn}(\ref{pp3}) and Lemma
+  \ref{lem:psn}(\ref{pp4}).
+\end{proof}
+
 
 
 
@@ -378,7 +510,7 @@ Proof by induction on the first derivation.
                           {\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M}{}$
 \\
 $\Gamma \vdash [N/x]M \in \csn$ \hfill by assumption \\
-$\Gamma \vdash (\lambda x.M)\;N \in \csn$ \hfill by Lemma \ref{lem:psn}(\ref{pp1})
+$\Gamma \vdash (\lambda x.M)\;N \in \csn$ \hfill by Corollary \ref{cor:psn}(\ref{pp1})
 
 
 \paragraph{Case} $\D = 
@@ -386,8 +518,11 @@ $\Gamma \vdash (\lambda x.M)\;N \in \csn$ \hfill by Lemma \ref{lem:psn}(\ref{pp1
       {\Gamma \vdash M\;N \redsn M'\;N}{}$
 \\
 $\Gamma \vdash M'\;N \in \csn$ \hfill by assumption \\
+$\Gamma \vdash M' \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
+$\Gamma \vdash M \in \csn$ \hfill by IH\\
+$\Gamma \vdash N \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
+$\Gamma \vdash M~N \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp2})
 
-??
 % IH If $\Gamma \vdash M' \csn then $\Gamma \vdash M \csn$
 %  H \Gamma \vdash M'\;N \in \csn
 % --------------------------------------
