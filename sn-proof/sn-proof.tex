@@ -662,15 +662,64 @@ ${\Gamma \vdash R\,M \redsn R'\,M}$ \hfill by def. or $\redsn$
 \end{proof}
 
 \begin{theorem}[Completeness of $\SN$]\mbox{}
-  \begin{enumerate}
-  \item If $R = x\,\vec N \in \csn$ then $x\,\vec N\in \SNe$.
-  \item If $R = (\lambda x.M)\,N\,\vec N \in \csn$ then $R \redSN [N/x]M\,\vec  N$.
-  \item If $R \in \csn$ then $R \in \SN$.
+\begin{enumerate}
+\item\label{csn1} If $\Gamma \vdash C[x] \in \csn$ then $\Gamma \vdash C[x] \in \SNe$.
+\item\label{csn2} If $\Gamma \vdash C[(\lambda x.M)~N] \in \csn$ 
+      then $\Gamma \vdash  C[(\lambda x.M)~N] \redSN  C[[N/x]M]$. 
+ \item If $\Gamma \vdash M \in \csn$ then $\Gamma \vdash M \in \SN$.
+%  \item If $R = x\,\vec N \in \csn$ then $x\,\vec N\in \SNe$.
+%  \item If $R = (\lambda x.M)\,N\,\vec N \in \csn$ then $R \redSN [N/x]M\,\vec  N$.
+%  \item If $R \in \csn$ then $R \in \SN$.
   \end{enumerate}  
 \end{theorem}
 \begin{proof}
-By lexicographic induction on the height of the reduction tree of $R$ and the
-height of $R$.
+
+\fbox{\ref{csn1}. If $\Gamma \vdash C[x] \in \csn$ then $\Gamma \vdash C[x] \in \SNe$.}
+\\[1em]
+By structural induction on $C[x]$.
+
+\paragraph{Case} $C = \_$
+\\[0.5em]
+$\Gamma \vdash x \in \SNe$ \hfill by def. of
+$\SNe$\footnote{Technically we should keep around explicitly that
+  $\csn$ is defined on well-typed terms, so we actually have the
+  assumption that $x{:}A$ is in $\Gamma$. }
+
+\paragraph{Case} $C = C'~M$
+\\[0.5em]
+$\Gamma \vdash C'[x]~M \in \csn$ \hfill by assumption \\
+$\Gamma \vdash C'[x] \in \csn$ and $\Gamma \vdash M \in \csn$ \hfill
+by Lemma \ref{lem:psn} (Property \ref{pp6})\\
+$\Gamma \vdash C'[x] \in \SNe$ \hfill by IH(1) \\
+$\Gamma \vdash M \in \SN$ \hfill by IH (3) \\
+$\Gamma \vdash C'[x]~M \in \SNe $ \hfill by def. of $\SNe$
+\\[1em]
+\fbox{\ref{csn2}. If $\Gamma \vdash C[(\lambda x.M)~N] \in \csn$ 
+      then $\Gamma \vdash  C[(\lambda x.M)~N] \redSN  C[[N/x]M]$. }
+\\[0.5em]
+By structural induction on $C[(\lambda x.M)~N]$.
+
+\paragraph{Case} $C = \_$
+\\[0.5em]
+$\Gamma \vdash (\lambda x.M)~N \in \csn$ \hfill by assumption \\
+$\Gamma \vdash \lambda x.M \in \csn$ and $\Gamma \vdash N \in \csn$ \hfill by Lemma
+\ref{lem:psn}(Property \ref{pp6})\\
+$\Gamma \vdash N \in \SN$ \hfill by IH (3) \\
+$\Gamma \vdash (\lambda x.M)~N \redSN [N/x]M$ \hfill by def. of
+$\redSN$
+
+\paragraph{Case} $C = C'~M'$
+\\[0.5em]
+$\Gamma \vdash C'[(\lambda x.M)~N]~M' \in \csn$ \hfill by assumption
+\\
+$\Gamma \vdash C'[(\lambda x.M)~N] \in \csn$ and $\Gamma \vdash N \in \csn$ \hfill by Lemma
+\ref{lem:psn}(Property \ref{pp6})\\
+$\Gamma \vdash  C'[(\lambda x.M)~N] \redSN  C'[[N/x]M]$ \hfill by IH (2)\\
+$\Gamma \vdash  C'[(\lambda x.M)~N]~M' \redSN  C'[[N/x]M]~M'$ \hfill by def. $\redSN$
+\\[1em]
+\fbox{If $\Gamma \vdash M \in \csn$ then $\Gamma \vdash M \in \SN$.}
+\\[1em]
+todo
 \end{proof}
 
 
