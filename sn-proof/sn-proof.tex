@@ -177,7 +177,7 @@ we must consider all extensions of $\Gamma$ (described by $\Gamma'
 
 \begin{itemize}
 \item $\Gamma \models M : \base$ iff $\Gamma \vdash M\hastype \base$ and $M$ is strongly normalizing, i.e. $(\Gamma \vdash M) \in \SN$.
-\item $\Gamma \models M : A \arrow B$ iff for all $\Gamma' \ext{\rho} \Gamma$ and $\Gamma' \vdash N :A$ if $\Gamma' \models N : A \imply \Gamma' \models M[\rho]~N : B$,
+\item $\Gamma \models M : A \arrow B$ iff for all $\Gamma' \ext{\rho} \Gamma$ and $\Gamma' \vdash N :A$ if $\Gamma' \models N : A \imply \Gamma' \models [\rho]M~N : B$,
 \end{itemize}
 
 
@@ -954,9 +954,9 @@ $\Gamma \vdash M \in \SN$ \hfill by def. of sem. typing for $\base$
 $\Gamma, x{:}A \models x : A$ \hfill by Lemma \ref{lm:closn} (Property \ref{cp2})\\
 $\Gamma, x{:}A \ext{\id} \Gamma$ \hfill by def. of context extensions \\
 % $\Gamma, x{:}A \models M  : A \arrow B$ \hfill by Semantic Weakening Lemma \ref{lm:sweak}\\
-$\Gamma, x{:}A \models M[\id]~x : B$ \hfill by def. of  $\Gamma, x{:}A \models M  : A \arrow B$\\
-$\Gamma, x{:}A \vdash M[\id]~x\in \SN$ \hfill by IH (\CR \ref{cr1})\\
-$\Gamma, x{:}A \vdash M[\id] \in \SN$ \hfill by  Extensionality Lemma \ref{lm:pSN} \\% Lemma \ref{lem:psn} (Property \ref{pp6})\\
+$\Gamma, x{:}A \models [\id]M~x : B$ \hfill by def. of  $\Gamma, x{:}A \models M  : A \arrow B$\\
+$\Gamma, x{:}A \vdash [\id]M~x\in \SN$ \hfill by IH (\CR \ref{cr1})\\
+$\Gamma, x{:}A \vdash [\id]M \in \SN$ \hfill by  Extensionality Lemma \ref{lm:pSN} \\% Lemma \ref{lem:psn} (Property \ref{pp6})\\
 $\Gamma \vdash M \in \SN$ \hfill by Ani-renaming Lemma \ref{lm:anti-renameSN}
 \\[1em]
 \fbox{\CR \ref{cr2}. If $\Gamma \vdash M \in \SNe$ then $\Gamma \models M : A$.}
@@ -972,9 +972,9 @@ $\Gamma \models M : \base$ \hfill by def. of semantic typing
 Assume $\Gamma' \ext{\rho} \Gamma$ and $\Gamma' \models N : A$ \\
 $\Gamma' \vdash N \in \SN$ \hfill by IH (\CR \ref{cr1}) \\
 $\Gamma \vdash M \in \SNe$ \hfill by assumption \\
-$\Gamma' \vdash M[\rho] \in \SNe$ \hfill by weakening \\
-$\Gamma' \vdash M[\rho]~N \in \SNe$ \hfill by def. of $\SNe$\\
-$\Gamma' \models M[\rho]~N : B$ \hfill by IH (\CR \ref{cr2})\\
+$\Gamma' \vdash [\rho]M \in \SNe$ \hfill by Renaming Lemma \ref{lm:renameSN} \\
+$\Gamma' \vdash [\rho]M~N \in \SNe$ \hfill by def. of $\SNe$\\
+$\Gamma' \models [\rho]M~N : B$ \hfill by IH (\CR \ref{cr2})\\
 $\Gamma \models M : A \arrow B$ \hfill since $\Gamma' \models N : A$ was arbitrary
 \\[1em]
 \fbox{\CR \ref{cr3}.   If $\Gamma \vdash M \redSN M'$ and $\Gamma \vdash M' \models A$ then $\Gamma \models M : A$}
@@ -990,9 +990,9 @@ $\Gamma \models M : \base$ \hfill by definition of semantic typing
 Assume $\Gamma' \ext{\rho} \Gamma$,~$\Gamma' \models N : A$ \\
 $\Gamma' \models M'[\rho]~N : B$ \hfill by assumption $\Gamma \models M' : A \arrow B$\\
 $\Gamma \vdash M \redSN M'$ \hfill by assumption \\
-$\Gamma' \vdash M[\rho] \redSN M'[\rho]$ \hfill by Weakening \\
-$\Gamma' \vdash M[\rho]~N \redSN M'[\rho]~N$ \hfill by $\redSN$\\
-$\Gamma \models M[\rho]~N : B$ \hfill by IH (\CR\ref{cr3})\\
+$\Gamma' \vdash [\rho]M \redSN M'[\rho]$ \hfill by Renaming Lemma \ref{lm:renameSN}\\
+$\Gamma' \vdash [\rho]M~N \redSN M'[\rho]~N$ \hfill by $\redSN$\\
+$\Gamma \models [\rho]M~N : B$ \hfill by IH (\CR\ref{cr3})\\
 $\Gamma \models M : A \arrow B$ \hfill since $\Gamma' \models N : A$ was arbitrary\\
 
 \end{proof}
@@ -1003,7 +1003,7 @@ As mentioned before, we prove that if a term is well-typed, then it is strongly 
 
 \begin{description}
 \item[Step 1] If $\Gamma \models M : A$ then $\Gamma \vdash M \in \SN$. 
-\item[Step 2] If $\Gamma \vdash M : A$ and $\Gamma' \models \sigma \Gamma$ then $\Gamma' \models M[\sigma] : A$.
+\item[Step 2] If $\Gamma \vdash M : A$ and $\Gamma' \models \sigma \Gamma$ then $\Gamma' \models [\sigma] M: A$.
 \end{description}
 
 The first part described in Step 1, is satisfied by the fact that $\Gamma \models M : A$ must be a reducibility candidate (Theorem \ref{thm:redcand}) and  by \CR \ref{cr1})  all terms in $\den{A}$ are strongly normalizing. We now prove the second step, which is often referred to as the \emph{Fundamental Lemma}.
@@ -1047,7 +1047,7 @@ $\Gamma' \models [\sigma](\lambda x.M) : A \arrow B$ \hfill since $\Gamma'' \ext
 
 
 \begin{corollary}
-If $\Gamma \vdash M : A$ then $M \in \SN$.  
+If $\Gamma \vdash M : A$ then $\Gamma \vdash M \in \SN$.  
 \end{corollary}
 
 \begin{proof}
