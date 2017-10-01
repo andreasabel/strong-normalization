@@ -105,6 +105,7 @@
 \renewcommand{\vec}[1]{\overrightarrow #1}
 
 \newcommand{\id}{\textsf{wk}}
+\newcommand{\wk}{\textsf{wk}}
 
 \def\lv{\mathopen{{[\kern-0.14em[}}}    % opening [[ value delimiter
 \def\rv{\mathclose{{]\kern-0.14em]}}}   % closing ]] value delimiter
@@ -220,6 +221,7 @@ Therefore, we can conclude that if a term $M$ has type $A$ then $M \in \SN$, i.e
 % These are of course statements we need to prove.
 
 \section{Defining strongly normalizing terms}
+\subsection{Definition of strong normalization via accessibility relation}
 Intuitively, a term $M$ is strongly normalizing, if there exists no infinite reduction sequence. Constructively, we can define strong normalization as follows:
 
 \begin{definition}\label{def:norm}
@@ -550,15 +552,16 @@ $\Gamma \vdash M~N \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp2})
 \end{proof}
 
 
-Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
+% Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
 
-\begin{theorem}[Subterm property of strong normalization]
-% Any subterm of a strongly normalizing term is strongly normalizing itself.za
-If $(\Gamma \vdash M) \in \csn$ and $\Gamma \vdash C[N] = M$ then $(\Gamma \vdash N) \in \csn$.
-% or more formally:
-%if $t \in \csn$ and $C[s] = t$ then $s \in \csn$.
-\end{theorem}
+% \begin{theorem}[Subterm property of strong normalization]
+% % Any subterm of a strongly normalizing term is strongly normalizing itself.za
+% If $(\Gamma \vdash M) \in \csn$ and $\Gamma \vdash C[N] = M$ then $(\Gamma \vdash N) \in \csn$.
+% % or more formally:
+% %if $t \in \csn$ and $C[s] = t$ then $s \in \csn$.
+% \end{theorem}
 
+\subsection{Inductive Definition of Strongly Normalizing Terms}
 
 Here, we define inductively the set of normal terms, $\SN$, and the set of neutral terms, $\SNe$,   using the following judgements:
 \\[1em]
@@ -577,7 +580,8 @@ The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for 
 \[
 \begin{array}{c}
 \multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
-\ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{} \qquad   \ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{} 
+\ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{} \qquad  
+\ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{} 
 \\[1em]
 \multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
 \ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{} \qquad 
@@ -593,16 +597,156 @@ The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for 
   \label{fig:sn}
 \end{figure}
 
+% \begin{lemma}[Variables are in $\SN$]
+% If $x{:}A \in \Gamma$ then $\Gamma \vdash x \in SN$
+% \end{lemma}
+\begin{lemma}[Renaming]~\label{lm:renameSN}
+  \begin{enumerate}
+  \item If $\Gamma \vdash M \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M \in \SN$  
+  \item If $\Gamma \vdash M \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M \in \SNe$  
+  \item If $\Gamma \vdash M \redSN N$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M \redSN [\rho]N$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+By induction on the first derivation.  
 
-We will sketch here that the inductive definition of $\SN$ and $\SNe$ is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}). 
+\paragraph{Case:} $\D = \ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{} $
+\\[1em]
+$\Gamma' \vdash [\rho]R \in \SNe$ \hfill by IH (2) \\
+$\Gamma' \vdash [\rho]R \in \SN$ \hfill by def. of $\SN$
 
-We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
+\paragraph{Case:} $\D = \ianc{\Gamma, x{:}A \vdash M \in \SN}{\Gamma \vdash \lambda x{:}A.M \in \SN}{}$
+\\[1em]
+$\Gamma', x{:}A \ext {\rho, x/x} \Gamma, x{:}A$ \hfill by def. of $\ext{\rho}$\\
+$\Gamma', x{:}A \vdash [\rho, x/x]M \in \SN$ \hfill by IH (1) \\
+$\Gamma' \vdash \lambda x{:}A.[\rho, x/x]M \in \SN$ \hfill by def. of $\SN$\\
+$\Gamma' \vdash [\rho](\lambda x{:}A.M) \in \SN$ \hfill by subst. def.
+
+\paragraph{Case:} $\D = \ibnc{\Gamma \vdash M \redSN M'}{\Gamma \vdash M' \in \SN}{\Gamma \vdash M \in \SN}{} $
+\\[1em]
+$\Gamma' \vdash [\rho]M \redSN [\rho]M'$ \hfill by IH (3) \\
+$\Gamma' \vdash [\rho]M' \in \SN$ \hfill by IH (1)\\
+$\Gamma' \vdash [\rho]M \in \SN$ \hfill by def. of $\SN$
+
+\paragraph{Case:} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{} $
+\\[1em]
+$\Gamma' \ext {\rho} \Gamma$ \hfill by assumption \\
+$\Gamma' \vdash [\rho]x : A$ \hfill by renaming of typing \\
+$\Gamma' \vdash [\rho]x \in \SNe$ \hfill by def. of $\SNe$
+
+\paragraph{Case:} $\D = \ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{} $
+\\[1em]
+$\Gamma' \vdash [\rho]R \in \SNe$ \hfill by IH (2) \\
+$\Gamma' \vdash [\rho]M \in \SN$ \hfill by IH (1) \\
+$\Gamma' \vdash [\rho]R~[\rho]M \in \SNe$ \hfill by def. of $\SNe$\\
+$\gamma' \vdash [\rho](R~M) \in \SNe$ \hfill by subst. def.
+
+\paragraph{Case:}$\D = \ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M}{} \qquad$
+\\[1em]
+$\Gamma' \vdash [\rho]N \in \SN$ \hfill by IH (1) \\
+$\Gamma' \vdash [\rho](\lambda x.M)~[\rho]N \redSN [\rho, [\rho]N/x]M$ \hfill by def. of $\redSN$
+
+\paragraph{Case:}$\D = \ianc{\Gamma \vdash R \redSN R'}{\Gamma \vdash R\,M \redSN R'\,M}{}$\\[1em]
+$\Gamma' \vdash [\rho]R \redSN [\rho]R'$ \hfill by IH(3) \\
+$\Gamma \vdash [\rho]R~[\rho]M \redSN [\rho]R'~[\rho]M$ \hfill by def. of $\redSN$\\
+$\Gamma \vdash [\rho](R~M) \redSN [\rho](R'~M)$ \hfill by def. of subst.
+
+\end{proof}
+
+\begin{lemma}[Anti-Renaming]~\label{lm:anti-renameSN}
+  \begin{enumerate}
+  \item If $\Gamma' \vdash [\rho]M \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M \in \SN$  
+  \item If $\Gamma' \vdash [\rho]M \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M \in \SNe$  
+  \item If $\Gamma' \vdash [\rho]M \redSN [\rho]N$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M \redSN N$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+By induction on the first derivation. [to check]  
+\end{proof}
+
+\begin{lemma}[$\SN$ is closed under application to variables]\label{lm:pSN1}
+If $\Gamma \vdash M \in \SN$ and $x{:}A \in \Gamma$ then $\Gamma \vdash M~x \in \SN$.  
+\end{lemma}
+\begin{proof}
+By induction on $\SN$.
+
+\paragraph{Case:} $\D = \ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{}$
+\\[1em]
+$\Gamma \vdash x \in \SNe$ \hfill by def. of $\SNe$ \\
+$\Gamma \vdash x \in \SN$ \hfill by def. of $\SN$ \\
+$\Gamma \vdash R~x \in \SNe$ \hfill by def. of $\SNe$
+
+\paragraph{Case:} $\D = \ianc{\Gamma, y{:}A \vdash M \in \SN}{\Gamma \vdash \lambda y{:}A.M \in \SN}{}$
+\\[1em]
+$\Gamma \ext{\id, x/y} \Gamma, y{:}A$ \hfill by def. of $\ext{\id}$ \\
+$\Gamma \vdash [\id,x/y]M \in \SN$ \hfill by Lemma \ref{lm:renameSN} choosing $\Gamma \ext{\id, x/y} \Gamma, y{:}A$\\
+$\Gamma \vdash x \in \SNe$  \hfill by def. of $\SNe$ \\
+$\Gamma \vdash x \in \SN$  \hfill by def. of $\SN$ \\
+$\Gamma \vdash (\lambda y{:}A.M)~x \redSN [\id,x/y]M$  \hfill by $\redSN$ \\
+$\Gamma \vdash (\lambda y{:}A. M)~x \in \SN$\hfill by def. of $\SN$
+
+\end{proof}
+
+
+\begin{lemma}[Subterm Property of $\SN$]\label{lm:pSN2}
+If $\Gamma \vdash M~N \in \SN$ then $\Gamma \vdash N \in \SN$.  
+\end{lemma}
+\begin{proof}
+By Induction on $\SN$.
+\paragraph{Case:} $\D =  \ianc{\Gamma \vdash R~N \in \SNe}{\Gamma \vdash R~N \in \SN}{}$  
+\\[1em]
+$\Gamma \vdash N \in \SN$ \hfill by def. of $\SNe$
+
+\paragraph{Case:} $\D = \ibnc{\Gamma \vdash M~N \redSN Q}{\Gamma \vdash Q \in \SN}{\Gamma \vdash M~N \in \SN}{} $
+\\[1em]
+\textbf{Sub-Case:} $\D = \ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M')\;N \redSN [N/x]M'}{}$ where $M = \lambda x.M'$\\[1em]
+$\Gamma \vdash N \in \SN$ \hfill by assumption  
+\\[1em]
+\textbf{Sub-Case:} $\D = \ianc{\Gamma \vdash R \redSN R'}{\Gamma \vdash R\,M \redSN R'\,M}{}$ 
+\\[1em]
+$\Gamma \vdash R'\;M \in \SN$ \hfill by assumption since $Q = R'~M$\\
+$\Gamma \vdash M \in \SN$ \hfill by IH
+
+\end{proof}
+
+% -- If t x ¡Ê SN then t ¡Ê SN.
+We rely on the extensionality of $\SN$ for function types:
+
+\begin{lemma}[Extentionality of $\SN$]\label{lm:pSN}
+If $\Gamma \vdash M~x \in \SN$ then $\Gamma \vdash M \in \SN$.
+\end{lemma}
+\begin{proof}
+By induction on $\SN$
+
+\paragraph{Case:} $\D = \ianc{\Gamma \vdash M~x \in \SNe}{\Gamma \vdash M~x \in \SN}{} $  \\[1em]
+ $\Gamma \vdash M \in \SNe$ \hfill by def. of $\SNe$ \\
+ $\Gamma \vdash M \in \SN$ \hfill by def. of $\SN$
+ \\[1em]
+ \paragraph{Case:} $\D = \ibnc{\Gamma \vdash M~x \redSN Q}{\Gamma \vdash Q \in \SN}
+                             {\Gamma \vdash M~x \in \SN}{} $
+ \\[1em]
+ \textbf{Sub-case}: $\Gamma \vdash (\lambda y.M')~x \redSN [x/y]M'$ \\[1em]
+ $\Gamma \vdash [x/y]M' \in \SN$ \hfill by assumption \\
+ $\Gamma, y{:}A \vdash M' \in \SN$ \hfill by Anti-Renaming Property (Lemma \ref{lm:anti-renameSN})\\
+ $\Gamma \vdash \lambda y{:}A.M' \in \SN$ \hfill by def. of $\SN$
+ \\[1em]
+ \textbf{Sub-case}: $\Gamma \vdash M~x \redSN M'~x$ and $Q = M'~x$ \\[1em]
+ $\Gamma \vdash M \redSN M'$ \hfill by def. of $\redSN$ \\
+ $\Gamma \vdash M' \in \SN$ \hfill by IH \\
+ $\Gamma \vdash M \in \SN$ \hfill by def. of $\SN$
+
+% To Show: \Gamma \vdash M \in \SN$
+\end{proof}
+
+%We will sketch here that the inductive definition of $\SN$ and $\SNe$ is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}). 
+
+% We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
 
 
 
 
-
-We can now prove our inductive definition to be sound and complete.
+\subsection{Soundness and Completeness}
+We can now prove that the two definitions of strongly normalizing terms coincide (soundness and completeness).
 
 \begin{theorem}[Soundness of $\SN$]
 \mbox{}
@@ -812,8 +956,8 @@ $\Gamma, x{:}A \ext{\id} \Gamma$ \hfill by def. of context extensions \\
 % $\Gamma, x{:}A \models M  : A \arrow B$ \hfill by Semantic Weakening Lemma \ref{lm:sweak}\\
 $\Gamma, x{:}A \models M[\id]~x : B$ \hfill by def. of  $\Gamma, x{:}A \models M  : A \arrow B$\\
 $\Gamma, x{:}A \vdash M[\id]~x\in \SN$ \hfill by IH (\CR \ref{cr1})\\
-$\Gamma, x{:}A \vdash M[\id] \in \SN$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
-$\Gamma \vdash M \in \SN$ \hfill by Strengthening  ??
+$\Gamma, x{:}A \vdash M[\id] \in \SN$ \hfill by  Extensionality Lemma \ref{lm:pSN} \\% Lemma \ref{lem:psn} (Property \ref{pp6})\\
+$\Gamma \vdash M \in \SN$ \hfill by Ani-renaming Lemma \ref{lm:anti-renameSN}
 \\[1em]
 \fbox{\CR \ref{cr2}. If $\Gamma \vdash M \in \SNe$ then $\Gamma \models M : A$.}
 \\[0.5em]
