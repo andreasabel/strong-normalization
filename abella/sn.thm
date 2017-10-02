@@ -95,17 +95,16 @@ case Ht.
   case H1. search. search.
 % app
   case H1.
-  apply l-315a to Hm.   apply l-315b to Hm.
+  apply l-315a to Hm.   apply l-315b to *Hm.
   apply IH to H2 H4 Hn with M = M2,N = N.
   apply IH to H3 H5 Hn with M = M3, N = N.
   skip. %apply 311
-%  	subcases app
-	intros. unfold.intros. case H4. case H5.
-	case H4.
+%  	subcases app-n
+	 unfold.intros. case H4.
 % abs
   case H1.
-  apply l-316 to Hm.
-  apply IH to H2 H3 Hn with M = (M1 N n1), N =  N .
+  apply l-316 to *Hm.
+  apply IH to H2 H3 Hn with M = (M1  N), N =  N .
   apply l-313 to H3. search.
 
 
@@ -117,7 +116,7 @@ case Ht.
 % app
   apply l-315a to Hm.   apply l-315b to Hm.
   apply IH to H1 H3 Hn.   apply IH to H2 _ Hn.
-  skip. %apply 311
+  skip. %apply 311 from the mutual induction
 % abs
   apply l-316 to *Hm.
   apply IH to H1 H2 Hn with M = (R n1).
@@ -134,7 +133,7 @@ case Ha.
 % subcase app2
  case Hn. apply H2 to H1. apply IH1 to   Hm H3. search.
 % case beta
-apply l-316  to Hm. apply l-314 to H1 Hn. %mut ind
+apply l-316  to *Hm. apply l-314 to H1 Hn. %mut ind
  search.
  
 

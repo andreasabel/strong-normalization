@@ -306,19 +306,19 @@ $\Gamma \vdash M~N \in \csn$ \hfill since $\Gamma \vdash M~N \red Q$ was arbitra
 \\[1em]
 By induction on $M$.
 \paragraph{Sub-case:} $M = x$ \\
-$\Gamma, x{:}A \vdash x \in \csn$ \hfill trivial since there is no reduction $x \red x$
+$\Gamma, x{:}A \vdash x \in \csn$ \hfill trivial since there is no reduction $x \red x$\ednote{There should be another case for $M = y$ different from $x$ -am}
 
 \paragraph{Sub-case:} $M = M_1~M_2$ \\
 $[N/x](M_1~M_2) = [N/x]M_1~[N/x]M_2$ \hfill by def. of subst. \\
-$\Gamma \vdash [N/x]M_1 \in \csn$ \hfill by Property \ref{pp6} \\
-$\Gamma \vdash [N/x]M_2 \in \csn$ \hfill by Property \ref{pp6} \\
+$\Gamma \vdash [N/x]M_1 \in \csn$ and $\Gamma \vdash [N/x]M_2 \in \csn$ \hfill by Property \ref{pp6} \\
+%$\Gamma \vdash [N/x]M_2 \in \csn$ \hfill by Property \ref{pp6} \\
 $\Gamma, x{:}A \vdash M_1 \in \csn$ \hfill by IH \\
 $\Gamma, x{:}A \vdash M_2 \in \csn$ \hfill by IH \\
 $\Gamma, x{:}A \vdash M_1~M_2 \in \csn$ \hfill by Property \ref{pp2}
 %
 
 \paragraph{Sub-case:} $M = \lambda y{:}B.M'$ \\
-$[N/x](\lambda y{:}B. [N/x]M'$ \hfill by def. subst. \\
+$[N/x](\lambda y{:}B. M') = (\lambda y{:}B. [N/x]M)'$ \hfill by def. subst.\ednote{Should we insist on $(\lambda y{:}B. [N/x,y/y]M')$? .am } \\
 $\Gamma, y{:}B \vdash [N/x]M' \in \csn$ \hfill by Property \ref{pp7}\\
 $\Gamma, y{:}B, x{:}A \vdash M' \in \csn$ \hfill by IH \\
 $\Gamma, x{:}A, y{:}B \vdash M' \in \csn$ \hfill by exchange \\
@@ -342,7 +342,7 @@ Induction on $M$.
 % \\[1em]
 \paragraph{Sub-case:} $M = x$
 \\
-$\Gamma \vdash [N/x]x \in \csn$ \hfill by assumption $\Gamma \vdash N \in \csn$
+$\Gamma \vdash [N/x]x \in \csn$ \hfill by assumption $\Gamma \vdash N \in \csn$\ednote{There should be another case for $M = y$ different from $x$ -am}
 %
 \paragraph{Sub-case:} $M = M_1~M_2$
 \\
@@ -396,8 +396,8 @@ $\Gamma, x{:}A \vdash M \in \csn$ \hfill since  $\Gamma, x{:}A \vdash M \red M'$
 \end{corollary}
 \begin{proof}
   Property \ref{pp1} follows directly from Lemma
-  \ref{lem:psn}(\ref{pp3}) and Lemma
-  \ref{lem:psn}(\ref{pp4}).
+  \ref{lem:psn}(\ref{pp3}), Lemma
+  \ref{lem:psn}(\ref{pp4}) and  \ref{lem:psn}(\ref{pp2}).
 \end{proof}
 
 
@@ -706,7 +706,9 @@ $\Gamma \vdash (\lambda y{:}A. M)~x \in \SN$\hfill by def. of $\SN$
 
 \end{proof}
 
-
+\begin{metanote}
+  Does this work for $M$ as well? If it does, then extensionality follows -am
+\end{metanote}
 \begin{lemma}[Subterm Property of $\SN$]\label{lm:pSN2}
 If $\Gamma \vdash M~N \in \SN$ then $\Gamma \vdash N \in \SN$.  
 \end{lemma}
@@ -729,10 +731,10 @@ $\Gamma \vdash M \in \SN$ \hfill by IH
 \end{proof}
 
 % -- If t x ¡Ê SN then t ¡Ê SN.
-We rely on the extensionality of $\SN$ for function types:
+We will use the extensionality of $\SN$ for function types in the proof of \CR1:
 
 \begin{lemma}[Extentionality of $\SN$]\label{lm:pSN}
-If $\Gamma \vdash M~x \in \SN$ then $\Gamma \vdash M \in \SN$.
+If  $x{:}A \in \Gamma$ and $\Gamma \vdash M~x \in \SN$ then $\Gamma \vdash M \in \SN$.
 \end{lemma}
 \begin{proof}
 By induction on $\SN$
