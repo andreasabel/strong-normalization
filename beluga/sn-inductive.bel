@@ -1,0 +1,154 @@
+% 2017-05-02
+% Strong normalization (SN/SNe) for simply-typed lambda-calculus in Beluga
+% using an inductive definition of SN/SNe
+
+LF ty : type =
+  | base : ty
+  | arr  : ty -> ty -> ty
+  ;
+%name ty T.
+
+LF tm : ty -> type =
+  | abs : (tm A -> tm B) -> tm (arr A B)
+  | app : tm (arr A B) -> tm A -> tm B
+  ;
+%name tm M.
+
+schema cxt = tm A; % some [a : ty] block tm a;
+
+LF step : tm A -> tm A -> type =
+  | rbeta : step (app (abs M) N) (M N)
+  | rabs  : ({x : tm A} step (M x) (M' x)) -> step (abs M) (abs M')
+  | rappl : step M M' -> step (app M N) (app M' N)
+  | rappr : step N N' -> step (app M N) (app M N')
+  ;
+
+inductive SNRed : (g : cxt) {M : [g |- tm A[]]} {M' : [g |- tm A[]]} ctype = 
+| SBeta : SNRed [g |- app (abs \x.M) N] [g |- M[..,N/x]]
+| SApp  : SNRed [g |- R] [g |- R'] -> SNRed [g |- app R M] [g |- app R' M]
+;
+
+inductive SN : (g : cxt) {M : [ g |- tm A[]] } ctype = 
+| SNeu : SNe [g |- R] -> SN [g |- R]
+| SAbs : SN [g, x: tm A[] |- M] -> SN [g |- abs \x.M]
+| SRed : SNRed [g |- M] [g |- M'] -> SN [g |- M']
+       -> SN [g |- M]
+
+and inductive SNe : (g : cxt) {M : [ g |- tm A[] ] } ctype =
+| SVar : {#p:[g |- tm A[]]} SNe [g |- #p]
+| SApp : SNe [g |- R] -> SN [g |- M] -> SNe [g |- app R M]
+;
+
+%{
+Lemma 3.5: Renaming for SN
+}%
+rec renameSN   : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]}
+                SN [g |- M] -> SN [g' |- M[#R]] = ? 
+
+and renameSNe  : (g : cxt)(g' : cxt) {#R:[g' |-# g]}{M : [g |- tm A[]]}
+                 SNe [g |- M] -> SNe [g' |- M[#R]] = ? 
+
+and renameSNRed: (g : cxt)(g' : cxt) {#R:[g' |-# g]}{M : [g |- tm A[]]}
+                 SNRed [g |- M] [g |- N] -> SNRed [g' |- M[#R]] [g' |- N[#R]]= ? 
+;
+
+%{
+Lemma 3.6: Anti-Renaming
+}%
+rec anti_renameSN   : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SN [g' |- M[#R]] -> SN [g |- M]  = ? 
+
+and anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNe [g' |- M[#R]] -> SNe [g |- M]  = ? 
+
+and anti_renameSNRed: (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N[#R]] -> SNRed [g |- M] [g |- N] = ? 
+;
+
+
+%{
+Lemma 3.7: SN is closded under application to variables
+}%
+rec closure_var_SN: {M:[g |- tm (arr A[] B[])]} {#p : [g |- tm A[]]} SN [g |- M] -> SN [g |- app M #p] = ?;
+
+
+%{
+Lemma 3.9: Extensionality of SN
+}%
+
+rec ext_SN : {M: [g |- tm (arr A[] B[])]}{#p: [g |- tm A[]]} SN [g |- app M #p] -> SN [g |- M] = ? ;
+
+
+% Semantic Typing / Reducibility 
+
+stratified Red : {A : [ |- ty ]} (g : cxt) {M : [ g |- tm A[] ]} ctype =
+  | RBase : SN [g |- M] -> Red [ |- base ] [g |- M]
+  | RArr  : ({g' : cxt} {#S : [g' |-# g]} {N : [g' |- tm A[]]}
+               Red [|- A] [g' |- N]
+            -> Red [|- B] [g' |- app M[#S] N])
+         -> Red [ |- arr A B ] [g |- M]
+  ;
+
+inductive RedS : {g : cxt} (g' : cxt) {#S : [g' |- g]} ctype =
+  | RNil  : RedS [] [ g' |- ^ ]
+  | RCons : Red [|- A] [g' |- M]
+         -> RedS [g] [g' |- #S]
+         -> RedS [g, x : tm A[]] [g' |- #S, M]
+  ;
+
+%{
+ Weakening RedS and Red
+}%
+rec rename_red : {g : cxt} {g' : cxt} {#R : [g' |-# g]} Red [ |- A] [g |- M] -> Red [ |- A] [g' |- M[#R]] = ? 
+and rename_redS: {g : cxt} {g' : cxt} {#R : [g' |-# g]} RedS [h] [g |- #S]   -> RedS [h] [g' |- #S[#R]] = ? 
+;
+
+
+%{ Reducibility Candidate Conditions 
+}%
+rec cr1 : Red [ |- A] [g |- M] -> SN [g |- M] = ? 
+and cr2 : SNe [g |- M] -> Red [ |- A] [g |- M] = ?
+and cr3 : SNRed [g |- M] [g |- M'] -> Red [ |- A] [g |- M'] -> Red [ |- A] [g |- M] = ? 
+
+;
+
+% Variables are reducible
+rec red_var : {g : cxt} {#p : [g |- tm A[]]} Red [ |- A] [g |- #p] = 
+mlam g, #p => cr2 (SVar [g |- #p]);
+
+
+rec fundVar : {g : cxt} {#p : [g |- tm A[]]}
+          RedS [g] [g' |- #S]
+       -> Red [|- A] [g' |- #p[#S]] =
+  / total g (fundVar g) /
+  mlam g, #p => fn s => case [g] of
+    | [] => impossible [ |- #p ]
+    | [g, x : tm A[]] => case [g, x : tm _ |- #p] of
+      | [g, x : tm A[] |- x     ] => let RCons r s' = s in r
+      | [g, x : tm A[] |- #q[..]] => let RCons r s' = s in fundVar [g] [g |- #q] s'
+  ;
+
+%{ Main Lemma 
+}%
+rec main_lemma : {g : cxt}{g' : cxt}{M : [g |- tm A[]]} {#S : [g' |- g]} RedS [g] [g' |- #S] -> Red [ |- A[]] [g' |- M[#S]] = 
+mlam g, g', M, #S => fn rs => case [g |- M] of 
+| [g |- #p] => fundVar [g] [g |- #p] rs
+
+| [g |- app M N] => 
+  let RArr r1 = main_lemma [g] [g'] [g |- M] [g' |- #S] rs in 
+  let r2 = main_lemma [g] [g'] [g |- N] [g' |- #S] rs in 
+    r1 [g'] [g' |- ..] [g' |- N[#S]] r2
+
+| [g |- abs \x.M] => ? ;
+
+
+%{
+All well-typed terms are strongly normalizing.
+}%
+rec id_red : {g : cxt} RedS [g] [g |- ..] = mlam g => case [g] of 
+| [ ] => RNil
+| [g, x: tm A[]] => 
+  let r  = id_red [g] in 
+  let r' = rename_redS [g] [g, x : tm A[]] [g, x : tm A[] |- ..] r in
+   RCons (red_var [g, x : tm A[]] [g, x : tm A[] |- x]) r'
+   ;
+
+rec norm : {g : cxt} {M : [g |- tm A[]]} SN [g |- M] = 
+mlam g, M => cr1 (main_lemma [g] [g] [g |- M] [g |- ..] (id_red [g]) ) ;
