@@ -9,7 +9,7 @@ LF ty : type =
 %name ty T.
 
 LF tm : ty -> type =
-  | abs : (tm A -> tm B) -> tm (arr A B)
+  | abs : {A:ty}(tm A -> tm B) -> tm (arr A B)
   | app : tm (arr A B) -> tm A -> tm B
   ;
 %name tm M.
@@ -17,26 +17,28 @@ LF tm : ty -> type =
 schema cxt = tm A; % some [a : ty] block tm a;
 
 LF step : tm A -> tm A -> type =
-  | rbeta : step (app (abs M) N) (M N)
-  | rabs  : ({x : tm A} step (M x) (M' x)) -> step (abs M) (abs M')
+  | rbeta : step (app (abs _ M) N) (M N)
+  | rabs  : ({x : tm A} step (M x) (M' x)) -> step (abs _ M) (abs _ M')
   | rappl : step M M' -> step (app M N) (app M' N)
   | rappr : step N N' -> step (app M N) (app M N')
   ;
 
-inductive SNRed : (g : cxt) {M : [g |- tm A[]]} {M' : [g |- tm A[]]} ctype = 
-| SBeta : SNRed [g |- app (abs \x.M) N] [g |- M[..,N/x]]
-| SApp  : SNRed [g |- R] [g |- R'] -> SNRed [g |- app R M] [g |- app R' M]
-;
 
 inductive SN : (g : cxt) {M : [ g |- tm A[]] } ctype = 
 | SNeu : SNe [g |- R] -> SN [g |- R]
-| SAbs : SN [g, x: tm A[] |- M] -> SN [g |- abs \x.M]
+| SAbs : SN [g, x: tm A[] |- M] -> SN [g |- abs A[] \x.M]
 | SRed : SNRed [g |- M] [g |- M'] -> SN [g |- M']
        -> SN [g |- M]
 
 and inductive SNe : (g : cxt) {M : [ g |- tm A[] ] } ctype =
 | SVar : {#p:[g |- tm A[]]} SNe [g |- #p]
 | SApp : SNe [g |- R] -> SN [g |- M] -> SNe [g |- app R M]
+
+
+and inductive SNRed : (g : cxt) {M : [g |- tm A[]]} {M' : [g |- tm A[]]} ctype = 
+| SBeta :  {M:[g, x:tm A[] |- tm B[]]} SN [g |- N]
+          -> SNRed [g |- app (abs A[] \x.M) N] [g |- M[..,N]]
+| SApp  : SNRed [g |- R] [g |- R'] -> SNRed [g |- app R M] [g |- app R' M]
 ;
 
 %{
@@ -96,22 +98,33 @@ inductive RedS : {g : cxt} (g' : cxt) {#S : [g' |- g]} ctype =
 %{
  Weakening RedS and Red
 }%
-rec rename_red : {g : cxt} {g' : cxt} {#R : [g' |-# g]} Red [ |- A] [g |- M] -> Red [ |- A] [g' |- M[#R]] = ? 
-and rename_redS: {g : cxt} {g' : cxt} {#R : [g' |-# g]} RedS [h] [g |- #S]   -> RedS [h] [g' |- #S[#R]] = ? 
+rec rename_red : {g : cxt} {g' : cxt} {A:[ |- ty]}{M : [g |- tm A[]]} {#R : [g' |-# g]} Red [ |- A] [g |- M] -> Red [ |- A] [g' |- M[#R]] =  
+/ total a (rename_red g g' a) /
+?
+and rename_redS: {g : cxt} {g' : cxt} {#R : [g' |-# g]} RedS [h] [g |- #S]   -> RedS [h] [g' |- #S[#R]] = 
+/ total rs (rename_redS g g' s rs) /
+? 
 ;
 
 
 %{ Reducibility Candidate Conditions 
 }%
-rec cr1 : Red [ |- A] [g |- M] -> SN [g |- M] = ? 
-and cr2 : SNe [g |- M] -> Red [ |- A] [g |- M] = ?
-and cr3 : SNRed [g |- M] [g |- M'] -> Red [ |- A] [g |- M'] -> Red [ |- A] [g |- M] = ? 
-
+rec cr1 : {A:[ |- ty]}{M : [g |- tm A[]]}  Red [ |- A] [g |- M] -> SN [g |- M] = 
+/ total a (cr1 g a ) /
+? 
+and cr2 : {A:[ |- ty]}{M : [g |- tm A[]]}SNe [g |- M] -> Red [ |- A] [g |- M] = 
+ / total a (cr2 g a) / 
+?
+and cr3 :  {A:[ |- ty]}{M : [g |- tm A[]]} {M' : [g |- tm A[]]} SNRed [g |- M] [g |- M'] -> Red [ |- A] [g |- M'] -> Red [ |- A] [g |- M] = 
+ / total a (cr3 g a) / 
+?
 ;
+
 
 % Variables are reducible
 rec red_var : {g : cxt} {#p : [g |- tm A[]]} Red [ |- A] [g |- #p] = 
-mlam g, #p => cr2 (SVar [g |- #p]);
+/ total (red_var ) /
+mlam g, #p => cr2 [ |- _ ] [ _ |- _ ] (SVar [g |- #p]);
 
 
 rec fundVar : {g : cxt} {#p : [g |- tm A[]]}
@@ -128,6 +141,7 @@ rec fundVar : {g : cxt} {#p : [g |- tm A[]]}
 %{ Main Lemma 
 }%
 rec main_lemma : {g : cxt}{g' : cxt}{M : [g |- tm A[]]} {#S : [g' |- g]} RedS [g] [g' |- #S] -> Red [ |- A[]] [g' |- M[#S]] = 
+/ total m (main_lemma g g' a m) /
 mlam g, g', M, #S => fn rs => case [g |- M] of 
 | [g |- #p] => fundVar [g] [g |- #p] rs
 
@@ -136,13 +150,23 @@ mlam g, g', M, #S => fn rs => case [g |- M] of
   let r2 = main_lemma [g] [g'] [g |- N] [g' |- #S] rs in 
     r1 [g'] [g' |- ..] [g' |- N[#S]] r2
 
-| [g |- abs \x.M] => ? ;
+| [g |- abs A[] \x.M] => 
+  RArr (mlam g'', #R, N => fn rn => 
+    let rs' = rename_redS [g'] [g''] [g'' |- #R] rs in
+    let r   = main_lemma  [g, x:tm A[] ] [g''] [g, x:tm A[] |- M] [g'' |- #S[#R], N] (RCons rn rs') in 
+    let sn = cr1 [ |- _ ] [_ |- _ ] rn in 
+    let sn' = SBeta [g'', x:tm A[] |- M[#S[#R[..]], x]] sn in 
+      cr3 [ |- _ ] [_ |- _ ] [_ |- _ ] sn' r 
+)
+  ;
 
 
 %{
 All well-typed terms are strongly normalizing.
 }%
-rec id_red : {g : cxt} RedS [g] [g |- ..] = mlam g => case [g] of 
+rec id_red : {g : cxt} RedS [g] [g |- ..] = 
+/ total g (id_red g) /
+mlam g => case [g] of 
 | [ ] => RNil
 | [g, x: tm A[]] => 
   let r  = id_red [g] in 
@@ -151,4 +175,6 @@ rec id_red : {g : cxt} RedS [g] [g |- ..] = mlam g => case [g] of
    ;
 
 rec norm : {g : cxt} {M : [g |- tm A[]]} SN [g |- M] = 
-mlam g, M => cr1 (main_lemma [g] [g] [g |- M] [g |- ..] (id_red [g]) ) ;
+/ total  (norm) /
+mlam g, M => cr1 [ |- _ ] [ _ |- _ ] (main_lemma [g] [g] [g |- M] [g |- ..] (id_red [g]) ) ;
+
