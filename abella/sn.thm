@@ -1,0 +1,245 @@
+%% experimnt about SN = sn
+%%
+%% 
+
+Specification "strong".
+Close tm, ty.
+
+%% Conventions:
+%% Types: A, B, C
+%% Terms: M, N, P, R, U, V
+%% Contexts: L, K
+
+Define istm : tm -> prop by
+ nabla x, istm x;
+ istm (app M N) := istm M /\ istm N;
+ istm (abs R) := nabla x, istm (R x).
+
+%% we start keeping the context implicit, since it's just nablas
+Define sn : tm -> prop by
+  sn M := forall N, {step M N} -> sn N.
+
+
+% Lemma 3.1 in notes
+
+
+Theorem l-313  : forall M , nabla x, sn (M x) -> sn (abs M).
+induction on 1. intros Hsn.
+unfold.
+intros Hstep.
+case Hsn.
+case Hstep.
+apply H1 to H2.
+apply IH  to H3.
+search.
+
+
+% 5
+Theorem l-315a: forall M N, sn (app M N) -> sn M.
+induction on 1. intros.
+unfold.
+intros.
+assert {step (app M N) (app N1 N)}. clear H2.
+case H1.
+apply H4 to H3.
+apply IH to H5.
+search.
+
+Theorem l-315b: forall M N, sn (app M N) -> sn N.
+induction on 1. intros Hap.
+unfold.
+intros Hs.
+assert {step (app M N) (app M N1)}. clear Hs.
+case Hap.
+apply H2 to H1.
+apply IH to H3.
+search.
+
+
+% 6 
+
+Theorem l-316  : forall M , nabla x,  sn (abs M) -> sn (M x).
+induction on 1. intros.
+unfold.
+intros.
+assert {step (abs M) (abs N)}.
+case H1.
+apply H4 to H3.
+apply IH to H5.
+search.
+/*
+%% just an attempt before mutual induction
+Theorem l-312l: forall M N, istm (M N) -> sn (M N) -> sn N -> sn (abs M).
+induction on 1. intros Ht Hm Hn.
+case Ht.
+% var
+  case H1. unfold. intros. case H2. case H3.
+  unfold. intros. case H2. case H3.
+%
+  case H1.
+  apply l-315a to Hm.   apply l-315b to *Hm.
+  apply IH to H2 H4 Hn with M = M2,N = N.
+  apply IH to H3 H5 Hn with M = M3, N = N.
+  skip.
+  	intros. unfold.intros. case H4. case H5.
+ case H1.
+  apply l-316 to Hm.
+  apply IH to H2 H3 Hn with M = (M1 N n1), N =  N .
+  apply l-313 to H3. search.
+
+*/
+Theorem l-312: forall M N, istm (M N) -> sn (M N) -> sn N -> nabla n, sn (M n).
+induction on 1. intros Ht Hm Hn.
+case Ht.
+% var
+  case H1. search. search.
+% app
+  case H1.
+  apply l-315a to Hm.   apply l-315b to Hm.
+  apply IH to H2 H4 Hn with M = M2,N = N.
+  apply IH to H3 H5 Hn with M = M3, N = N.
+  skip. %apply 311
+%  	subcases app
+	intros. unfold.intros. case H4. case H5.
+	case H4.
+% abs
+  case H1.
+  apply l-316 to Hm.
+  apply IH to H2 H3 Hn with M = (M1 N n1), N =  N .
+  apply l-313 to H3. search.
+
+
+Theorem l-314: forall M N, nabla n, istm (M n) -> sn (M n) -> sn N -> sn (M N).
+induction on 1. intros Ht Hm Hn.
+case Ht.
+% var
+  search. search.
+% app
+  apply l-315a to Hm.   apply l-315b to Hm.
+  apply IH to H1 H3 Hn.   apply IH to H2 _ Hn.
+  skip. %apply 311
+% abs
+  apply l-316 to *Hm.
+  apply IH to H1 H2 Hn with M = (R n1).
+  apply l-313 to H3. search.
+
+Theorem l-311: forall M N, sn M -> sn N -> sn (app M N).
+induction on 1. induction on 2.
+intros Hm Hn.
+unfold.
+intros Ha.
+case Ha.
+% subcase app1
+ case Hm. apply H2 to H1. apply IH to  H3 Hn. search.
+% subcase app2
+ case Hn. apply H2 to H1. apply IH1 to   Hm H3. search.
+% case beta
+apply l-316  to Hm. apply l-314 to H1 Hn. %mut ind
+ search.
+ 
+
+Define stepsn : tm -> tm -> prop by
+stepsn (app (abs R) M) (R M) := sn M;
+stepsn (app M N) (app M' N) := {notabs M} /\ stepsn M M'.
+
+Define ctx : olist -> prop by
+  ctx nil ;
+  nabla x, ctx (neutral x :: L) := ctx L.
+
+Define name : tm -> prop by
+  nabla x, name x.
+
+Theorem ctx_member : forall E L,
+  ctx L -> member E L -> exists X , E = neutral X  /\ name X.
+induction on 1. intros. case H1.
+  case H2.
+  case H2.
+    search.
+    apply IH to H3 H4. search.
+
+/*
+Theorem stepSN_ignores_ctx : forall L M N,
+  ctx L -> {L |- stepSN M N} -> {stepSN M N}.
+induction on 2. intros. case H2.
+  search.
+  apply IH to H1 H3. apply IH to H1 H4. search.
+  apply ctx_member to H1 H4. case H3.
+*/
+
+/*
+Define neutral : tm -> prop by
+  neutral M := forall R, M = abs R -> false.
+
+Define notabs : tm -> prop by
+
+       notabs (app M N).
+*/
+/*
+Theorem neu-step: forall M N, {step M N} -> neutral M -> neutral N.
+induction on 1. intros. case H1.
+unfold. intros. case H4.
+unfold. intros. case H4.
+case H2. unfold.intros. skip.
+unfold. intros. case H2. abort.
+*/
+
+Theorem l32: nabla x, sn x.
+intros. unfold.intros. case H1.
+
+Theorem l22  : forall M N , sn M -> sn N -> {notabs M} -> sn (app M N).
+induction on 1. induction on 2.
+intros.
+case H1 (keep).
+case H2 (keep).
+unfold.intros. case H6.
+ % cong1
+ apply H4 to H7.
+ apply IH to H8 H2 _. skip. search. %% ??? notabs M'?
+ % cong2
+ apply H5 to H7.
+ apply IH1 to H1 H8 _. search.
+ % beta impos
+ case H3.
+
+
+Theorem l35: forall M N, stepsn M N -> sn N -> sn M.
+induction on 1. intros. case H1.
+% beta: use pp1
+skip.
+% cong
+% apply IH to 
+case H2.
+unfold. intros. skip.
+
+Theorem sound:( forall M  Ga, ctx Ga -> {Ga |- normal M} -> sn M ) /\
+  ( forall M  Ga, ctx Ga -> {Ga |- neutral M} -> sn M) /\
+  ( forall M N , {Ga |- stepSN M N} -> stepsn M N).
+  induction on 2 2 1. split.
+% 1
+ % abs
+intros. case H2. apply IH to _ H3. apply l34 to H4. search.
+% neu
+apply IH1 to H1 H3. search.
+% step (back closure?)
+  skip.
+ % ctx
+apply ctx_member to H1 H4. case H5. case H3.
+% 2
+intros. case H2.
+% app
+apply IH1 to H1 H3.
+apply IH to H1 H4.
+backchain l22.
+	  % notabs
+	  case H3.search.
+	  apply ctx_member to H1 H8. case H9. case H7. skip. %notabs n1
+% var
+apply ctx_member to H1 H4. case H5. case H3.
+unfold.intros. case H6.
+
+%3
+intros. case H1.
+% beta
+unfold. skip.
+% cong
+apply IH2 to H3. search.

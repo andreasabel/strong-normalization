@@ -220,8 +220,20 @@ normalizing.\\
 \]
 \end{definition}
 
+While this definition is very concise, we can show that it enjoys the expected closure and substitution properties, namely:
+\begin{itemize}
+\item $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$
+    iff $\Gamma \vdash M~N \in \csn$;
+  \item $\Gamma, x{:}A \vdash M \in \csn$ iff $\Gamma \vdash  \lambda x.M \in \csn$;
+  \item Let  $\Gamma \vdash N \in
+   \csn$. Then $\Gamma, x{:}A \vdash M \in \csn$ iff $\Gamma \vdash [N/x]M \in \csn$.
+\end{itemize}
 
-
+\begin{metanote}
+  I suggest we reorganize this part in properties that can be proved
+  independently: 5,6 3 of 3.1, plus the one for variables (1 in
+  3.4). Then the mutual induction 1,2,4, the context properties to conclude with sn-backward -am
+\end{metanote}
 
 \begin{lemma}[Properties of strongly normalizing terms]\label{lem:psn}$\;$
   \begin{enumerate}
@@ -426,7 +438,7 @@ Hence there exists an evaluation context $C'$ s.t. $C'[x] = (C_0[x]~M)\,N'$.
      then $\Gamma \vdash C[x]\,N \in \csn$.
   \item\label{cp3b} If $\Gamma \vdash C[x]~M \red R$ and $\Gamma \in C[x] \in
 \csn$ and $\Gamma \vdash M \in \csn$ then $\Gamma \vdash R \in \csn$. 
-   \item\label{cp4} If $\Gamma,x{:}A \vdash M \in \csn$ then $\Gamma \vdash \lambda x.M \in \csn$.
+   % \item\label{cp4} If $\Gamma,x{:}A \vdash M \in \csn$ then $\Gamma \vdash \lambda x.M \in \csn$.
    \item\label{cp5} {$\csn$-backward closure:} If $\Gamma \vdash M
      \redsn M'$ and $\Gamma \vdash M' \in \csn$ then
      $\Gamma \vdash M \in \csn$ where
@@ -541,7 +553,7 @@ $\Gamma \vdash M~N \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp2})
 \end{proof}
 
 
-Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
+Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.% \ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
 
 \begin{theorem}[Subterm property of strong normalization]
 % Any subterm of a strongly normalizing term is strongly normalizing itself.za
@@ -551,8 +563,8 @@ If $(\Gamma \vdash M) \in \csn$ and $\Gamma \vdash C[N] = M$ then $(\Gamma \vdas
 \end{theorem}
 
 
-Here, we define inductively the set of normal terms, $\SN$, and the set of neutral terms, $\SNe$,   using the following judgements:
-\\[1em]
+Here, we define inductively the set of normal terms, $\SN$, and the set of neutral terms, $\SNe$,   using the following judgments:
+\\%[1em]
 
 \begin{center}
 \begin{tabular}{ll}
@@ -587,7 +599,7 @@ The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for 
 
 We will sketch here that the inductive definition of $\SN$ and $\SNe$ is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}). 
 
-We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
+% We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
 
 
 
@@ -618,7 +630,7 @@ $\Gamma \vdash R \in \csn$ \hfill by IH(1)
                            {\Gamma  \vdash \lambda x{:}A.M \in \SN}{}$
 \\[1em]
 $\Gamma, x{:}A \vdash M \in \csn$ \hfill by IH(1) \\
-$\Gamma \vdash \lambda x{:}A.M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp4})
+$\Gamma \vdash \lambda x{:}A.M \in \csn$ \hfill by  Property \ref{lm:closn}(\ref{pp3})
 
 \paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M'}{
                              \Gamma \vdash M' \in \SN}
@@ -1257,3 +1269,7 @@ $[\sigma](\recnat{M}{M_z}{M_s}) \in \den{C}$ \hfill by $\CR2$.
 %%% mode: latex
 %%% TeX-master: "sn-proof"
 %%% End: 
+
+%  LocalWords:  Girard Tait llcl lcl redex subterms iff reducts IH
+%  LocalWords:  subst subterm todo Girard's instantiation inl inr
+%  LocalWords:  subcases Subcase
