@@ -402,7 +402,11 @@ $\Gamma, x{:}A \vdash M \in \csn$ \hfill since  $\Gamma, x{:}A \vdash M \red M'$
 
 
 
-
+\begin{metanote}
+  We may want to explain the notation $C[x]$, as the inductin
+  structure is not crystal clear to me. Also confused why weak head
+  reduction suffices -am
+\end{metanote}
 \begin{lemma}[Evaluation Contexts]\label{lm:ecxt}$\;$
 If $\Gamma \vdash C[x]~N \red R$ then there exists an
     evaluation context $C'$ s.t. $R = C'[x]$.

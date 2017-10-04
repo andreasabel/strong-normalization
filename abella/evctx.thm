@@ -1,0 +1,32 @@
+Specification "evctx".
+
+Theorem ectx_tp: forall C M T, {evctx C} -> {of (C M) T}  ->
+  (exists Ta, (nabla x, {of x Ta |- of (C x) T}) /\ {of M Ta}).
+/*
+Theorem ectx_tp: forall C M T, {evctx C} -> {of (C M) T}  ->
+  (exists Ta, (nabla x, {of x Ta} -> {of (C x) T}) /\ {of M Ta}).
+*/
+induction on 1. intros He Ho. case He.
+% hole
+search 10.
+% C M
+case Ho.
+apply IH to H1 H2.
+witness Ta. split.
+ intros Hx.
+% apply H4 to Hx.
+ search.
+search.
+
+Theorem sr_step :
+  forall E1 E2 T, {step E1 E2} -> {of E1 T} -> {of E2 T}.
+induction on 1. intros. case H1.
+%evctx
+apply ectx_tp to H3 _.
+apply IH to H4 _.
+inst H5 with n1 = N.
+cut H8 with H7. search.
+%beta
+case H2. case H3.
+    inst H6 with n1 = M. cut H7 with H4.
+      search.
