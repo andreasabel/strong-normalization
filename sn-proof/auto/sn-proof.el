@@ -1,6 +1,9 @@
 (TeX-add-style-hook
  "sn-proof"
  (lambda ()
+   (add-to-list 'LaTeX-verbatim-environments-local "lstlisting")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "lstinline")
+   (add-to-list 'LaTeX-verbatim-macros-with-delims-local "lstinline")
    (TeX-run-style-hooks
     "latex2e"
     "prelude"
@@ -85,8 +88,9 @@
    (LaTeX-add-environments
     '("SOLUTION" 1)
     '("ADDITIONAL" 1)
-    "exercise"
     "problem"
     "sol"
-    "axiom")))
+    "axiom")
+   (LaTeX-add-amsthm-newtheorems
+    "exercise")))
 

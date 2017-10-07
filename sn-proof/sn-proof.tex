@@ -976,7 +976,9 @@ $\Gamma \vdash M \in \SN$ \hfill by def. of sem. typing for $\base$
 
 \paragraph{Case: $C = A \arrow B$}.
 \\
-$\Gamma, x{:}A \models x : A$ \hfill by Lemma \ref{lm:closn} (Property \ref{cp2})\\
+$\Gamma, x{:}A \vdash x \in \SNe$ \hfill by def. of $\SNe$\\
+$\Gamma. x{:}A \models x : A$ \hfill by IH (\ref{cr2}) \\
+% $\Gamma, x{:}A \models x : A$ \hfill by Lemma \ref{lm:closn} (Property \ref{cp2})\\
 $\Gamma, x{:}A \ext{\id} \Gamma$ \hfill by def. of context extensions \\
 % $\Gamma, x{:}A \models M  : A \arrow B$ \hfill by Semantic Weakening Lemma \ref{lm:sweak}\\
 $\Gamma, x{:}A \models [\id]M~x : B$ \hfill by def. of  $\Gamma, x{:}A \models M  : A \arrow B$\\
