@@ -105,12 +105,24 @@ inductive RedS : {g : cxt} (g' : cxt) {#S : [g' |- g]} ctype =
 %{
  Weakening RedS and Red
 }%
-rec rename_red : {g : cxt} {g' : cxt} {A:[ |- ty]}{M : [g |- tm A[]]} {#R : [g' |-# g]} Red [ |- A] [g |- M] -> Red [ |- A] [g' |- M[#R]] =  
+  rec rename_red : {g : cxt} {g' : cxt} {A:[ |- ty]}{M : [g |- tm A[]]} {#R : [g' |-# g]}
+			     Red [ |- A] [g |- M] -> Red [ |- A] [g' |- M[#R]] =  
 / total a (rename_red g g' a) /
-?
+  mlam g, g', A, M, #R => fn r => case [ |- A ] of
+    [ |- base ] =>
+    let RBase s = r in RBase (renameSN [g' |- #R] [g |- M] s)
+  | [ |- arr A B] =>     
+    let RArr r' = r in
+    RArr (mlam g'', #S, N => fn rn =>
+	  r' [g'']  [g'' |- #R[#S[..]]] [g'' |- N] rn)
+	 
 and rename_redS: {g : cxt} {g' : cxt} {#R : [g' |-# g]} RedS [h] [g |- #S]   -> RedS [h] [g' |- #S[#R]] = 
 / total rs (rename_redS g g' s rs) /
-? 
+  mlam g, g', #R => fn rs => case rs of
+      RNil => RNil
+    | RCons r rs' =>
+      RCons (rename_red  [g] [g'] [ |- _] [_ |- _] [g' |- #R] r)
+	    (rename_redS [g] [g'] [g' |- #R] rs') 
 ;
 
 
