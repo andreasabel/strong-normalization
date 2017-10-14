@@ -105,7 +105,7 @@ inductive RedS : {g : cxt} (g' : cxt) {#S : [g' |- g]} ctype =
 %{
  Weakening RedS and Red
 }%
-  rec rename_red : {g : cxt} {g' : cxt} {A:[ |- ty]}{M : [g |- tm A[]]} {#R : [g' |-# g]}
+rec rename_red : {g : cxt} {g' : cxt} {A:[ |- ty]}{M : [g |- tm A[]]} {#R : [g' |-# g]}
 			     Red [ |- A] [g |- M] -> Red [ |- A] [g' |- M[#R]] =  
 / total a (rename_red g g' a) /
   mlam g, g', A, M, #R => fn r => case [ |- A ] of
