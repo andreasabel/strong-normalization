@@ -1,0 +1,22 @@
+
+* Induction Generation in Beluga must be more general
+  (especially renaming and anti-renaming was challenging)
+
+* Pattern matching on objects with renaming substitutions
+   --> gave insights what generic operations on renamings should be supported
+   --> made Beluga more robust
+   --> testing is sometimes difficult
+
+* Most challenging aspects:
+ - type reconstruction (what is a good balance? Agda vs Twelf approach)
+ - supporting nice surface syntax (key for usability)
+ - interactive mode
+
+* How it was done
+ - develop proof on paper
+ - mechanize it in Beluga (found missing cases and also wrong arguments (small error))
+
+
+
+
+
