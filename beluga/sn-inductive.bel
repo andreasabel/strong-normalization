@@ -46,7 +46,7 @@ Lemma 3.5: Renaming for SN
 }%
 rec renameSN   : {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]}
 			  SN [g |- M] -> SN [g' |- M[#R]] =
-%    / total s (renameSN g g' a r m s) / 
+    / total s (renameSN g g' a r m s) / 
 mlam g, g', #R, M => fn s => case s of 
 | SNeu s' => SNeu (renameSNe [g' |- #R] [g |- M] s')
 | SAbs s' => SAbs (renameSN [g, x:tm _] [g', x:tm _] [g', x:tm _ |- #R[..], x] [g, x:tm _ |- _] s')
@@ -55,7 +55,7 @@ mlam g, g', #R, M => fn s => case s of
 
 and renameSNe  : (g : cxt)(g' : cxt) {#R:[g' |-# g]}{M : [g |- tm A[]]}
 			  SNe [g |- M] -> SNe [g' |- M[#R]] =
-%   / total s (renameSNe g g' r m s) / 
+   / total s (renameSNe g g' a r m s) / 
 mlam #R, M => fn s => case s of
 | SVar [g |- #p] => SVar [_ |- #p[#R]]
 | SApp s1 s2 =>  SApp (renameSNe [_ |- #R] [_ |- _ ] s1)
@@ -63,7 +63,7 @@ mlam #R, M => fn s => case s of
 
 and renameSNRed: (g : cxt)(g' : cxt) {#R:[g' |-# g]}{M : [g |- tm A[]]}
 			  SNRed [g |- M] [g |- N] -> SNRed [g' |- M[#R]] [g' |- N[#R]]=
-%        / total s (renameSNRed g g' r m s) / 
+        / total s (renameSNRed g g' a r m s) / 
 mlam #R, M => fn s => case s of
 | SBeta [g, x:tm A[] |- M] s' => SBeta [_, x:tm A[] |- M[#R[..], x]] (renameSN [_] [_] [_ |- #R] [_ |- _] s')
 | SAppl s' =>    SAppl (renameSNRed [_ |- #R] [_ |- _ ] s')
@@ -99,27 +99,7 @@ and anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} S
 ? 
 
 and anti_renameSNRed: (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N[#R]] -> SNRed [g |- M] [g |- N] =      
-%   / total s (anti_renameSNRed g g' a r m s) / 
-? 
-;
-
-%%% -------------------------------------------------------------------------------------------------------------------------
-%%% Since renaminSN etc. does not pass the totality checker we simply repeat them below as "trust-me"
-
-rec renameSN   : {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]}
-			  SN [g |- M] -> SN [g' |- M[#R]] =
-    / total s (renameSN g g' a r m s) / ?
-;
-
-rec renameSNe  : (g : cxt)(g' : cxt) {#R:[g' |-# g]}{M : [g |- tm A[]]}
-			  SNe [g |- M] -> SNe [g' |- M[#R]] =
-   / total s (renameSNe g g' r m s) / 
-?  
-;
-
-rec renameSNRed: (g : cxt)(g' : cxt) {#R:[g' |-# g]}{M : [g |- tm A[]]}
-			  SNRed [g |- M] [g |- N] -> SNRed [g' |- M[#R]] [g' |- N[#R]]=
-        / total s (renameSNRed g g' r m s) / 
+ %  / total s (anti_renameSNRed g g' a r m s) / 
 ? 
 ;
 
