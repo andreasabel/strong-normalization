@@ -1,0 +1,384 @@
+% \usepackage[total={155mm,200mm},
+%             top=40mm,
+%             left=30mm]{geometry}
+%\usepackage[T1]{fontenc}
+%\usepackage{microtype}
+%\usepackage{fix-cm}
+%\usepackage[hidelinks, bookmarks, draft=false]{hyperref}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+%\usepackage[final]{listings}
+%\usepackage{lstextract}
+% \usepackage{graphicx}
+\usepackage{graphics}
+\usepackage{srcltx}
+% \usepackage{charter}
+% \usepackage{euler}
+%\usepackage{enumerate}
+%\usepackage{latexsym}
+%\usepackage{comment}
+\usepackage{xargs}
+%\usepackage[dvipsnames,svgnames]{xcolor}
+\usepackage{proof}
+\usepackage{url}
+\usepackage{xspace}
+\usepackage{natbib}
+\usepackage{cdsty}
+% \usepackage[obeyDraft,colorinlistoftodos]{todonotes}
+% \setlength{\marginparwidth}{2.7cm} % as per section 1.6.7 of the todonotes manual
+%\usepackage[answerdelayed,lastexercise]{exercise}
+%\usepackage{appendix}
+%\usepackage{makeidx}
+
+%\makeindex
+
+% ---------------------------------------------------------------------------
+% ------------------------------ Todo commmands -----------------------------
+% ---------------------------------------------------------------------------
+
+% \newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+% \newcommandx{\change}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+% \newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
+% \newcommandx{\improvement}[2][1=]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,#1]{#2}}
+
+
+% ---------------------------------------------------------------------------
+% ---------------------------- Names of languages ---------------------------
+% ---------------------------------------------------------------------------
+
+\newcommand{\beluga}{\textsc{Beluga}\xspace}
+\newcommand{\twelf}{\textsc{Twelf}\xspace}
+
+
+% ---------------------------------------------------------------------------
+% ------------------------ Theorems and environments ------------------------
+% ---------------------------------------------------------------------------
+
+\newtheorem{@problem}{Exercise}[section]
+\newenvironment{problem}{\begin{@problem}\rm}{\end{@problem}}
+\newtheorem{@sol}{Solution}[section]
+\newenvironment{sol}{\begin{@sol}\rm}{\end{@sol}}
+\newtheorem{@axiom}{Axiom}
+\newenvironment{axiom}{\begin{@axiom}\rm}{\end{@axiom}}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+
+
+% % ---------------------------------------------------------------------------
+% % ------------------------------ Contextual ML ------------------------------
+% % ---------------------------------------------------------------------------
+
+% \lstdefinelanguage{ContextualML}
+% {
+%   morekeywords={and, block, case, of, mlam, fn, impossible, let, in, schema,
+%     some, rec, type, ctype, prop, stratified, inductive, coinductive, LF, if, then,
+%     else, total},
+%   keepspaces=true,
+%   sensitive,
+%   morecomment=[l]{\%},
+%   morecomment=[n]{\%\{}{\}\%},
+%   morestring=[b]"
+% }[keywords,comments,strings]
+
+% \lstloadlanguages{ContextualML}
+% \lstset{language=ContextualML}
+
+% % The order of the "literate" definitions is significant:
+% %   later definitions shadow earlier ones.  The \\Pi definition must come
+% %   *after* the \\ definition, or the first part of \\Pi --- that is, \\ --- will
+% %   be matched, and instead of $\Pi$ you'll get $\lambda Pi$.
+% %
+% \lstset{literate={->}{{$\rightarrow~$}}2 %
+%                  {=>}{{$\Rightarrow~$}}2 %
+%                  {|-}{{$\vdash\,$}}2 %
+%                  {..}{{$.\hspace{-0.025cm}.\hspace{-0.025cm}.$}}1 % is there any nicer way?
+%                  {\\}{{$\lambda$}}1 %
+%                  {\\Pi}{{$\Pi$}}1 %
+%                  {\\gamma}{{$\gamma$}}1 %
+%                  {\\psi}{{$\psi$}}1 %
+%                  {\\sigma}{{$\sigma$}}1 %
+%                  {FN}{{$\Lambda$}}1 %
+%                  {<<}{\color{ForestGreen}}1 %
+%                  {<<r}{\color{FireBrick}}1 %
+%                  {<*}{\color{ForestGreen}}1 %
+%                  {<dim}{\color{DimGrey}}1 %
+%                  {>>}{\color{black}}1 %
+%                  {?}{\bf{?}}1,
+%         columns=[l]fullflexible,
+%         basicstyle=\ttfamily\lst@ifdisplaystyle\footnotesize\fi,
+%         keywordstyle=\bf,
+%         identifierstyle=\relax,
+%         stringstyle=\relax,
+%         commentstyle=\slshape\color{DimGrey},
+%         breaklines=true,
+%         % breakatwhitespace=true,   % doesn't do anything (?!)
+%         mathescape=true,   % interprets $...$ in listing as math mode
+%         xleftmargin=0.5cm,
+%       }
+
+
+% ---------------------------------------------------------------------------
+% ----------------------- Standard math/CS notations ------------------------
+% ---------------------------------------------------------------------------
+
+\newcommand{\subtype}{\leq}
+
+\newcommand{\union}{\mathrel{\cup}}
+\newcommand{\sect}{\mathrel{\cap}}
+\newcommand{\unit}{\texttt{()}}
+\newcommand{\bang}{\texttt{!}}
+\renewcommand{\gets}{\mathop{\texttt{:=}}}
+
+\newcommand{\down}{\mathrel{\,\Downarrow\,}}
+\newcommand{\step}{\mathrel{\,\Rightarrow\,}}
+
+\newcommand{\syn}{\mathrel{\,\Rightarrow\,}}
+\newcommand{\chk}{\mathrel{\,\Leftarrow\,}}
+\newcommand{\arr}{\mathrel{\texttt{->}}}
+\newcommand{\entails}{\vdash}
+\newcommand{\such}{~|~}
+
+\newcommand{\unif}{\doteq}
+\newcommand{\totp}{\Rightarrow}
+\newcommand{\emp}{\emptyset}
+
+\newcommand{\sectty}{\mathrel{\text{\&}}}
+
+\newcommand{\B}{{\mathcal{B}}}
+\newcommand{\D}{{\mathcal{D}}}
+\newcommand{\C}{{\mathcal{C}}}
+\newcommand{\E}{{\mathcal{E}}}
+\newcommand{\F}{{\mathcal{F}}}
+\newcommand{\V}{{\mathcal{V}}}
+\newcommand{\W}{{\mathcal{W}}}
+\renewcommand{\S}{{\mathcal{S}}}
+
+\newcommand{\edot}{\bullet}
+
+\newcommand{\shiftn}[2]{\uparrow^{#1}\!#2}
+\newcommand{\shift}[1]{\shiftn{}{#1}}
+\newcommand{\app}{\;}
+
+\renewcommand{\bnfas}{\;\mathrel{::=}\;}
+\renewcommand{\bnfalt}{\, \mid \,}
+\newcommand{\lamdb}{\lam\;} % Lambda for de Bruijn
+
+
+% ---------------------------------------------------------------------------
+% ------------------------ Judgments, properties, types ---------------------
+% ---------------------------------------------------------------------------
+
+\newcommand{\Int}{\textsf{int}}
+\newcommand{\Float}{\textsf{float}}
+\newcommand{\Bool}{\textsf{Bool}}
+\newcommand{\Real}{\textsf{real}}
+\newcommand{\String}{\textsf{string}}
+\newcommand{\Char}{\textsf{char}}
+\newcommand{\Nat}{\textsf{Nat}}
+\newcommand{\Unit}{\textsf{unit}}
+\newcommand{\Ref}{~\textsf{ref}}
+\newcommand{\Array}{~\textsf{array}}
+
+\newcommand{\Value}{~\mathsf{value}}
+\newcommand{\NumValue}{~\textsf{num-value}}
+\newcommand{\Halts}{~\mathsf{halts}}
+\newcommand{\Steps}{\mathrel{\,\longrightarrow\,}}
+\newcommand{\MSteps}{\longrightarrow^*}
+\newcommand{\BSteps}{\Downarrow}
+\newcommand{\Translates}{\leadsto}
+\newcommand{\ShiftBy}[3]{\mathsf{shift}\;#1\;#2\;#3}
+
+\newcommand{\FV}{\mathsf{FV}}
+\newcommand{\FMV}{\mathsf{FMV}}
+
+
+% ---------------------------------------------------------------------------
+% ------------------------ Terms for object languages -----------------------
+% ---------------------------------------------------------------------------
+
+\newcommand{\tmtrue}{\textsf{true}}
+\newcommand{\tmfalse}{\textsf{false}}
+\newcommand{\tmif}[3]{\textsf{if\;} #1 \textsf{\;then\;} #2 \textsf{\;else\;} #3}
+\newcommand{\tmfun}[3]{\textsf{fun } #1 (#2) = #3}
+\newcommand{\tmfn}[2]{\textsf{fn } #1\;\texttt{=>}\;#2}
+\newcommand{\tmrectyp}[3]{\textsf{rec } {#1}\,:\,{#2}\;\texttt{=>}\;#3}
+\newcommand{\tmrec}[2]{\textsf{rec } {#1}\texttt{=>}\;#2}
+\newcommand{\tmlet}[3]{\textsf{let } #1 = #2 \textsf{\;in\;} #3\; \textsf{end}}
+
+\newcommand{\tmapp}[2]{\mathsf{app}\;#1\;#2}
+\newcommand{\tmlam}[3]{\mathsf{lam}\;#1{:}#2.#3}
+\newcommand{\tmhastype}[2]{#1 : #2}
+
+\newcommand{\tmarr}[2]{\mathsf{arr}\;#1\;#2}
+
+\newcommand{\tmfst}[1]{\textsf{fst}\;{#1}\xspace}
+\newcommand{\tmsnd}[1]{\textsf{snd}\;{#1}\xspace}
+
+\newcommand{\tmzero}{\textsf{z}}
+\newcommand{\tmsucc}[1]{\textsf{succ}~#1}
+\newcommand{\tmpred}[1]{\textsf{pred}~#1}
+\newcommand{\tmiszero}[1]{\textsf{iszero}~#1}
+
+\newcommand{\tmeq}[2]{\mathsf{eq}\;#1\;#2}
+
+
+% ---------------------------------------------------------------------------- %
+% -------------------------- Inference rules' names -------------------------- %
+% ---------------------------------------------------------------------------- %
+
+\newcommand{\ruleName}[1]{\textsc{\footnotesize #1}\xspace}
+
+\newcommand {\TIf}           {\ruleName{T-If}}
+\newcommand {\TPred}         {\ruleName{T-Pred}}
+\newcommand {\TSucc}         {\ruleName{T-Succ}}
+\newcommand {\TZero}         {\ruleName{T-Zero}}
+\newcommand {\TIsZero}       {\ruleName{T-Iszero}}
+\newcommand {\TPlus}         {\ruleName{T-Plus}}
+\newcommand {\TMult}         {\ruleName{T-Mult}}
+\newcommand {\TEq}           {\ruleName{T-Eq}}
+\newcommand {\TApp}          {\ruleName{T-App}}
+\newcommand {\TLam}          {\ruleName{T-Lam}}
+\newcommand {\TAbs}          {\ruleName{T-Abs}}
+\newcommand {\TSub}          {\ruleName{T-Sub}}
+\newcommand {\TFn}           {\ruleName{T-Abs}}
+\newcommand {\TFun}          {\ruleName{T-Fun}}
+\newcommand {\TPair}         {\ruleName{T-Pair}}
+\newcommand {\TFst}          {\ruleName{T-Fst}}
+\newcommand {\TSnd}          {\ruleName{T-Snd}}
+\newcommand {\TVar}          {\ruleName{T-Var}}
+\newcommand {\TNum}          {\ruleName{T-Num}}
+\newcommand {\TTrue}         {\ruleName{T-True}}
+\newcommand {\TFalse}        {\ruleName{T-False}}
+\newcommand {\TBase}         {\ruleName{T-Base}}
+
+\newcommand {\TBinaryPrimop} {\ruleName{T-Binary-Primop}}
+\newcommand {\TUnaryPrimop}  {\ruleName{T-Unary-Primop}}
+\newcommand {\TTuple}        {\ruleName{T-Tuple}}
+\newcommand {\TTupleSyn}     {\ruleName{T-Tuple-Syn}}
+\newcommand {\TRec}          {\ruleName{T-Rec}}
+\newcommand {\TAnno}         {\ruleName{T-Anno}}
+
+\newcommand {\TrLam}         {\ruleName{Tr-Lam}}
+\newcommand {\TrApp}         {\ruleName{Tr-App}}
+\newcommand {\TrTop}         {\ruleName{Tr-Top}}
+\newcommand {\TrNext}        {\ruleName{Tr-Next}}
+
+\newcommand {\TLet}          {\ruleName{T-Let}}
+\newcommand {\TLetSyn}       {\ruleName{T-Let-Syn}}
+\newcommand {\TDecs}         {\ruleName{T-Decs}}
+\newcommand {\TByName}       {\ruleName{T-By-Name}}
+\newcommand {\TByVal}        {\ruleName{T-By-Val}}
+\newcommand {\TByValTuple}   {\ruleName{T-By-Val-Tuple}}
+
+\newcommand {\EIfTrue}       {\ruleName{E-IfTrue}}
+\newcommand {\EIfT}          {\EIfTrue}                          % to be deleted
+\newcommand {\EIfFalse}      {\ruleName{E-IfFalse}}
+\newcommand {\EIfF}          {\EIfFalse}                         % to be deleted
+\newcommand {\EIf}           {\ruleName{E-If}}
+\newcommand {\ESucc}         {\ruleName{E-Succ}}
+\newcommand {\ESuc}          {\ESucc}                            % to be deleted
+\newcommand {\EPred}         {\ruleName{E-Pred}}
+\newcommand {\EPredZero}     {\ruleName{E-PredZero}}
+\newcommand {\EPredZ}        {\EPredZero}                        % to be deleted
+\newcommand {\EPredSucc}     {\ruleName{E-PredSucc}}
+\newcommand {\EIszero}       {\ruleName{E-Iszero}}
+\newcommand {\EIsZero}       {\EIszero}                          % to be deleted
+\newcommand {\EIszeroZero}   {\ruleName{E-IszeroZero}}
+\newcommand {\EIsZeroZ}      {\EIszeroZero}                      % to be deleted
+\newcommand {\EIszeroSucc}   {\ruleName{E-IszeroSucc}}
+\newcommand {\EIsZeroSucc}   {\EIszeroSucc}                      % to be deleted
+
+\newcommand {\EAppFnStep}    {\ruleName{E-App1}}
+\newcommand {\EAppArgStep}   {\ruleName{E-App2}}
+\newcommand {\EAppBeta}      {\ruleName{E-App-Abs}}
+\newcommand {\EAbsStep}      {\ruleName{E-Abs}}
+
+\newcommand {\MRef}          {\ruleName{M-Ref}}
+\newcommand {\MTr}           {\ruleName{M-Tr}}
+\newcommand {\MStep}         {\ruleName{M-Step}}
+\newcommand {\MOne}          {\ruleName{M-One-Step}}
+
+\newcommand {\NVZero}        {\ruleName{Nv-Zero}}
+\newcommand {\NVSucc}        {\ruleName{Nv-Succ}}
+
+\newcommand {\VNumValue}     {\ruleName{V-NumValue}}
+\newcommand {\VZero}         {\ruleName{V-Zero}}
+\newcommand {\VTrue}         {\ruleName{V-True}}
+\newcommand {\VFalse}        {\ruleName{V-False}}
+\newcommand {\VSucc}         {\ruleName{V-Succ}}                 % to be deleted
+
+\newcommand {\BAnno}         {\ruleName{B-Anno}}
+\newcommand {\BAnnoFn}       {\ruleName{B-Anno-Fn}}
+\newcommand {\BAnnoNonFn}    {\ruleName{B-Anno-Non-Fn}}
+\newcommand {\BIFT}          {\ruleName{B-IfTrue}}
+\newcommand {\BIFF}          {\ruleName{B-IfFalse}}
+\newcommand {\BOp}           {\ruleName{B-Op}}
+\newcommand {\BPlus}         {\ruleName{B-Plus}}
+\newcommand {\BEq}           {\ruleName{B-Eq}}
+\newcommand {\BLet}          {\ruleName{B-Let}}
+\newcommand {\BNum}          {\ruleName{B-Num}}
+\newcommand {\BVar}          {\ruleName{B-Var}}
+\newcommand {\BIF}           {\ruleName{B-If}}
+\newcommand {\BTrue}         {\ruleName{B-True}}
+\newcommand {\BFalse}        {\ruleName{B-False}}
+\newcommand {\BFun}          {\ruleName{B-Fun}}
+\newcommand {\BRec}          {\ruleName{B-Rec}}
+
+\newcommand {\BValue}        {\ruleName{B-Value}}
+\newcommand {\BIfTrue}       {\ruleName{B-IfTrue}}
+\newcommand {\BIfFalse}      {\ruleName{B-IfFalse}}
+\newcommand {\BSucc}         {\ruleName{B-Succ}}
+\newcommand {\BPredZero}     {\ruleName{B-PredZero}}
+\newcommand {\BPredSucc}     {\ruleName{B-PredSucc}}
+\newcommand {\BIszeroZero}   {\ruleName{B-IszeroZero}}
+\newcommand {\BIszeroSucc}   {\ruleName{B-IszeroSucc}}
+
+\newcommand {\BLetn}         {\ruleName{B-Letn}}
+\newcommand {\BLetp}         {\ruleName{B-LetPair}}
+\newcommand {\BPair}         {\ruleName{B-Pair}}
+\newcommand {\BFst}          {\ruleName{B-Fst}}
+\newcommand {\BSnd}          {\ruleName{B-Snd}}
+\newcommand {\BFn}           {\ruleName{B-Fn}}
+\newcommand {\BApp}          {\ruleName{B-App}}
+
+\newcommand {\Rsectintro}    {\ruleName{$\sectty$intro}}
+\newcommand {\Rsectelim} [1] {\ruleName{$\sectty$elim{#1}}}
+
+
+% ---------------------------------------------------------------------------
+% ------------------ Proofs and derivation trees, cases ---------------------
+% ---------------------------------------------------------------------------
+
+\newcommand{\proofderiv}[2]{\mathbin{#1  :: #2 }}
+\newcommand{\proofderivc}[3]{\proofderiv{#1}{#2 \vdash #3}}
+\newenvironment{case}[1]{\paragraph{Case}{#1}\\[1em]}{}
+\newenvironment{basecase}[1]{\paragraph{Base case}{#1}\\[1em]}{}
+\newenvironment{stepcase}[1]{\paragraph{Step case}{#1}\\[1em]}{}
+\newenvironment{subcase}[1]{\textbf{Subcase}{\quad #1}\\[0.5em]}{}
+
+\newcommand{\infera}[3]{\ianc{#3}{#2}{#1}}
+\newcommand{\inferaa}[4]{\ibnc{#3}{#4}{#2}{#1}}
+\newcommand{\inferaaa}[5]{\icnc{#3}{#4}{#5}{#2}{#1}}
+
+% ---------------------------------------------------------------------------
+% --------------------------------- Other -----------------------------------
+% ---------------------------------------------------------------------------
+
+\newcommand{\emphFact}[1]{{\color{ForestGreen}{#1}}}
+
+\bibpunct{[}{]}{;}{a}{}{,} % citations style
+
+\newcommand{\bel}{\lstinline}
+
+\newcommand{\rc}[2]{\ensuremath{\mathcal{R}_{#1}(#2)}} % reducibility canadidate
+
+
+%  LocalWords:  Twelf Bool num FV FMV fn fst snd succ pred iszero eq
+%  LocalWords:  Mult Primop

@@ -1,0 +1,343 @@
+
+\subsection{Problem Selection}
+\label{ssec:select}
+
+(Strong) normalization by Tait's method is a well-understood and
+reasonably circumscribed problem that has been a cornerstone of
+mechanized PL theory, starting from~\citep{Altenkirch93}. There are of
+course many alternative ways to prove SN for a lambda-calculus, see
+for example the inductive approach of~\citep{Joachimski2003},
+partially formalized in~\citep{ABEL20083}, or by reduction from strong
+to weak normalization~\cite{SORENSEN199735}. For that matter, a SN
+proof via logical relations for the simply-typed lambda calculus can
+be carried out (see for a classic example~\citep{girardLafontTaylor})
+{without} appealing to a Kripke definition of reducibility, at the
+cost, though, of a rather cavalier approach to ``free''
+variables. However, the Kripke technique is handy in establishing SN for richer
+theories such as dependently typed ones, as well as for proving
+stronger results, for example about equivalence
+checking~\citep{Crary:ATAPL,Harper03tocl}.
+
+
+
+We claim that mechanizing such a proof is
+indeed challenging since:
+
+\begin{itemize}
+\item It focus on reasoning on \emph{open} terms and on relating
+  different contexts or \emph{worlds}, taking seriously the Kripke
+  analogy. The quantification over \emph{all} extensions of the given
+  world may be problematic for frameworks where contexts are only
+  implicitly represented, or, on the flip side, may require several
+  boring weakening lemmas in first-order representations.
+\item The definition of \emph{reducibility} requires a sophisticated
+  notion of inductive definition, which must be compatible with the
+  binding structures, but also be able to take into account
+  \emph{stratification}, to tame the negative occurrence of the
+  defined notion.
+\item Simultaneous substitutions and their equational theory
+  (composition, commutation etc.) are central in formulating and
+  proving the main result. For example, in the proof of the Fundamental
+  Theorem~\ref{thm:fund}, we need to push substitutions through
+  (binding) constructs.
+\end{itemize}
+%
+In this sense, this challenge goes well beyond the original PC, where
+the emphasis was on binder representations, proofs by structural
+induction and operational semantics animation.
+
+
+\smallskip
+
+Previous formalizations of strong normalization usually follows
+Girard's approach, see for example~\cite{DonnellyX07} carried out in
+ATS/LF, or the one available in the Abella repository
+(\url{abella-prover.org/~normalization/}).  Less frequent are
+formalizations following the Kripke discipline: both~\cite{CaveP15}
+and~\cite{NarbouxU08} encode~\cite{Crary:ATAPL}'s account of decision
+procedures for term equivalence in the STLC, in Beluga and Nominal
+Isabelle respectively; the latter was then extended
+in~\citep{Urban2011} to formalize the analogous result for
+LF~\citep{Harper03tocl}. See~\citep{AbelV14} for a SN Kripke-style
+proof for a more complex calculus and~\citep{Rabe:2013} for another
+take to handling dependent types --- this paper also contains many
+more references to the literature.
+
+
+%% this bit is new
+
+The choice of a Kripke-style proof of SN for the STLC may sound
+contentious on several grounds and hence we will try to motivate it
+further:
+
+\begin{itemize}
+\item We acknowledge that SN is not the most exciting application of logical
+  relations, some of which we have mentioned in the previous Section. Still, it
+  is an important topic in type theory, in particular w.r.t.\ logical
+  frameworks' meta-theory, see for example~\citep{AltenkirchK16}, and
+  in this sense dear to our hearts. It is  a well-known textbook example,
+  which uses techniques that should be familiar to the community of
+  interest in the simplest possible setting.
+\item Yes, the STLC is the prototypical toy language, while a
+  POPL paper will address richer PL theory
+  aspects. For one, adding more constructs, say in the PCF direction,
+  perhaps with an iterator, would make the proof of the fundamental
+  theorem longer, but not more interesting. Secondly, we think that a
+  good benchmark should be simple  enough that it
+  could be tried out almost immediately if one is acquainted with
+  proof-assistants. Conversely, it should encourage a PL theorist to
+  start playing with proof assistants. Finally, we do suggest extensions
+  of our challenge in the next Section.
+\item The requirement of the ``Kripke-style'' may seem overly
+  constrictive, especially since this may  not be strictly needed for
+  the STLC\@. However, as we have argued before, this is meant as a
+  springboard for more complex case studies, where this technique
+  is forced on us. Remember that we are interested in \emph{comparing} solutions. A more
+  ambitious challenge may not solicit enough solutions, if the problem
+  is too exotic or simply too lengthy.
+\end{itemize}
+
+
+
+% Therefore we insist that the proof must be Kripke-style, others do not
+% apply!
+\subsection{Evaluation Criteria}
+\label{ssec:ev}
+One of the limitations of the PC experiment was in the
+\emph{evaluation} of the solutions, although it is not easy to avoid
+the ``trip to the zoo'' effect, well-known from trying to comparing programming
+languages: there is no theory underlying the evaluation; criteria
+tend to be rather qualitative, and finally, the comparison itself may
+be lengthy~\citep{companion}. Within these limitations, of the
+proposed solutions we will take into consideration the:
+\begin{itemize}
+\item  Size of the necessary infrastructure for defining the base language:
+    binding, substitutions, renamings, contexts, together with
+    substitution and other infrastructural lemmas.
+  \item Size of the main development versus the main theorems in the
+    on-paper proof, in particular, number of technical lemmas not
+    having a direct counterpart in the on-paper proof.
+\end{itemize}
+More qualitatively, we will try to assess the:
+\begin{itemize}
+\item Ease of using the infrastructure for supporting binding,
+  contexts, etc. How easy is it to apply the appropriate lemmas in the
+  main proof? For example, does applying the equational theory of
+  substitutions require low-level rewriting, or is it automatic?
+\item Ease of development of the overall proof; what support is
+  present for proof construction, when not for proof and counterexample
+  search?
+\end{itemize}
+\subsection{The Challenge, Explained}
+\label{ssec:expl}
+
+
+
+
+
+
+Let us recall the definition of the STLC, starting with the grammar of terms, types, contexts and substitutions:
+\[
+\begin{array}{ll@{\bnfas}l}
+\mbox{Terms} & M, N & x \bnfalt \lam x{:}T.M \bnfalt M \app N \\
+\mbox{Types} & T, S & B \bnfalt T \arrow S\\
+%%\mbox{Values} & V & \lam x.M 
+\mbox{Context} & \Gamma & \cdot\bnfalt\Gamma, x\oftp T\\
+\mbox{Subs} & \sigma & \epsilon\bnfalt\sigma, N/x
+\end{array}
+\]
+The static and dynamic semantics are standard and are depicted in
+Figure~\ref{fig:stlc}. Since we want to be very upfront about the fact
+that evaluation goes under a lambda and thus involves open terms, we
+make the context explicit even in the reduction rules, contrary to
+what, say, Barendregt would do. Note that, because of rule \EAbsStep,
+we do not need to assume that the base type is inhabited by a
+constant.  We denote with $[\sigma] M$ the application of the
+simultaneous substitution $\sigma$ to $M$ and with
+$[\sigma_1]\sigma_2$ their composition.
+% \unsure{going for church typing
+% to have one form of ctx even in step -am}
+\begin{figure*}[t!]
+  \centering
+  \[
+\begin{array}{c}
+\multicolumn{1}{l}{\fbox{$\Gamma \vdash \tmhastype M
+    T$}\quad\mbox{Term $M$ has type $T$ in context $\Gamma$} }
+\\[1em]
+\infer[u]{\Gamma \vdash \tmhastype x T}{\tmhastype x T \in \Gamma} \qquad
+\infer[\TFn^{x}]{\Gamma \vdash \tmhastype {(\lam x\oftp T.M)} {(T \arrow S)}}
+                 {\Gamma, \tmhastype x T \vdash \tmhastype M S}
+\qquad %\\[1em]
+\infer[\TApp]{\Gamma \vdash \tmhastype {(M \app N)} S}
+             {\Gamma \vdash \tmhastype M (T \arrow S)
+  & \Gamma \vdash \tmhastype N T}\\[1em]
+\end{array}
+\]
+%
+\[
+\begin{array}{c}
+\multicolumn{1}{l}{\fbox{$\Gamma \vdash M \Steps M'$}\quad\mbox{Term $M$ steps to term $M'$ in  context $\Gamma$}}
+\\[1em]
+\infer[\EAbsStep^x]{\Gamma \vdash\lam x\oftp T.M \Steps \lam x\oftp T.M'}{\Gamma,x\oftp T \vdash M \Steps M'} \quad
+\infer[\EAppBeta]{\Gamma \vdash (\lam x\oftp T.M) \app N \Steps [N/x]M}{} \quad %\\[1em]
+\infer[\EAppArgStep]{\Gamma \vdash M \app N \Steps M'\;N}{\Gamma \vdash M \Steps M'} \quad
+\infer[\EAppFnStep]{\Gamma \vdash M \app N \Steps M\;N'}{\Gamma \vdash N \Steps N'}
+% \\[1em]
+% \multicolumn{1}{l}{\fbox{$M \MSteps M'$}~~ \mbox{Term $M$ steps in
+%     multiple steps to term $M'$}}\\[1em]
+% \infer[\MRef]{M \MSteps M}{} \qquad
+% \infer[\MOne]{M \MSteps M'}{M \Steps N & N \MSteps M'} 
+\end{array}
+\]
+
+  \caption{Typing and reduction rules for the STLC}
+  \label{fig:stlc}
+\end{figure*}
+
+We now define the set of \emph{strongly-normalizing} terms as
+pioneered by~\cite{Altenkirch93} and by now usual:
+\[
+\infer[\mathit{SN-WF}]{\sn \Gamma M}{\forall M'.~\Gamma\vdash M\Steps M'\quad \sn \Gamma {M'}}
+\]
+expressing that the set of strongly normalizing terms is the
+well-founded part of the reduction relation. A more explicit
+formulation of strong normalization is allowed, see for
+example~\citep{Joachimski2003}, but then an equivalence proof should
+be provided. Note that reasoning with the above rule \textit{SN-WF}
+cannot proceed by structural induction, since it is not the case that
+$M'$ is a sub-term of $M$.
+%
+
+The logical predicates have the following structure:
+\begin{itemize}
+\item  $\rcs \Gamma M T$, and
+\item $\rcs {\Gamma'} \sigma \Gamma$.
+\end{itemize}
+
+
+We use a Kripke-style logical relations definition where we
+\emph{witness} the context extension using a \emph{weakening} substitution
+$\rho$. This can be seen as a \emph{shift} in de Bruijn terminology, while 
+%% something about shifting in DB, no need in named approaches 
+% This treatment is inspired by Beluga (see,
+% e.g.,~\citep{CaveP15}) to underline the context reasoning, for which
+% $M$ depends on variable in $\Gamma$ and needs to be weakened to live
+% in world $\Delta$.
+other encodings may use different (or no particular) implementation
+ techniques for handling context extensions.
+
+
+\begin{definition}
+ [Reducibility Candidates]
+\mbox{}
+\begin{itemize}
+\item $\rcs \Gamma M B$ iff $\Gamma\vd M\hastype B$ and $\sn \Gamma M$:
+\item $\rcs \Gamma M {T\arrow S}$ iff
+  $ \Gamma\vd M\hastype {T\arrow S}$ and for all $N,\Delta$ such that
+  $\Gamma \leq_\rho \Delta$, if $\rcs \Delta N {T}$ then
+  $\rcs \Delta {([\rho]M) \app N} {S}$.
+\end{itemize}
+\end{definition}
+
+
+As usual, we lift reducibility to substitutions:
+\begin{definition}[Reducible Substitutions]\mbox{}
+  \begin{itemize}
+  \item \rcs {\Gamma'} {\epsilon} \cdot
+\item $\rcs {\Gamma'} {\sigma, N/x}  {\Gamma, x:T} $ % \\ 
+  iff 
+$\rcs  {\Gamma'} \sigma \Gamma $ and  
+$\rcs  {\Gamma'} N T$.
+  \end{itemize}
+\end{definition}
+
+%We use $\rho$ for a renaming substitution. 
+We now give an outline of the proof as a sequence of lemmas --- the
+reader will find all the details in the forthcoming full version of this paper.
+
+\begin{lemma}[Semantic Function Application]\mbox{}\\
+If $\rcs {\Gamma} {M} {T \arrow S}$
+and $\rcs \Gamma N T$
+%\\
+then $\rcs \Gamma {M~N} S$.
+\end{lemma}
+\begin{proof}
+  Immediate, by definition.
+\end{proof}
+
+\begin{lemma}[SN Closure under Weakening]
+\label{le:sn-clo}\mbox{} \\
+If $\Gamma_1\leq_\rho \Gamma_2$ % and $\Gamma_1 \vdash M : A$
+ and $\sn {\Gamma_1} M$ 
+then $\sn {\Gamma_2} {[\rho]M}$. 
+\end{lemma}
+\begin{proof}
+By induction on the derivation of $\sn {\Gamma_1} M$.  
+\end{proof}
+
+\begin{lemma}[Closure of Reducibility under Weakening]\mbox{} \\
+If $\Gamma_1 \leq_\rho \Gamma_2$ and 
+ $\rcs {\Gamma_1} M T$ then $\rcs {\Gamma_2} {[\rho]M} T$. 
+\end{lemma}
+\begin{proof}
+  By cases on the definition of reducibility using the above
+  Lemma~\ref{le:sn-clo} and weakening for typing.
+\end{proof}
+
+\begin{lemma}[Weakening of Reducible Substitutions]\label{lem:weakredsub}\mbox{} \\
+If $\Gamma_1 \leq_\rho \Gamma_2$ and 
+  $\rcs {\Gamma_1} \sigma \Phi$ 
+then $\rcs {\Gamma_2} {[\rho]\sigma} \Phi$.
+\end{lemma}
+\begin{proof}
+  By induction on the derivation of $\rcs {\Gamma_1} \sigma \Phi$
+  using Closure of Reducibility under Weakening.
+\end{proof}
+% \[
+%   \begin{array}{lcl}
+% \mbox{Evaluation Context}~E  & \bnfas & [~~] \mid E~M
+%   \end{array}
+% \]
+
+% \begin{lemma}[Closue under Weak Head Expansion]\mbox{}\\
+% If $\sn \Gamma N$ and 
+% $\rcs \Gamma {E[~[N/x]M~]} T$ \\
+% then 
+% $\rcs \Gamma {E[~(\lambda x{:}A.M)~N~]} T$  
+% \end{lemma}
+
+
+\begin{lemma}[Closure under Beta Expansion]\label{lem:betaclosed}\mbox{} \\
+If $\sn \Gamma N$ 
+and $\rcs \Gamma {[N/x]M} S$ %\\
+then $\rcs \Gamma {(\lambda x{:}T.M)~N} S$.
+\end{lemma}
+\begin{proof}
+  By induction on $S$ after a suitable generalization.
+\end{proof}
+%
+\begin{theorem}[Fundamental Theorem]
+\label{thm:fund}\mbox{} \\
+If $\Gamma  \vdash M : T$ 
+and $\rcs {\Gamma'} \sigma \Gamma$ 
+% \\ 
+then $\rcs {\Gamma'} {[\sigma]M} T$.
+\end{theorem}
+\begin{proof}
+  By induction on $\Gamma \vdash M : T$. In the case for functions, we
+  use Closure under Beta Expansion (Lemma~\ref{lem:betaclosed}) and
+  Weakening of reducible substitution (Lemma~\ref{lem:weakredsub}).
+\end{proof}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "poplr"
+%%% End:
+
+%  LocalWords:  TODO Kripke Girard's Matthes Gandy Girard Abella LF
+%  LocalWords:  DonnellyX LICS tocl CaveP TAPL Moggi’s renamings STLC
+%  LocalWords:  Barendregt iff Schurmann Tait's Altenkirch Joachimski
+%  LocalWords:  SORENSEN girardLafontTaylor Crary ATAPL AbelV Rabe de
+%  LocalWords:  POPL ICFP Bruijn reducibility AltenkirchK PCF WF

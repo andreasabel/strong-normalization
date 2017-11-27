@@ -1,0 +1,107 @@
+The usefulness of sets of benchmarks has  been recognized in many areas
+of computer science, and in particular in the theorem proving
+community, for stimulating progress or at least taking stocks of what
+the state of the art is --- \emph{TPTP}~\citep{TPTP} is one  shining
+example. The situation is less satisfactory for proof assistants,
+where each system comes with its own set of examples/libraries, some
+of them gigantic; this is  not surprisingly, since we are
+potentially addressing the whole realm of mathematics.
+
+
+
+In a more limited setting, some 12 years ago, a group of renowned
+programming language theorists came together and issued the so-called
+\emph{POPLMark Challenge}~\citep{Aydemir05TPHOLs} (PC, in short), with
+the aim of fostering the collaboration between the PL community and
+researchers in proofs assistants/logical frameworks to bring about:
+\begin{quote}
+  ``[\dots] a future where the papers in conferences such as POPL and
+  ICFP are routinely accompanied by mechanically checkable proofs of
+  the theorems they claim'' (page 51 op.\ cit.)
+\end{quote}
+As we know, the challenge revolved around the meta-theory of
+$\mathtt{F_{<:}}$, which, requiring induction over \emph{open} terms,
+was an improvement over the gold standard of mechanized meta-theory in
+the nineties: type soundness. Yet, the spotlight of the PC was still on
+\begin{quote}
+  ``type preservation and soundness theorems, unique decomposition
+  properties of operational semantics, proofs of equivalence between
+  algorithmic and declarative versions of type systems, etc.''
+  (\emph{ibidem})
+\end{quote}
+
+Further, the authors made paramount ``the problem of representing and
+reasoning about inductively-defined structure with \emph{binders}'' (our emphasis), while
+providing a balanced criticism of de Bruijn indexes as an encoding
+technique. That focus was understandable, since at that time the
+only alternative to concrete representations was higher-order abstract
+syntax (HOAS), mostly in the rather peculiar Twelf setting, the
+implementation of nominal logic being in its infancy.
+
+While the response of the theorem-proving community was impressive
+with more than 15 (partial) solutions submitted
+(\url{https://www.seas.upenn.edu/~plclub/poplmark/}), one can argue
+whether the envisioned future has became our present --- according to
+Sewell's POPL 2014 Program Chair's Report
+(\url{https://www.cl.cam.ac.uk/~pes20/popl2014-pc-chair-report.pdf})
+``Around 10\% of submissions were completely formalised, slightly more
+partially formalised''. It is also debatable whether the challenge had
+a direct impact on the development of proof assistants and logical
+frameworks: specialized systems such as Abella~\citep{BaeldeCGMNTW14}
+and Beluga~\citep{PientkaC15} were born out of independent research of
+the early 2000. To be generous, we could impute Abella's generalization
+of its specification logic to higher-order~\citep{hoabella} to this
+Twelf POPLMark solution~\citep{Pientka07}, but development in
+mainstream systems such as Coq, Agda, and (Nominal) Isabelle were
+largely driven by other (internal) considerations.
+
+
+In a much more modest setting, but in tune  with the goal of the PC,
+\cite{FMP17} recently presented some benchmarks with the intention of going
+beyond the issue of representing binders, whose pro and cons they
+consider well-understood. Rather, the emphasis was on the all
+important and often neglected issue of reasoning within a
+\emph{context of assumptions}, and the role that properties such as
+weakening, ordering, subsumption play in formal proofs. These
+are more or less supported  in systems featuring some form of 
+hypothetical and parametric reasoning, but the same issues occur in
+first-order representation as well; in this setting, typically, they are not
+recognized as crucial, rather they are considered one of the prices one
+has to pay when reasoning over open terms. This set of benchmarks was
+accompanied by a preliminary design of a common language and open
+repository~\citep{FeltyMP15}, which is fair to say did not have a
+resounding impact so far.
+% Those benchmarks were by design hand-crafted in their simplicity to highlights
+
+In the mean time, the PL world did not stand still, obviously.  One
+element that we have picked on is the multiplication of the use of
+proofs by \emph{logical relations}~\citep{Statman85} --- not
+coincidentally, those featured in~\cite{Aydemir05TPHOLs}'s section ``Beyond the
+challenge''.  From the go-to technique to prove normalization of
+certain calculi, proofs by logical relations are now used to attack
+problems in the theory of complex languages models, with 
+applications to issues in equivalence of programs, {compiler
+  correctness}, representation independence and even more intensional
+properties such as non-interference, differential privacy and secure
+multi-language inter-operability, to cite just a
+few~\citep{Ahmed15,BowmanA15,NeisHKMDV15}.
+
+Picking up on PC's final remark ``We will issue a small number of further
+challenges [\dots]'', we propose, as we detail in
+Section~\ref{ssec:expl} a new challenge that we hope it will move the
+bar a bit forward. We suggest Strong Normalization (SN) for the
+simply-typed lambda-calculus proven via logical relations in the
+Kripke style formulation, see~\citep{Coquand91} for an early use. We
+discuss the rationale in the next Section.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "poplr"
+%%% End:
+
+%  LocalWords:  TPTP POPLMark Aydemir TPHOLs POPL ICFP checkable de
+%  LocalWords:  Bruijn HOAS Twelf TP Sewell's formalised Abella Coq
+%  LocalWords:  BaeldeCGMNTW PientkaC Abella's hoabella Pientka Agda
+%  LocalWords:  subsumption FeltyMP Statman intensional multi BowmanA
+%  LocalWords:  operability NeisHKMDV Kripke Coquand Altenkirch tocl
+%  LocalWords:  reducibility renamings girardLafontTaylor

@@ -1,0 +1,111 @@
+\documentclass[preprint]{sigplanconf}
+%\documentclass{sigplanconf}
+\input{prelude}
+
+%\usepackage{graphics} % use for the Pitts-Gabbay quantifier
+%\usepackage{color}
+% \input listing-macros
+% \usepackage{todonotes}
+% \newcommand{\inlinetodo}[1]{\todo[inline,color=green!40]{#1}}
+% \newcommand{\inlinetodoam}[1]{\todo[inline,color=red!40]{#1 -- Alberto}}
+% \newcommand{\inlinetodoaa}[1]{\todo[inline,color=green!40]{#1 -- Andreas}}
+% \newcommand{\inlinetodobp}[1]{\todo[inline,color=yellow!40]{#1 -- Brigitte}}
+%\newcommand{\inlinetodo}[1]{\ednote {#1}} 
+
+%\long\def\ednote#1{\footnote{[{\it #1\/}]}\message{ednote!}}
+% \long\def\note#1{\begin{quote}[{\it #1\/}]\end{quote}\message{note!}}
+
+%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\sn}[2]{#1 \vdash #2 \in \ensuremath{\mathsf{SN}}}
+% \newcommand{\rcs}[2]{\ensuremath{\Delta\vdash\mathcal{R}(#1)\hastype
+% #2 }} % reducibility canadidate
+\newcommand{\rcs}[3]{\ensuremath{#1 \vdash #2\in \mathcal{R}_{#3} }} % reducibility canadidate
+
+
+
+\begin{document}
+
+\conferenceinfo{}{}
+\CopyrightYear{}
+\copyrightdata{}
+
+\title{POPLMark Reloaded}
+\authorinfo
+ {Andreas Abel}
+ {Department of Computer Science and Engineering, Gothenburg University / Chalmers, Sweden}
+ {andreas.abel@gu.se}
+
+ \authorinfo
+ {Alberto Momigliano}
+ {DI, Universit\`a degli Studi di Milano, Italy }{momigliano@di.unimi.it}
+\authorinfo
+ {Brigitte Pientka}
+ {School of Computer Science, McGill University, Montreal,
+           Canada}
+ {bpientka@cs.mcgill.ca}
+\maketitle
+
+\begin{abstract}
+  As a follow-up to the POPLMark Challenge, we propose a new benchmark
+  for machine-checked metatheory of programming languages:
+  establishing strong normalization of a simply-typed lambda-calculus
+  with a proof by Kripke-style logical relations. We believe that this
+  case-study overcomes some of the limitations of the original
+  challenge and highlights, among others, the need of native support
+  for context reasoning and simultaneous substitutions.
+\end{abstract}
+
+
+\category{D.3.1}{Programming Languages}{Formal Definitions and Theory}
+\category{F.3.1}
+         {Logics and Meanings of Programs}
+         {Specifying and Verifying and Reasoning about Programs}
+\category{F.4.1}{Mathematical Logic}{Lambda Calculus and Related
+  Systems}[Mechanical theorem proving, Proof theory]
+% \category{I.2.3}{Artificial Intelligence}{Deduction and Theorem
+%   Proving}[Deduction, Inference engines, meta
+% theory] \terms{Theory, Languages, Verification}
+
+
+
+\keywords
+Machine checked meta-theory,
+benchmarks,
+POPLMark Challenge,
+logical frameworks,
+strong normalization,
+logical relations
+
+
+\section{Introduction}
+\label{sec:intro}
+\input{intro}
+\section{The Challenge}
+\label{sec:chal}
+% \begin{metanote}
+%   Intentionally using same sections of POPLMark
+% \end{metanote}
+\input{ch}
+
+\section{Beyond the Challenge}
+\label{sec:beyond}
+\input{beyond}
+
+\bibliographystyle{abbrvnat}
+\bibliography{p}
+% \appendix
+
+% \section{Appendix: Sketch of the Proof}
+% \label{sec:app}
+
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
+
+%  LocalWords:  POPLMark Andreas Gothenburg Chalmers Momigliano degli
+%  LocalWords:  Universit Studi di Milano Pientka McGill metatheory
+%  LocalWords:  Kripke

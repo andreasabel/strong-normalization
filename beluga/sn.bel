@@ -145,7 +145,7 @@ LF ecxt : (tm A -> tm B) -> type =
 
   ;
 
-rec antiSubstSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
+rec antiSubstSN' : {g:cxt}{A : [|- ty]} {B : [|- ty]}
    {M : [g, x : tm A[] |- tm B[]]}
    {N : [g |- tm A[]]}
    SN [g |- M [.., N] ]
@@ -153,39 +153,12 @@ rec antiSubstSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
   = ?
   ;
 
-% Closure of SN under beta expansion.
+rec antiSubstSN : {M : [g, x : tm A[] |- tm B[]]}
+   {N : [g |- tm A[]]}SN [g |- M [.., N] ]
+		  -> SN [g, x : tm A[] |- M ] = ?
+						    ;
 
-% rec redexSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
-%    {M : [g, x : tm A[] |- tm B[]]}
-%    {N : [g |- tm A[]]}
-%    SN [g |- N]
-%     -> SN [g, x: tm A[] |- M ]
-%     -> SN [g |- M [.., N] ]
-%     -> SN [g |- app (abs \ x. M) N ]
-%   = mlam g, A, B, T, M , N => fn sn, sm, ss => 
-%   Acc (mlam R, S => case [g |- S] of
-%   % Possible reducts of app (abs \ x. M) N
-%   % 1. M [.., N]
-%      | [g |- rbeta] => ?
-%   % 2. app (abs \ x. M') N
-%      | [g |- rappl S] => ?
-%   % 3. app (abs \ x. M) N'
-%      | [g |- rappr S] => ?
-%   );
-
-% Closure of SN under weak head expansion.
-
-rec whExpSN : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
-   {C : [g, y : tm B[] |- tm T[]]}
-   {M : [g, x : tm A[] |- tm B[]]}
-   {N : [g |- tm A[]]}
-   {E : [g |- ecxt \y.C[.., y]]}
-   SN [g |- N]
-    -> SN [g |- C[.., M [.., N]] ]
-    -> SN [g |- C[.., app (abs \ x. M) N] ]
-  = ?
-  ;
-
+  
 stratified Red : {A : [ |- ty ]} (g : cxt) {M : [ g |- tm A[] ]} ctype =
   | RBase : SN [g |- M] -> Red [ |- base ] [g |- M]
   | RArr  : ({g' : cxt} {#S : [g' |-# g]} {N : [g' |- tm A[]]}
@@ -225,71 +198,6 @@ rec renRedS : {g2 : cxt} {#R : [g2 |-# g1]}
                           (renRedS [g2] [g2 |- #R] s')
   ;
 
-%{
-LF mstep : tm A -> tm A -> type =
-estep:  step M N -> ecxt C
--> mstep (C M) (C N) ;
-}%
-% Closure under weakhead expansion
-rec stepEcxt: (g:cxt)
-              {M:[g, x:tm A[] |- tm B[]]}
-              {N:[g |- tm A[]]}
-              {C:[g, x:tm B[] |- tm T[]]}
-              [g |- ecxt \x.C[.., x]] ->
-              [g |- step C[.., app (abs \x.M) N] R] ->
-              [g |- step C[.., M[..,N]] R] =
-mlam M, N, C => fn e, s =>
- case e of
- | [g |- eid] : [g |- ecxt \x.x] => ?%  [g |- rbeta]
- | [g |- eext E'] : [g |-  ecxt \x.app C Q[..]] =>
-   let [g |- rappl S] = s in
-  let [g |- S'] = stepEcxt [g, x:tm _ |- M] [g |- N] [g, x:tm _ |- C] [g |- E'] [g |- S] in
-  [g |- rappl S']
-;
-
-
-rec whExp : {g:cxt}{A : [|- ty]} {B : [|- ty]} {T : [|- ty]}
-   {C : [g, y : tm B[] |- tm T[]]}
-   {M : [g, x : tm A[] |- tm B[]]}
-   {N : [g |- tm A[]]}
-   {E : [g |- ecxt \y.C]}
-   SN [g |- N] ->
-    Red [|- T] [g |- C[.., M [.., N]] ]
-  -> Red [|- T] [g |- C[.., app (abs \ x. M) N] ] =
-  % / total t (whExp g a b t) /  %% renSN not total
-  mlam g, A,B,T,C,M,N,E => fn sn,r =>
-  case [|- T] of
-    | [|- base   ] =>
-      let RBase (Acc s) = r in
-        RBase (Acc (mlam R, S' =>
-        let [g |- S0] = stepEcxt  [g, x:tm _ |- M] [g |- N] [g, x:tm _ |- C] [g |- E] [g |- S'] in
-         s [g |- _] [g |- S0]
-              ))
-    | [|- arr U V] => let RArr f = r in
-      RArr (mlam g', #S, N0 => fn s =>
-        whExp [g']
-          [|- A]
-          [|- B]
-          [|- V]
-          [g', y : tm B[] |- app C[#S[..], y] N0[..]]
-          [g', x : tm A[] |- M[#S[..],x]]
-          [g' |- N[#S]]
-          [g' |- eext E[#S]]
-          (renSN [_] [_ |- #S] [ |- _ ] [_ |- N] sn)
-          (f [_] [_ |- #S] [_ |- N0] s)
-          )
-  ;
-
-% Corollary: closure under beta expansion
-
-rec betaExp : SN [g |- N]
-    -> Red [|- B] [g |- M [.., N] ]
-    -> Red [|- B] [g |- app (abs \ x. M) N] =
-  fn s, r =>
-    whExp [_ ] [|- _] [|- _] [|- _] [_ |- _] [_ |- _] [_ |- _] [_ |- eid] s r
-  ;
-
-
 %% Lemmata for fundamental theorem
 
 %% Variable case
@@ -319,13 +227,6 @@ rec fundApp : %% {g : cxt} {M : [g |- tm (arr A[] B[])]} {N : [g |- tm A}
 %% Abstraction
 
 %% If SN [g |- app M x] then SN [g |- M]
-%{
-rec appSNaux: {g:cxt}{A:[ |- ty]}{B:[ |- ty]}{M:[g |- tm (arr A[] B[])]}
-              SN [g,x:tm A[] |- app M[..] x]
-           -> {Q:[g |- tm (arr A[] B[])]}[g |- step M Q,]
-           -> SN [g |- Q] = ? ;
-
-}%
 rec appSN : {g:cxt}{A:[ |- ty]}{B:[ |- ty]}{M:[g |- tm (arr A[] B[])]} SN [g,x:tm A[] |- app M[..] x] -> SN [g |- M] =
 mlam g, A, B, M => fn s =>
  let Acc s' = s in
@@ -336,11 +237,6 @@ mlam g, A, B, M => fn s =>
                appSN [g] [ |- _ ] [|- _] [g |- _] sq
 )
  ;
-
-%{
-% If step (app C[.., #p] P) M' and ecxt \x.C then there exists C' s.t. M' = C'[.., #p]  where ecxt \x.C'
-
-}%
 
 LF eq: tm A ->  tm A -> type =
  refl : eq  M M;
@@ -414,10 +310,6 @@ mlam g, C => fn e => mlam #p => fn s1, s2 => Acc (mlam Q, S =>
 )
  ;
 
-
-
-
-
 rec snAppWk: {g:cxt}{A:[ |- ty]}{C: [g, u:tm A[] |- tm (arr B1[] B2[])]}
              {#p:[g |- tm A[]]}
              {E:[g |- ecxt \y.C]}
@@ -470,29 +362,66 @@ mlam g, A, B, C, #p, E => fn s => case [ |- B] of
       neutSn [g'] [|- A[]] [|- B2] [g', u:tm A[] |- app C[#R[..], u] M[..]] [g' |- #p[#R]]
       [g' |- eext E[#R[..]]]
       asn
-)
-%{
-and neutSn: {g:cxt}{A:[|- ty]}{B:[ |- ty]}{C: [g, u:tm A[] |- tm B[]]}
-            % {E:[g |- ecxt \y.C]}
-        SN [g, x:tm A[] |- C] -> Red [ |- B] [g, x:tm A[] |- C] =
-mlam g, A, B, C => fn s => case [ |- B] of
-| [ |- base] => RBase s
-| [ |- arr B1 B2] =>
-     let (s : SN [g, x:tm A[] |- C]) = s in
-  RArr (mlam g', #R, M => fn r =>
+	)
+
+
+and neutExp: {g:cxt}{A:[|- ty]}{B:[ |- ty]}{C: [g, u:tm A[] |- tm B[]]}{N:[g |- tm A[]]}
+        {E:[g |- ecxt \y.C]}
+             ({M:[g |- tm B[]]}[g |- step C[..,N] M] -> Red [ |- B] [g |- M])
+	     ->  Red [ |- B] [g |- C[..,N]] = 
+mlam g, A, B, C, M, E => fn s => case [ |- B] of
+| [ |- base] => ? % RBase s
+| [ |- arr B1 B2] => ? 
+%{   RArr (mlam g', #R, M => fn r =>
      let rsn  = redSn [g'] [|- B1] [g' |- M] r in % SN [g' |- M]
-%     let rSN = renSN [g'] [g' |- #R] [ |- (arr B1 B2)] in
-%     let rsn' = rSN [_, x: tm _ |- _ ] s in
-%     let rSN' = rSN [g, x:tm A[] |- C[.., x]] in
-    let asn = snAppWk [g] [|- A] [g, u:tm A[] |- C] [g'] [g' |- #R] [g' |- M] rsn s in
-      neutSn [g'] [|- A[]] [|- B2] [g' |- app _ M] asn
-)
-}%
+    let asn = snAppWk [g] [|- A] [g, u:tm A[] |- C] [g |- #p] [g |- E] [g'] [g' |- #R] [g' |- M] rsn s in
+      neutSn [g'] [|- A[]] [|- B2] [g', u:tm A[] |- app C[#R[..], u] M[..]] [g' |- #p[#R]]
+      [g' |- eext E[#R[..]]]
+      asn
+}%	
  ;
-
-
-
 %% rec fundAbs : Red
+
+
+ %%%%%%%%%%%%%%%%%%%
+ %{ For neutral terms g |- M : tm A[], 
+  1) If Red [ |- A[]] [g |- M' ] and M --> M' then Red [ |- A[]] [g |- M] 
+  2) If Red [ |- A[]] [g |- M] and M --> M' then Red [ |- A[]] [g |- M' ]
+ }%
+
+ rec betaExpSNecxt : {g:cxt}{A : [|- ty]} {B : [|- ty]}{M: [g, x:tm A[] |- tm B[]]}{N : [g |- tm A[]]}
+        {C: [g, y : tm B[] |- tm T[]]}{E : [g |- ecxt \y.C]}		    
+        SN [g |- N]		       
+     -> SN [g, x:tm A[] |- M ]
+     -> Red [|- T] [g |- C[.., app (abs \ x. M) N]] =
+    ?
+;
+
+	
+rec betaExpSN : {g:cxt}{A : [|- ty]} {B : [|- ty]}{M: [g, x:tm A[] |- tm B[]]}{N : [g |- tm A[]]}
+        SN [g |- N]		       
+     -> SN [g, x:tm A[] |- M ]
+     -> Red [|- B] [g |- app (abs \ x. M) N] =
+mlam g, A, B, M, N => fn sN, sM =>
+    betaExpSNecxt [g] [ |- A] [ |- B] [g, x:tm A[] |- M] [g |- N] [g, y:tm B[] |- y] [g |- eid]
+           sN sM						   
+ ;
+ rec betaExp' : {g:cxt}{A : [|- ty]} {B : [|- ty]}{M: [g, x:tm A[] |- tm B[]]}{N : [g |- tm A[]]}
+        SN [g |- N] -> Red [|- B] [g |- M [.., N] ]
+     -> Red [|- B] [g |- app (abs \ x. M) N] =
+ mlam g, A, B, M, N =>
+ fn s, r => betaExpSN [g] [ |- A] [ |- B] [g, x:tm A[] |- M] [g |- N] s
+		      (antiSubstSN [g, x:tm A[] |- M] [g |- N]
+				   (redSn [g] [ |- B] [g |- M [.., N]] r))
+	 ;
+% Corollary: closure under beta expansion
+ rec betaExp :
+	 SN [g |- N]
+    -> Red [|- B] [g |- M [.., N] ]
+    -> Red [|- B] [g |- app (abs \ x. M) N] =
+  fn s, r =>
+    betaExp' [_ ] [|- _] [|- _] [_ |- _] [_ |- _] s r
+  ;
 
 %% Fundamental theorem
 

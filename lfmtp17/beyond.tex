@@ -1,0 +1,56 @@
+There is an ongoing tension between weak and strong logical
+frameworks~\citep{DeBruijn91lf}, with which we can encode our
+benchmarks. Weak frameworks are designed to accommodate advanced
+infra-structural features for binders (HOAS/nominal syntax etc.) and
+for judgments (hypothetical and parametric), but may struggle on other
+issues, such as facilities for computation or higher-order
+quantification/impredicativity. There are at least two coordinates in
+which we can directly extend our benchmark, to further highlight this
+dilemma:
+\begin{itemize}
+\item Logical relations for dependent types~\citep{Rabe:2013,AbelV14},
+  up to the Calculus of Constructions. Here we need to go beyond
+  first-order quantification, which is typically what is on offer in
+  weak frameworks.
+\item Proof by logical relation via
+  \emph{step-indexing}~\citep{Appel:2001}. Here we have two issues:
+  \begin{enumerate}
+  \item the logical relation may even be harder to be accepted by the
+    meta-language as an inductive definition 
+% in its original   formulation 
+than with simple types; in fact, the work around the
+    negative occurrence of the defined relation cannot be based on
+    structural induction on types, but it has to use some form of
+    course-of-value induction.
+
+\item   It involves a limited amount of arithmetic reasoning:
+  \begin{quote}
+    ``definitions and proofs have a tendency to become
+  cluttered with extra indices and even arithmetic, which are really
+  playing the role of construction line.'' (\cite{BentonH10}).
+  \end{quote}
+  This latter point may be problematic for frameworks such as Abella and Beluga,
+  which do not (yet) have extensive libraries, nor computational mechanisms
+  (rewriting, reflection) for those  tasks.
+  \end{enumerate}
+\end{itemize}
+
+\section{Call for action}
+
+We ask the community to submit solutions and 
+%  - Give a short (informal) talk at LFMTP to present their solution
+we plan to invite everyone who does so to contribute
+towards a joint paper discussing trade-offs between them. The authors
+commit themselves to produce solutions in Agda,
+Abella and Beluga. To resurrect the slogan from the PC, a small step
+(excuse the pun) for us, a big step for bringing mechanized
+meta-theory to the masses!
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "poplr"
+%%% End:
+
+%  LocalWords:  DeBruijn lf Appel Coq Agda Abella HOAS Rabe
+%  LocalWords:  impredicativity

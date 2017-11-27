@@ -1,0 +1,164 @@
+This paper presents a challenge for continuing the POPLMark adventure:
+providing formal proofs of the strong normalization theorem for simply
+typed lambda-calculus. It argues that providing different proofs of
+this theorem in different systems would permit to compare the possible
+solutions (for instance, for representing the variables).
+
+This is a nice short paper that does not present any new technical
+development but instead selects a specific problem - proving strong
+normalization for simply-typed lambda calculus by logical relation
+appealing to a Kripe-style definition of reducibility - and
+convincingly argues why this problem serves as a good benchmark for
+proof mechanization. One thing I found somewhat lacking in the paper
+is the explanation how this new challenge overcomes the limitations of
+the previous POPLMark challenge problems, which is a belief the
+authors express in the abstract. They also refer to the full version
+of the paper but I am unsure what they mean since no link seems to be
+given.
+
+
+--------------------------------------------------------------
+
+This is a hard paper to review, especially with respect to the usual
+criteria of correctness and significance. While an updated POPLMark
+Challenge (PC) sounds like a natural topic for discussion at LFMTP, it
+is important that the final proposal be able to attract interest also
+from outside this relatively narrow community, to truly help bring
+about "mechanized metatheory for the masses". And I would say that the
+present proposal for a challenge problem has a number of weaknesses
+that may obstruct its widespread acceptance as a worthy successor to
+the PC. Specifically:
+
+* Problem domain
+
+The original PC problem was well picked to resonate with a broad
+segment of the POPL and ICFP communities. The theory and metatheory of
+a functional language with interacting features such as polymorphism,
+subtyping, record types, and pattern-matching bindings is quite
+representative for much practical and semi-practical work presented at
+those conferences, and most non-toy programming languages proposed
+these days probably contain some variation on most of these aspects
+(often combined with additional complications, such as mutable
+state). With the growing popularity of language-based security (and
+hence the critical importance of soundness of static type checking),
+there's a clear motivation for mechanically verified metatheory.
+
+On the other hand, the problem of formally proving (especially strong)
+normalization of general beta-reduction in the simply-typed
+lambda-calculus seems of rather narrower interest, with significantly
+less relevance to mainstream programming language design and
+implementation, and as such seems less likely to gain significant
+traction in the mainstream PL community.
+
+* Potential tool bias
+
+A somewhat orthogonal issue to the above is that the challenge problem
+should be considered interesting and appealing to as broad a variety
+of formalization-tool communities as possible, including both
+general-purpose proof assistants with domain-specific libraries (e.g.,
+Coq), and proof assistants already tightly specialized to mechanizing
+metatheory of deductive systems (e.g., Twelf).
+
+If the problem and evaluation criteria seem "rigged" from the outset
+to favor a particular paradigm (e.g., by rewarding tool-integrated
+support such as HOAS for working conveniently and concisely with
+binders and capture-avoiding substitutions), while not providing
+alternative (and arguably more mainstream) formalization paradigms
+with a comparable opportunity to shine, adherents of those approaches
+will be happy enough to write this off as the "LFMTPMark Challenge"
+and summarily ignore it, which would be a loss of opportunity.
+
+* Ambitiousness
+
+More than a decade after the original PC, one would expect any
+proposed follow-up to unquestionably raise the bar in scope and
+difficulty of the problem, to reflect the (presumably) advancing state
+of the art. So in that respect, it seems counterproductive to propose
+as a challenge the mechanization of a widely known and appreciated,
+half-century-old result, where a main evaluation criterion will
+necessarily be the elegance/compactness of the proposed mechanization,
+rather than the fact of obtaining a complete mechanization in the
+first place.
+
+My concern is that, even if the problem may be more technically
+challenging than it appears, there already exist commonly accepted,
+concise paper proofs of the result; as such, the challenge will most
+likely be seen as mainly refinement/cleanup/polishing of such proofs
+(some of which have even been mechanized), rather than breaking truly
+new ground. Formalizing strong normalization of STLC seems more like a
+warm-up or baseline problem, on top of which one would then prove
+something more obviously ambitious and forward-looking.
+
+* Freedom of method
+
+I think it is particularly inappropriate to explicitly require (p.2)
+that the proof "must" be Kripke-style (whatever that means, formally),
+because a common shortcut that exploits a structural property of the
+STLC normalization problem would otherwise render it "too easy".
+
+I appreciate that non-Kripke-style proofs may not generalize to other
+applications of logical relations, but in that case, instead of
+arbitrarily restricting the permissible solution space, why not
+propose a problem that (as far as we currently know), actually
+requires a Kripke-style proof in the first place? (And of course be
+prepared for the possibility that someone might discover another
+shortcut, rendering the proof simpler than expected.) A metatheory
+challenge should unambiguously define the setting (syntax, judgments,
+and rules), and a precise statement of the theorem to be proven,
+possibly supplemented by a _suggested_ proof sketch; but the actual
+proof strategy should be left up to prover, to best exploit the
+facilities of their preferred tool.
+
+--
+
+I actually think that proofs by logical relations make an excellent
+topic for a reloaded PC, but I strongly suggest an application
+different from (or, at least, in addition to) SN of STLC. For example,
+off the top of my head, and trying to minimize overlap with aspects
+already covered by the original PC:
+
+* Reasoning about equivalence of higher-order programs and/or of
+semantics/implementations of higher-order languages, as already
+mentioned in the penultimate paragraph of Section 1.
+
+* The above, in the presence of dynamic allocation and/or local
+state.
+
+* The above in the presence of recursion at the term and/or type
+level.
+
+Extra "points" could be given for modularity/abstraction, such as
+allowing a single, generic proof of the Fundamental Theorem of
+(Kripke) logical relations for the object language to be reused for
+different parts of the challenge, by suitably instantiating parameters
+in the definition/construction of the relation -- possibly even having
+strong normalization be one of the instances.
+
+-- Specific technical problems/concerns:
+
+* In section 2.3, it is a bit unclear whether the syntax of
+substitutions is to be considered as syntax or metasyntax. If
+general parallel substitutions can be the subject of theorems, such
+as Lemma 2.1, the notion of applying a substitution to a term,
+"[sigma]M", should probably be explicitly considered to be a
+function or relation (even if the definition is standard). This
+matters particularly if the main result to be proved (Theorem 2.6)
+is specifically formulated about "user-supplied" substitutions
+sigma, as opposed to such substitutions merely being a
+proof-internal tool for formulating a suitably strengthened
+induction hypothesis, but with the end result itself being
+statable without explicitly mentioning substitutions, as in usual
+statements of normalization results.
+
+* The definition of "Gamma |- M in SN" on p.2 badly abuses standard
+inference-rule notation, and in particular, implicitly relies on the
+property of the "operational semantics" [incidentally, a rather
+non-standard name for the notion of general beta-reduction] that a
+term M can only one-step reduce to a finite set of terms M', and
+that this set is decidable, so that evidence for membership in SN
+remains finitary. Indeed, part of the challenge may already be to
+formally express/define the SN judgment sufficiently clearly, so
+that it is indisputable what exactly a mechanized proof of the main
+theorem is actually saying, and that it precisely coincides with the
+conventional definition of strong normalization (no infinite
+reduction sequences).
