@@ -122,7 +122,7 @@
 \begin{document}
 We discuss here an alternative proof method for proving normalization. We will focus here on a \emph{semantic} proof method using \emph{saturated sets}. This proof method goes back to Girard (1972) building on some previous ideas by Tait.
 
-The key question is how to prove that give a lambda-term, its evaluation terminates, i.e. normalizes.  Recall the lambda-calculus together with its reduction rules.
+The key question is how to prove that given a lambda-term, its evaluation terminates, i.e. normalizes.  Recall the lambda-calculus together with its reduction rules.
 
 
 \[
@@ -163,7 +163,7 @@ To allow for weak head reductions, we rely on evaluation contexts.
 
 The question then is, how do we know that reducing a well-typed lambda-term will halt? - This is equivalent to asking does a well-typed lambda-term normalize, i.e. after some reduction steps we will end up in a normal form where there are no further reductions possible. Since a normal lambda-term characterizes normal proofs, normalizing a lambda-term corresponds to normalizing proofs and demonstrates that every proof in the natural deduction system indeed has a normal proof.
 
-Proving that reduction must terminate is not a simple syntactic argument based on terms, since the $\beta$-reduction rule may yield a term which is bigger than the term we started with. We hence need to find a different inductive argument. For the simply-typed lambda-calculus, we can prove that while the expression itself does not get smaller,  the type of an expression is. This is a syntactic argument; it however does not scale to polymorphic lambda-calculus. We will here instead discuss a \emph{semantic} proof method where we define the meaning of well-typed terms using the abstract notion of \emph{reducibility candidates}. 
+Proving that reduction must terminate is not a simple syntactic argument based on terms, since the $\beta$-reduction rule may yield a term which is bigger than the term we started with. We hence need to find a different inductive argument. For the simply-typed lambda-calculus, we can prove that while the expression itself does not get smaller,  the type of an expression does. This is a syntactic argument; it however does not scale to polymorphic lambda-calculus. We will here instead discuss a \emph{semantic} proof method where we define the meaning of well-typed terms using the abstract notion of \emph{reducibility candidates}.
 
 
 % Unlike all the previous proofs which were syntactic and direct based on the structure of the derivation or terms, semantic proofs 
@@ -177,7 +177,7 @@ we must consider all extensions of $\Gamma$ (described by $\Gamma'
 
 \begin{itemize}
 \item $\Gamma \models M : \base$ iff $\Gamma \vdash M\hastype \base$ and $M$ is strongly normalizing, i.e. $(\Gamma \vdash M) \in \SN$.
-\item $\Gamma \models M : A \arrow B$ iff for all $\Gamma' \ext{\rho} \Gamma$ and $\Gamma' \vdash N :A$ if $\Gamma' \models N : A \imply \Gamma' \models [\rho]M~N : B$,
+\item $\Gamma \models M : A \arrow B$ iff for all $\Gamma' \ext{\rho} \Gamma$ and $\Gamma' \vdash N :A$, if $\Gamma' \models N : A$ then $\Gamma' \models [\rho]M~N : B$.
 \end{itemize}
 
 
@@ -318,7 +318,7 @@ $\Gamma, x{:}A \vdash M_1~M_2 \in \csn$ \hfill by Property \ref{pp2}
 %
 
 \paragraph{Sub-case:} $M = \lambda y{:}B.M'$ \\
-$[N/x](\lambda y{:}B. M') = (\lambda y{:}B. [N/x]M)'$ \hfill by def. subst.\ednote{Should we insist on $(\lambda y{:}B. [N/x,y/y]M')$? .am } \\
+$[N/x](\lambda y{:}B. M') = (\lambda y{:}B. [N/x]M')$ \hfill by def. subst.\ednote{Should we insist on $(\lambda y{:}B. [N/x,y/y]M')$? .am } \\
 $\Gamma, y{:}B \vdash [N/x]M' \in \csn$ \hfill by Property \ref{pp7}\\
 $\Gamma, y{:}B, x{:}A \vdash M' \in \csn$ \hfill by IH \\
 $\Gamma, x{:}A, y{:}B \vdash M' \in \csn$ \hfill by exchange \\
@@ -592,7 +592,7 @@ $(\Gamma \vdash M) \in \SNe$ & $M$ is in the set of neutral terms
 \end{tabular}  
 \end{center}
 
-The inductive definition given in Fig.~\ref{fig:sn} is often more amendable for proofs than its informal definition, since it allows us  to prove properties by structural induction. 
+The inductive definition given in Fig.~\ref{fig:sn} is often more amenable for proofs than its informal definition, since it allows us  to prove properties by structural induction.
 
 \begin{figure}
   \centering  
@@ -1204,8 +1204,8 @@ $M \in \den{A+B}$.
  \begin{proof}
  By induction on $\Gamma \vdash M : A$.
 
- \paragraph{Case} $\D = \icnc{\Gamma \vdash M : A + B}{\Gamma, x{:}A \vdash N_1 :  C}{\Gamma, y{:}B \vdash N_2 : C}
- {\Gamma \vdash \caseof{M}{N_1}{N_2} : C}{}$
+ \paragraph{Case} $\D = \icnc{\Gamma \vdash M : A + B}{\Gamma, x{:}A \vdash M_1 :  C}{\Gamma, y{:}B \vdash M_2 : C}
+ {\Gamma \vdash \caseof{M}{M_1}{M_2} : C}{}$
  \\[1em]
  $\sigma \in \den{\Gamma}$ \hfill by assumption \\
  $[\sigma]M \in \den{A + B}$ \hfill by i.h.
@@ -1252,7 +1252,8 @@ $\caseof{[\sigma]M}{[\sigma,x/x]M_1}{[\sigma,y/y]M_2} $ \\
 $\qquad\redSN
 \caseof{M'}{[\sigma,x/x]M_1}{[\sigma,y/y]M_2}$ \hfill by $\redSN$\\
 $[\sigma](\caseof{M}{M_1}{M_2}) \in \den{C}$ \hfill by $\CR3$
- \end{proof}
+
+\end{proof}
 
 
  \section{Extension: Recursion}
@@ -1344,15 +1345,15 @@ $N \in \SN$. By definition of $\SN$, $\suc N \in \SN$.
  $M \redSN M'$ and $M' \in \den{\nat}$ \hfill by assumption \\
  $M' \in \SN$ \hfill by inner i.h. \\
  $M \in \SN$ \hfill by reduction $\redSN$
- \end{enumerate}
 
 
- \item \textit{Show} $\CR2$: By definition of the closure, $M \in \SNe$, then $M
+ \item \textit{Show} $\CR2$: By definition of the closure, if $M \in \SNe$, then $M
    \in \den{\nat}$. 
 
  \item \textit{Show} $\CR3$: $M \in \nat$, if $M \redSN M'$ and $M' \in \nat$. By
    definition of the closure, we have that $M \in \nat$.
- \end{proof}
+ \end{enumerate}
+\end{proof}
 
  \subsection{Revisiting the fundamental lemma}
 
@@ -1384,7 +1385,7 @@ $N \in \SN$. By definition of $\SN$, $\suc N \in \SN$.
  \\
  $\sigma \in \den{\Gamma}$ \hfill by assumption \\
  $[\sigma]M \in \den{\nat}$ \hfill by i.h. \\[1em]
- We distinguish cases based on $M \in \den{\nat}$ and prove by induction on $M
+ We distinguish cases based on $[\sigma]M \in \den{\nat}$ and prove by induction on $[\sigma]M
  \in \den{\nat}$ that $[\sigma](\recnat M {M_z} {M_s}) \in \den{C}$.
 
  \paragraph{Subcase } $[\sigma]M = \zero$.
@@ -1409,12 +1410,12 @@ $\recnat \zero {[\sigma]M_z} {[\sigma, n/n,f~n/f~n]M_s} = [\sigma](\recnat{M}
  $[\sigma, n/n, f~n/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
 $[\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
  $\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} \in \den{C}$ \hfill by inner i.h. \\
- $[\sigma, M'/x, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n] \in
+ $[\sigma, M'/n, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n] \in
  \den{\Gamma, n:\nat, f~n:C}$ \hfill by definition \\
- $[\sigma, M'/x, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
+ $[\sigma, M'/n, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
  $\recnat{(\suc M')}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} $ \\
  $\qquad \redSN
- [\sigma, M'/x, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n]M_s$
+ [\sigma, M'/n, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n]M_s$
  \hfill by $\redSN$ \\
  $[\sigma](\recnat{M}{M_z}{M_s}) \in \den{C}$ \hfill by $\CR3$.
 
