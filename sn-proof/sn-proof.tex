@@ -330,7 +330,7 @@ $\Gamma, x{:}A \vdash \lambda y{:}B.M' \in \csn$ \hfill by Property \ref{pp4}
 Induction on $\Gamma, x{:}A \vdash M \in \csn$\\[1em]
 Assume $\Gamma \vdash \lambda x{:}A.M \red Q$ \\
 $\Gamma, x{:}A \vdash M \red M'$ and $Q = \lambda x{:}A.M'$ \hfill by reduction rule for $\lambda$.\\
-$\Gamma \vdash M' \in \csn$ \hfill by assumption $\Gamma, x{:}A \vdash M \in \csn$ \\
+$\Gamma, x{:}A \vdash M' \in \csn$ \hfill by assumption $\Gamma, x{:}A \vdash M \in \csn$ \\
 $\Gamma \vdash \lambda x{:}A.M' \in \csn$ \hfill by IH \\
 $\Gamma \vdash Q \in \csn$ \hfill since $Q = \lambda x{:}A.M'$\\
 $\Gamma \vdash \lambda x.M \in \csn$ \hfill since $\Gamma \vdash \lambda x.M \red Q$ was arbitrary
@@ -366,7 +366,9 @@ $\Gamma \vdash [N/x](\lambda y{:}B.M') \in \csn$ \hfill by subst. def
 \fbox{\ref{pp6}. If $\Gamma \vdash M~N \in \csn$ then $\Gamma \vdash M \in \csn$ and $\Gamma \vdash N \in \csn$.}
 \\[1em]
 We prove first: If $\Gamma \vdash M~N \in \csn$ then $\Gamma \vdash M \in \csn$. Proving $\Gamma \vdash M~N \in \csn$ implies also $\Gamma \vdash N \in \csn$ is similar.
-\\[0.5em]
+\\
+By induction on $\Gamma \vdash M~N \in \csn$.
+\\[1em]
 Assume $\Gamma \vdash M \red M'$\\
 $\Gamma \vdash M~N \red M'~N$ \hfill by reduction rule for application \\
 $\Gamma \vdash M'~N \in \csn$ \hfill by assumption $\Gamma \vdash M~N \in \csn$\\
@@ -1215,6 +1217,7 @@ $M \in \den{A+B}$.
 \paragraph{Subcase $[\sigma]M \in \{\inl N \mid N \in \den{A}\}$}$\;$\\[1em]
 $[\sigma]M = \inl N$ for some $N \in \den{A}$ \hfill by assumption \\
 $N \in \SN$ \hfill by $\CR1$ \\
+$\inl N \in \SN$ \hfill by definition \\
 % $x \in \den{A}$, 
 $\sigma \in \den{\Gamma}$ \hfill by assumption \\
 $[\sigma, N/x] \in \den{\Gamma, x:A}$ \hfill by definition \\
@@ -1367,14 +1370,16 @@ $N \in \SN$. By definition of $\SN$, $\suc N \in \SN$.
 
  \paragraph{Case} $\D = \ianc{}{\Gamma \vdash \zero : \nat}{}$
  \\
+ $[\sigma]\zero = \zero$ \hfill by subst. def \\
  $\zero \in \den{\nat}$ \hfill by definition.
 
 
  \paragraph{Case} $\D = \ianc{\Gamma \vdash M : \nat}{\Gamma \vdash \suc M :  \nat}{}$
  \\
  $\sigma \in \den{\Gamma}$ \hfill by assumption \\
- $M \in \den{\nat}$ \hfill by i.h. \\ 
- $\suc M \in \den{\nat}$ \hfill by definition 
+ $[\sigma]M \in \den{\nat}$ \hfill by i.h. \\
+ $\suc [\sigma]M \in \den{\nat}$ \hfill by definition \\
+ $[\sigma] \suc M \in \den{\nat}$ \hfill by subst. def
 
 
  \paragraph{Case} $\D = \icnc
