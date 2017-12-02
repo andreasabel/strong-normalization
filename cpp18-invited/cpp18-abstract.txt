@@ -1,0 +1,35 @@
+Mechanizing formal systems, given via axioms and inference rules,
+together with proofs about them plays an important role in
+establishing trust in formal developments. Over the past decade, the
+POPLMark challenge popularized the use of proof assistants in
+mechanizing the metatheory of programming languages. Focusing on the
+the meta-theory of System F with subtyping, it allowed the programming
+languages community to survey existing techniques to represent and
+reason about syntactic structures with binders and promote the use of
+proof assistants. Today, mechanizing proofs is a stable fixture in the
+daily life of programming languages researchers. 
+
+As a follow-up to the POPLMark Challenge, we propose a new collection of
+benchmarks that use proofs by logical relations. Such proofs are now used to attack
+problems in the theory of complex languages models, with applications
+to issues in equivalence of programs, compiler correctness,
+representation independence and even more intensional  properties such
+as non-interference, differential privacy and secure multi-language
+inter-operability. Yet, they remain challenging to mechanize.
+ 
+
+In this talk, we focus on one particular challenge problem, namely
+strong normalization of a simply-typed lambda-calculus with a proof by
+Kripke-style logical relations. We will advocate a modern view of this
+well-understood problem by formulating our logical relation on
+well-typed terms.  Using this case study, we share some of the lessons
+learned tackling this challenge problem in Beluga, a proof environment
+that supports higher-order abstract syntax encodings, first-class
+context and first-class substitutions. We also discuss and highlight
+similarities, strategies, and limitations in other proof assistants
+when tackling this challenge problem. 
+
+We hope others will be motivated to submit solutions! The goal of this
+talk is to engage the community in discussions on what support in
+proof environments is needed to truly bring mechanized metatheory to
+the masses.
