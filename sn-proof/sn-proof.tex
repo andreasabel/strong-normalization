@@ -1021,8 +1021,8 @@ $\inden{\Gamma}{M}{\base}$ \hfill by definition of semantic typing
 Assume $\Gamma' \ext{\rho} \Gamma$,~$\inden{\Gamma'}{N}{A}$ \\
 $\inden{\Gamma'}{M'[\rho]~N}{B}$ \hfill by assumption $\inden{\Gamma}{M'}{A \arrow B}$\\
 $\Gamma \vdash M \redSN M'$ \hfill by assumption \\
-$\Gamma' \vdash [\rho]M \redSN M'[\rho]$ \hfill by Renaming Lemma \ref{lm:renameSN}\\
-$\Gamma' \vdash [\rho]M~N \redSN M'[\rho]~N$ \hfill by $\redSN$\\
+$\Gamma' \vdash [\rho]M \redSN [\rho]M'$ \hfill by Renaming Lemma \ref{lm:renameSN}\\
+$\Gamma' \vdash [\rho]M~N \redSN [\rho]M'~N$ \hfill by $\redSN$\\
 $\inden{\Gamma}{[\rho]M~N}{B}$ \hfill by IH (\CR\ref{cr3})\\
 $\inden{\Gamma}{M}{A \arrow B}$ \hfill since $\inden{\Gamma'}{N}{A}$ was arbitrary\\
 
