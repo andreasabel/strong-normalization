@@ -963,16 +963,16 @@ to satisfy. If a semantic type satisfies these key properties, then our proof of
 % For all types $C$, $\Gamma \vdash M \den{C}  \in \CR$, i.e. it satisfies the conditions $\CR_1$, $\CR_2$, and $\CR_3$.
   \begin{enumerate}
   \item\label{cr1} \CR 1: If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M \in \SN$. % , i.e. $\den{A} \subseteq \SN$.% \\[0.5em]
-  \item\label{cr2} \CR 2: If $\Gamma \vdash M \in \SNe$ then $\inden{\Gamma}{M}{A}$. % , i.e. $\SNe \subseteq \den{A}$. % \\[0.5em]
+  \item\label{cr2} \CR 2: If $\Gamma \vdash M \hastype A$ and $\Gamma \vdash M \in \SNe$ then $\inden{\Gamma}{M}{A}$. % , i.e. $\SNe \subseteq \den{A}$. % \\[0.5em]
   \item\label{cr3} \CR 3: If $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.
   \end{enumerate} 
 \end{theorem}
 \begin{proof}
 We prove these three properties simultaneously.
 \\[1em]
-\fbox{\CR \ref{cr1}.  If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M \in \SN$.}
+\fbox{\CR \ref{cr1}.  If $\inden{\Gamma}{M}{C}$ then $\Gamma \vdash M \in \SN$.}
 \\[0.5em]
-By induction on the structure of $A$. 
+By induction on the structure of $C$. 
 
 \paragraph{Case: $C =\base$}.\\
 $\inden{\Gamma}{M}{\base}$ \hfill by assumption \\
@@ -990,13 +990,14 @@ $\Gamma, x{:}A \vdash [\id]M~x\in \SN$ \hfill by IH (\CR \ref{cr1})\\
 $\Gamma, x{:}A \vdash [\id]M \in \SN$ \hfill by  Extensionality Lemma \ref{lm:pSN} \\% Lemma \ref{lem:psn} (Property \ref{pp6})\\
 $\Gamma \vdash M \in \SN$ \hfill by Ani-renaming Lemma \ref{lm:anti-renameSN}
 \\[1em]
-\fbox{\CR \ref{cr2}. If $\Gamma \vdash M \in \SNe$ then $\inden{\Gamma}{M}{A}$.}
+\fbox{\CR \ref{cr2}. If $\Gamma \vdash M \hastype C$ and $\Gamma \vdash M \in \SNe$ then $\inden{\Gamma}{M}{C}$.}
 \\[0.5em]
-By induction on $\SNe$. 
+By induction on $\Gamma \vdash M \in \SNe$. 
 
 \paragraph{Case: $C=\base$}.\\
 $\Gamma \vdash M \in \SNe$ \hfill by assumption \\
 $\Gamma \vdash M \in \SN$ \hfill by def. of $\SN$\\
+$\Gamma \vdash M \hastype \base$ \hfill by assumption \\
 $\inden{\Gamma}{M}{\base}$ \hfill by def. of semantic typing 
 
 \paragraph{Case: $C = A \arrow B$}.\\
@@ -1008,9 +1009,9 @@ $\Gamma' \vdash [\rho]M~N \in \SNe$ \hfill by def. of $\SNe$\\
 $\inden{\Gamma'}{[\rho]M~N}{B}$ \hfill by IH (\CR \ref{cr2})\\
 $\inden{\Gamma}{M}{A \arrow B}$ \hfill since $\inden{\Gamma'}{N}{A}$ was arbitrary
 \\[1em]
-\fbox{\CR \ref{cr3}.   If $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$}
+\fbox{\CR \ref{cr3}.   If $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{C}$ then $\inden{\Gamma}{M}{C}$}
 \\[0.5em]
-By induction on $A$.
+By induction on $C$.
 \paragraph{Case: $C = \base$}.\\[0.5em]
 $\Gamma \vdash M' \in \SN$  \hfill since $\inden{\Gamma}{M'}{\base}$\\
 $\Gamma \vdash M \in \SN$ \hfill by closure rule for $\SN$\\
