@@ -1219,6 +1219,17 @@ $\inden{\Gamma}{M}{A+B}$.
  \begin{proof}
  By induction on $\Gamma \vdash M : C$.
 
+ \paragraph{Case} $\D = \ianc{\Gamma \vdash M \hastype A}{\Gamma \vdash \inl M \hastype A + B}{}$
+ \\[1em]
+ $\inden{\Gamma'}{\sigma}{\Gamma}$ \hfill by assumption \\
+ $\inden{\Gamma'}{[\sigma]M}{A}$ \hfill by i.h. \\
+ $\inden{\Gamma'}{\inl [\sigma]M}{A + B}$ \hfill by definition of $\denot{A + B}$ \\
+ $\inden{\Gamma'}{[\sigma] \inl M}{A + B}$ \hfill by subst. definition
+
+ \paragraph{Case} $\D = \ianc{\Gamma \vdash M \hastype B}{\Gamma \vdash \inr M \hastype A + B}{}$
+ \\[1em]
+ similar to the case above.
+
  \paragraph{Case} $\D = \icnc{\Gamma \vdash M : A + B}{\Gamma, x{:}A \vdash M_1 :  C}{\Gamma, y{:}B \vdash M_2 : C}
  {\Gamma \vdash \caseof{M}{M_1}{M_2} : C}{}$
  \\[1em]
