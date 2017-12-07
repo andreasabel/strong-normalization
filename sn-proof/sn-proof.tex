@@ -1183,20 +1183,20 @@ By induction on the structure of $C$. We highlight the case for disjoint sums.
   \begin{enumerate}
   \item \textit{Show} $\CR1$. Assume that $\inden{\Gamma}{M}{A + B}$. We consider different subcases and prove by an induction on the closure defining $\denot{A + B}$ that $\Gamma \vdash M \in \SN$.
 
-\paragraph{Subcase: $\Gamma \vdash M \in \{\inl N \mid \inden{\Gamma}{N}{A}\}$}. Therefore $M = \inl N$. Since $\inden{\Gamma}{N}{A}$ and by i.h. ($\CR1$), $\Gamma \vdash N \in \SN$. By definition of $\SN$, we have that $\Gamma \vdash \inl N \in \SN$.
+\paragraph{Subcase:} $\Gamma \vdash M \in \{\inl N \mid \inden{\Gamma}{N}{A}\}$. Therefore $M = \inl N$. Since $\inden{\Gamma}{N}{A}$ and by i.h. ($\CR1$), $\Gamma \vdash N \in \SN$. By definition of $\SN$, we have that $\Gamma \vdash \inl N \in \SN$.
   
-\paragraph{Subcase: $\Gamma \vdash M \in \{\inr N \mid \inden{\Gamma}{N}{B}\}$}. Therefore $M = \inr N$. Since $\inden{\Gamma}{N}{B}$ and by i.h. ($\CR1$), $\Gamma \vdash N \in \SN$. By definition of $\SN$, we have that $\Gamma \vdash \inr N \in \SN$.
+\paragraph{Subcase:} $\Gamma \vdash M \in \{\inr N \mid \inden{\Gamma}{N}{B}\}$. Therefore $M = \inr N$. Since $\inden{\Gamma}{N}{B}$ and by i.h. ($\CR1$), $\Gamma \vdash N \in \SN$. By definition of $\SN$, we have that $\Gamma \vdash \inr N \in \SN$.
 
-\paragraph{Subcase: $\Gamma \vdash M \hastype C$ and $\Gamma \vdash M \in \SNe$}. By definition of $\SN$, we conclude that $\Gamma \vdash M \in \SN$.
+\paragraph{Subcase:} $\Gamma \vdash M \hastype C$ and $\Gamma \vdash M \in \SNe$. By definition of $\SN$, we conclude that $\Gamma \vdash M \in \SN$.
 
-\paragraph{Subcase: $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{A+B}$}.
+\paragraph{Subcase:} $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{A+B}$.
 \\[0.5em]
 $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{A + B}$ \hfill by assumption\\
 $\Gamma \vdash M' \in \SN$ \hfill by inner i.h. \\
 $\Gamma \vdash M \in \SN$ \hfill by reduction $\redSN$
 
- \item \textit{Show} $\CR2$. If $\Gamma \vdash M \hastype A$ and $\Gamma \vdash M \in \SNe$, then $\inden{\Gamma}{M}{A + B}$. \\
-By definition of the closure, if $\Gamma \vdash M \hastype A$ and $\Gamma \vdash M \in \SNe$, we have $\inden{\Gamma}{M}{A + B}$.
+ \item \textit{Show} $\CR2$. If $\Gamma \vdash M \hastype A + B$ and $\Gamma \vdash M \in \SNe$, then $\inden{\Gamma}{M}{A + B}$. \\
+By definition of the closure, if $\Gamma \vdash M \hastype A + B$ and $\Gamma \vdash M \in \SNe$, we have $\inden{\Gamma}{M}{A + B}$.
 
 
   \item \textit{Show} $\CR3$. If $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{A+B}$
@@ -1324,62 +1324,68 @@ We again extend our definition of $\SN$ and $\SNe$.
 \[
 \begin{array}{c}
 \multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
-\infer{\recnat{M}{M_z}{M_s} \in \SNe}{M \in \SNe & M_z \in \SN & M_s \in \SN}\\[1em]
+\infer{\Gamma \vdash \recnat{M}{M_z}{M_s} \in \SNe}{\Gamma \vdash M \in \SNe & \Gamma \vdash M_z \in \SN & \Gamma, n \hastype \nat, f~n \hastype C \vdash M_s \in \SN}\\[1em]
 \multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
-\infer{\zero \in \SN}{} \qquad \infer{\suc M \in \SN}{M \in \SN}\\[1em]
+\infer{\Gamma \vdash \zero \in \SN}{} \qquad \infer{\Gamma \vdash \suc M \in \SN}{\Gamma \vdash M \in \SN}\\[1em]
 \multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
-\infer{\recnat{\zero}{M_z}{M_s} \redSN M_z}{M_s \in SN} \\[1em]
+\infer{\Gamma \vdash \recnat{\zero}{M_z}{M_s} \redSN M_z}{\Gamma, n \hastype \nat, f~n \hastype C \vdash M_s \in SN} \\[1em]
 \infer{\recnat{(\suc N)}{M_z}{M_s} \redSN [N/n,\, f_r/f\,n]M_s}{
-  N \in \SN & M_z \in \SN & M_s \in SN & f_r = \recnat{N}{M_z}{M_s}} \\[1em]
-\infer{\recnat{M}{M_z}{M_s} \redSN \recnat{M'}{M_z}{M_s}}{M \redSN M'}
+  \Gamma \vdash N \in \SN & \Gamma \vdash M_z \in \SN & \Gamma, n \hastype \nat, f~n \hastype C \vdash M_s \in SN & f_r = \recnat{N}{M_z}{M_s}} \\[1em]
+\infer{\Gamma \vdash \recnat{M}{M_z}{M_s} \redSN \recnat{M'}{M_z}{M_s}}{\Gamma \vdash M \redSN M'}
 \end{array}
 \]
 
  \section{Extension: Natural numbers}
 Here we add natural numbers to our language and show how the language remains normalizing.
-\subsection{Semantic type $\den{\nat}$} We define the denotation of $\nat$ as
+\subsection{Semantic type $\denot{\nat}$} We define the denotation of $\nat$ as
  follows:
 
- \[
- \den{\nat} := \clos{\{\zero\}\cup \{\suc M \mid M \in \den{\nat}\} }
- \]
+% \[
+% \den{\nat} := \clos{\{\zero\}\cup \{\suc M \mid M \in \den{\nat}\} }
+% \]
+
+	\[
+	\begin{array}{lcl}
+	\inden{\Gamma}{M}{\nat} & \text{iff} & \Gamma \vdash M \in \clos{ \{\zero\}\cup \{\suc M' \mid \inden{\Gamma}{M'}{\nat}\} }
+	\end{array}
+	\]
 
 
-\subsection{Semantic type $\den{\nat}$ is a reducibility candidate}
+\subsection{Semantic type $\denot{\nat}$ is a reducibility candidate}
 We again extend our previous theorem which states that all denotations of types must be in $\CR$.
 
 \begin{theorem}
-For all types $C$, $\den{C}  \in \CR$.
+For all types $C$, $\denot{C}  \in \CR$.
 \end{theorem}
 \begin{proof}
-By induction on the structure of $A$. We highlight the case for $\nat$.
+By induction on the structure of $C$. We highlight the case for $\nat$.
 
-\paragraph{Case $C = \nat$}
+\paragraph{Case $C = \nat$.}
 
 \begin{enumerate}
-\item \textit{Show} $\CR1$: Assume $M \in \nat$. we consider different subcases
-  and prove by induction on the closure defining $\nat$ that $M \in \SN$.
+\item \textit{Show} $\CR1$. Assume $\inden{\Gamma}{M}{\nat}$. We consider different subcases
+  and prove by induction on the closure defining $\denot{\nat}$ that $\Gamma \vdash M \in \SN$.
 %
 
-\paragraph{Subcase } $M = \zero$. By definition of $\SN$, $\zero \in \SN$.
+\paragraph{Subcase:} $M = \zero$. By definition of $\SN$, $\Gamma \vdash \zero \in \SN$.
 
-\paragraph{Subcase } $M = \suc N$ where $N \in \den{\nat}$.  By i.h. ($\CR1$),
-$N \in \SN$. By definition of $\SN$, $\suc N \in \SN$.
+\paragraph{Subcase:} $M = \suc N$ where $\inden{\Gamma}{N}{\nat}$.  By i.h. ($\CR1$),
+$\Gamma \vdash N \in \SN$. By definition of $\SN$, $\Gamma \vdash \suc N \in \SN$.
 
- \paragraph{Subcase} $M \in \SNe$. By definition of $\SN$, $M \in \SN$.
+ \paragraph{Subcase:} $\Gamma \vdash M \in \SNe$. By definition of $\SN$, $\Gamma \vdash M \in \SN$.
 
- \paragraph{Subcase} $M \in \den{\nat}$, if $M \redSN M'$ and $M' \in \den{\nat}$. 
+ \paragraph{Subcase:} $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{\nat}$.
  \\
- $M \redSN M'$ and $M' \in \den{\nat}$ \hfill by assumption \\
- $M' \in \SN$ \hfill by inner i.h. \\
- $M \in \SN$ \hfill by reduction $\redSN$
+ $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{\nat}$ \hfill by assumption \\
+ $\Gamma \vdash M' \in \SN$ \hfill by inner i.h. \\
+ $\Gamma \vdash M \in \SN$ \hfill by reduction $\redSN$
 
 
- \item \textit{Show} $\CR2$: By definition of the closure, if $M \in \SNe$, then $M
-   \in \den{\nat}$. 
+ \item \textit{Show} $\CR2$. If $\Gamma \vdash M \hastype \nat$ and $\Gamma \vdash M \in \SNe$, then $\inden{\Gamma}{M}{\nat}.$ \\
+	 By definition of the closure, if $\Gamma \vdash M \hastype \nat$ and $\Gamma \vdash M \in \SNe$, then $\inden{\Gamma}{M}{\nat}$.
 
- \item \textit{Show} $\CR3$: $M \in \nat$, if $M \redSN M'$ and $M' \in \nat$. By
-   definition of the closure, we have that $M \in \nat$.
+ \item \textit{Show} If $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{\nat}$, then $\inden{\Gamma}{M}{\nat}$. \\
+   By definition of the closure, if $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{\nat}$, we have $\inden{\Gamma}{M}{\nat}$.
  \end{enumerate}
 \end{proof}
 
@@ -1387,85 +1393,88 @@ $N \in \SN$. By definition of $\SN$, $\suc N \in \SN$.
 
  We can now revisit the fundamental lemma.
  \begin{lemma}[Fundamental lemma]
- If $\Gamma \vdash M : A$ and $\sigma \in \den{\Gamma}$
- then $[\sigma]M \in \den{A}$.  
+ If $\Gamma \vdash M : C$ and $\inden{\Gamma'}{\sigma}{\Gamma}$
+ then $\inden{\Gamma'}{[\sigma]M}{C}$.
  \end{lemma}
  \begin{proof}
- By induction on $\Gamma \vdash M : A$.
+ By induction on $\Gamma \vdash M : C$.
 
  \paragraph{Case} $\D = \ianc{}{\Gamma \vdash \zero : \nat}{}$
  \\
  $[\sigma]\zero = \zero$ \hfill by subst. def \\
- $\zero \in \den{\nat}$ \hfill by definition.
+ $\inden{\Gamma'}{\zero}{\nat}$ \hfill by definition.
 
 
  \paragraph{Case} $\D = \ianc{\Gamma \vdash M : \nat}{\Gamma \vdash \suc M :  \nat}{}$
  \\
- $\sigma \in \den{\Gamma}$ \hfill by assumption \\
- $[\sigma]M \in \den{\nat}$ \hfill by i.h. \\
- $\suc [\sigma]M \in \den{\nat}$ \hfill by definition \\
- $[\sigma] \suc M \in \den{\nat}$ \hfill by subst. def
+ $\inden{\Gamma'}{\sigma}{\Gamma}$ \hfill by assumption \\
+ $\inden{\Gamma'}{[\sigma]M}{\nat}$ \hfill by i.h. \\
+ $\inden{\Gamma'}{\suc [\sigma]M}{\nat}$ \hfill by definition \\
+ $\inden{\Gamma'}{[\sigma] \suc M}{\nat}$ \hfill by subst. def
 
 
  \paragraph{Case} $\D = \icnc
  {\Gamma \vdash M : \nat}
-{\Gamma \vdash M_z : C}
+ {\Gamma \vdash M_z : C}
  {\Gamma, n:\nat,\,f~n:C \vdash M_s : C}
  {\Gamma \vdash \recnat M {M_z} {M_s} : C}{}$
  \\
- $\sigma \in \den{\Gamma}$ \hfill by assumption \\
- $[\sigma]M \in \den{\nat}$ \hfill by i.h. \\[1em]
- We distinguish cases based on $[\sigma]M \in \den{\nat}$ and prove by induction on $[\sigma]M
- \in \den{\nat}$ that $[\sigma](\recnat M {M_z} {M_s}) \in \den{C}$.
+ $\inden{\Gamma'}{\sigma}{\Gamma}$ \hfill by assumption \\
+ $\inden{\Gamma'}{[\sigma]M}{\nat}$ \hfill by i.h. \\[1em]
+ We distinguish cases based on $\inden{\Gamma'}{[\sigma]M}{\nat}$ and prove by induction on $\inden{\Gamma'}{[\sigma]M}{\nat}$ that $\inden{\Gamma'}{[\sigma](\recnat M {M_z} {M_s})}{C}$.
 
  \paragraph{Subcase } $[\sigma]M = \zero$.
  \\
- $n \in \den{\nat}$, $f~n \in \den{C}$ \hfill by definition \\
- $[\sigma, n/n, f~n/f~n] \in \den{\Gamma, n:\nat, f~n:C}$ \hfill by definition \\
- $[\sigma, n/n, f~n/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
- $[\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
- $[\sigma]M_z \in \den{C}$ \hfill by outer i.h. \\
- $\recnat \zero {[\sigma]M_z} {[\sigma, n/n,f~n/f~n]M_s} \redSN [\sigma]M_z$
+ $\inden{\Gamma', n \hastype \nat, f~n \hastype C}{n}{\nat}$ \hfill by definition of $\SNe$, $\denot{\nat}$ \\
+ $\inden{\Gamma', n \hastype \nat, f~n \hastype C}{f~n}{C}$ \hfill by definition of $\SNe$, $\denot{\nat}$ \\
+ $\inden{\Gamma', n \hastype \nat, f~n \hastype C}{[\sigma, n/n, f~n/f~n]}{\Gamma, n:\nat, f~n:C}$ \hfill by definition \\
+ $\inden{\Gamma', n \hastype \nat, f~n \hastype C}{[\sigma, n/n, f~n/f~n]M_s}{C}$ \hfill by outer i.h. \\
+ $\Gamma', n \hastype \nat, f~n \hastype C \vdash [\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
+ $\inden{\Gamma'}{[\sigma]M_z}{C}$ \hfill by outer i.h. \\
+ $\Gamma' \vdash \recnat \zero {[\sigma]M_z} {[\sigma, n/n,f~n/f~n]M_s} \redSN [\sigma]M_z$
  \hfill by $\redSN$ \\ 
-$\recnat \zero {[\sigma]M_z} {[\sigma, n/n,f~n/f~n]M_s} = [\sigma](\recnat{M}
- {M_z} {M_s})$ \hfill by subst. def. and $M = \zero$\\
- $[\sigma](\recnat{M} {M_z}{M_s} \in \den{C}$ \hfill by $\CR3$.
+ $\recnat \zero {[\sigma]M_z} {[\sigma, n/n,f~n/f~n]M_s}$ \\
+ $\qquad = [\sigma](\recnat{M}
+ {M_z} {M_s})$ \hfill by subst. def. and $[\sigma]M = \zero$\\
+ $\inden{\Gamma'}{[\sigma](\recnat{M} {M_z}{M_s}}{C}$ \hfill by $\CR3$.
 
- \paragraph{Subcase } $[\sigma]M = \suc M'$ where $M' \in \den{\nat}$.
+ \paragraph{Subcase } $[\sigma]M = \suc M'$ where $\inden{\Gamma'}{M'}{\nat}$.
  \\
- $M' \in \den{\nat}$ \hfill by assumption \\
- $M' \in \SN$ \hfill by $\CR1$ \\
- $[\sigma]M_z \in \den{C}$ \hfill by outer i.h. \\
- $[\sigma]M_z \in \SN$ \hfill by $\CR1$ \\
- $[\sigma, n/n, f~n/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
-$[\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
- $\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} \in \den{C}$ \hfill by inner i.h. \\
- $[\sigma, M'/n, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n] \in
- \den{\Gamma, n:\nat, f~n:C}$ \hfill by definition \\
- $[\sigma, M'/n, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
- $\recnat{(\suc M')}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} $ \\
- $\qquad \redSN
- [\sigma, M'/n, \;\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}/f~n]M_s$
- \hfill by $\redSN$ \\
- $[\sigma](\recnat{M}{M_z}{M_s}) \in \den{C}$ \hfill by $\CR3$.
+ $\inden{\Gamma'}{M'}{\nat}$ \hfill by assumption \\
+ $\Gamma \vdash M' \in \SN$ \hfill by $\CR1$ \\
+ $\inden{\Gamma'}{[\sigma]M_z}{C}$ \hfill by outer i.h. \\
+ $\Gamma' \vdash [\sigma]M_z \in \SN$ \hfill by $\CR1$ \\
+ $\inden{\Gamma', n \hastype \nat, f~n \hastype C}{[\sigma, n/n, f~n/f~n]}{\Gamma, n:\nat, f~n:C}$ \hfill by definition \\
+ $\inden{\Gamma', n \hastype \nat, f~n \hastype C}{[\sigma, n/n, f~n/f~n]M_s}{C}$ \hfill by outer i.h. \\
+ $\Gamma', n \hastype \nat, f~n \hastype C \vdash [\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
+ $\inden{\Gamma'}{\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s}}{C}$ \hfill by inner i.h. \\
+ $\inden{\Gamma'}{[\sigma, M'/n, (\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s})/f~n]}{\Gamma, n:\nat, f~n:C}$ \\
+ $~$ \hfill by definition \\
+ $\inden{\Gamma'}{[\sigma, M'/n, (\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s})/f~n]M_s}{C}$ \\
+ $~$ \hfill by outer i.h. \\
+ $\Gamma' \vdash \recnat{(\suc M')}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} $ \\
+ $\qquad \qquad \redSN
+ [\sigma, M'/n, (\recnat{M'}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s})/f~n]M_s$ \\
+ $~$ \hfill by $\redSN$ \\
+ $\inden{\Gamma'}{[\sigma](\recnat{M}{M_z}{M_s})}{C}$ \hfill by $\CR3$.
 
- \paragraph{Subcase } $[\sigma]M \in \SNe$. \\
- $[\sigma]M_z \in \den{C}$ \hfill by outer i.h.\\
- $[\sigma]M_z \in \SN$ \hfill by $\CR1$\\
- $[\sigma, n/n, f~n/f~n]M_s \in \den{C}$ \hfill by outer i.h. \\
- $[\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
- $\recnat{[\sigma]M}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} \in \SNe$ \hfill by $\SNe$\\
-$[\sigma](\recnat{M}{M_z}{M_s}) \in \SNe$ \hfill by subst. def. \\
-$[\sigma](\recnat{M}{M_z}{M_s}) \in \den{C}$ \hfill by $\CR2$.
+ \paragraph{Subcase } $\Gamma' \vdash [\sigma]M \in \SNe$. \\
+ $\inden{\Gamma'}{[\sigma]M_z}{C}$ \hfill by outer i.h.\\
+ $\Gamma' \vdash [\sigma]M_z \in \SN$ \hfill by $\CR1$\\
+ $\inden{\Gamma', n \hastype \nat, f~n \hastype C}{[\sigma, n/n, f~n/f~n]}{\Gamma, n:\nat, f~n:C}$ \hfill by definition \\
+ $\inden{\Gamma', n \hastype \nat, f~n \hastype C}{[\sigma, n/n, f~n/f~n]M_s}{C}$ \hfill by outer i.h. \\
+ $\Gamma', n \hastype \nat, f~n \hastype C \vdash [\sigma, n/n, f~n/f~n]M_s \in \SN$ \hfill by $\CR1$ \\
+ $\Gamma \vdash \recnat{[\sigma]M}{[\sigma]M_z}{[\sigma, n/n, f~n/f~n]M_s} \in \SNe$ \hfill by $\SNe$\\
+ $\Gamma' \vdash [\sigma](\recnat{M}{M_z}{M_s}) \in \SNe$ \hfill by subst. def. \\
+ $\inden{\Gamma'}{[\sigma](\recnat{M}{M_z}{M_s})}{C}$ \hfill by $\CR2$.
 
 
- \paragraph{Subcase } $[\sigma]M \in \den{\nat}$, if $[\sigma]M \redSN M'$ and
- $M' \in \den{\nat}$.\\
- $[\sigma]M \redSN M'$ and $M' \in \den{\nat}$ \hfill by assumption.\\
- $\recnat{M'}{[\sigma]M_z}{[\sigma,n/n, f~n/f~n]M_s} \in \den{C}$ \hfill by inner i.h. \\ 
- $\recnat{[\sigma]M}{[\sigma]M_z}{[\sigma,n/n, f~n/f~n]M_s}$ \\
- $\qquad \redSN \recnat{M'}{[\sigma]M_z}{[\sigma,n/n, f~n/f~n]M_s}$ \hfill by $\redSN$\\
- $[\sigma](\recnat{M}{M_z}{M_s}) \in \den{C}$ \hfill by $\CR3$.
+ \paragraph{Subcase } $\Gamma' \vdash [\sigma]M \redSN M'$ and $\inden{\Gamma'}{M'}{\nat}$.\\
+ $\Gamma' \vdash [\sigma]M \redSN M'$ and $\inden{\Gamma'}{M'}{\nat}$ \hfill by assumption.\\
+ $\inden{\Gamma'}{\recnat{M'}{[\sigma]M_z}{[\sigma,n/n, f~n/f~n]M_s}}{C}$ \hfill by inner i.h. \\
+ $\Gamma' \vdash \recnat{[\sigma]M}{[\sigma]M_z}{[\sigma,n/n, f~n/f~n]M_s}$ \\
+ $\qquad \qquad \redSN \recnat{M'}{[\sigma]M_z}{[\sigma,n/n, f~n/f~n]M_s}$ \hfill by $\redSN$\\
+ $\inden{\Gamma'}{[\sigma](\recnat{M}{M_z}{M_s})}{C}$ \hfill by $\CR3$.
 
 
  \end{proof}
