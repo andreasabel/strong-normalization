@@ -178,7 +178,7 @@ we must consider all extensions of $\Gamma$ (described by $\Gamma'
 \ext \rho \Gamma$) in which we may use $M$.
 
 \begin{itemize}
-\item $\inden{\Gamma}{M}{\base}$ iff $\Gamma \vdash M\hastype \base$ and $M$ is strongly normalizing, i.e. $(\Gamma \vdash M) \in \SN$.
+\item $\inden{\Gamma}{M}{\base}$ iff $\Gamma \vdash M\hastype \base$ and $M$ is strongly normalizing, i.e. $\Gamma \vdash M \in \SN$.
 \item $\inden{\Gamma}{M}{A \arrow B}$ iff for all $\Gamma' \ext{\rho} \Gamma$ and $\Gamma' \vdash N :A$, if $\inden{\Gamma'}{N}{A}$ then $\inden{\Gamma'}{[\rho]M~N}{B}$.
 \end{itemize}
 
@@ -204,7 +204,7 @@ we must consider all extensions of $\Gamma$ (described by $\Gamma'
 We prove that if a term is well-typed, then it is strongly normalizing in  two steps:
 
 \begin{description}
-\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $(\Gamma \vdash M) \in \SN$. 
+\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M \in \SN$.
 \item[Step 2] If $\Gamma \vdash M : A$ and $\inden{\Gamma'}{\sigma}{\Gamma}$ then $\inden{\Gamma'}{[\sigma]M}{A}$.
 \end{description}
 
@@ -230,7 +230,7 @@ Intuitively, a term $M$ is strongly normalizing, if there exists no infinite red
 A term $M$ is strongly normalizing, if all its reducts are strongly
 normalizing.\\
 \[
-\infer{(\Gamma \vdash M) \in \csn}{\forall M'.~\Gamma \vdash M \red M' \imply (\Gamma \vdash M') \in \csn}
+\infer{\Gamma \vdash M \in \csn}{\forall M'.~\Gamma \vdash M \red M' \imply \Gamma \vdash M' \in \csn}
 \]
 \end{definition}
 
@@ -476,7 +476,7 @@ Hence there exists an evaluation context $C'$ s.t. $C'[x] = (C_0[x]~M)\,N'$.
 
 \fbox{\ref{cp2}.  For all variables $x:A \in \Gamma$, $\Gamma \vdash x \in \csn$.}
 \\[1em]
-$\forall M'.~\Gamma \vdash x \red M' \imply (\Gamma \vdash M') \in \csn$ \hfill since $\Gamma \vdash x \red M'$ is impossible
+$\forall M'.~\Gamma \vdash x \red M' \imply \Gamma \vdash M' \in \csn$ \hfill since $\Gamma \vdash x \red M'$ is impossible
 \\
 $\Gamma \vdash x \in \csn$
 \\[1em]
@@ -490,8 +490,8 @@ $\Gamma \vdash x \in \csn$
  }
 
 \paragraph{Case}$\D = 
-\ianc{\forall M'.~\Gamma \vdash C[x] \red M' \imply (\Gamma \vdash M') \in \csn}
-     {(\Gamma \vdash C[x]) \in \csn}{}$
+\ianc{\forall M'.~\Gamma \vdash C[x] \red M' \imply \Gamma \vdash M' \in \csn}
+     {\Gamma \vdash C[x] \in \csn}{}$
 \\[1em]
 \textbf{Sub-case}: $C[x] = x$ 
 \\
@@ -591,8 +591,8 @@ Here, we define inductively the set of normal terms, $\SN$, and the set of neutr
 
 \begin{center}
 \begin{tabular}{ll}
-$(\Gamma \vdash M) \in \SN$  & $M$ is in the set of normal terms\\
-$(\Gamma \vdash M) \in \SNe$ & $M$ is in the set of neutral terms 
+$\Gamma \vdash M \in \SN$  & $M$ is in the set of normal terms\\
+$\Gamma \vdash M \in \SNe$ & $M$ is in the set of neutral terms
 \end{tabular}  
 \end{center}
 
@@ -816,7 +816,7 @@ $\Gamma \vdash M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5})
 \paragraph{Case} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{}$
 \\[1em]
 $C = \_ $ \hfill since $C[x] = x$\\
-$\forall M'.~\Gamma \vdash x \red M' \imply (\Gamma \vdash M') \in \csn$ \hfill since $\Gamma \vdash x \red M'$ is impossible
+$\forall M'.~\Gamma \vdash x \red M' \imply \Gamma \vdash M' \in \csn$ \hfill since $\Gamma \vdash x \red M'$ is impossible
 \\
 $\Gamma \vdash x \in \csn$
 
