@@ -63,8 +63,8 @@
 % \titlenote{with title note}             %% \titlenote is optional;
                                         %% can be repeated if necessary;
                                         %% contents suppressed with 'anonymous'
- \subtitle{Mechanizing Logical Relations Proofs}                     %% \subtitle is optional
-% \subtitlenote{with subtitle note}       %% \subtitlenote is optional;
+ \subtitle{Mechanizing Logical Relations Proofs \\ (Invited Talk) }                     %% \subtitle is optional
+% \subtitlenote{Invited talk}       %% \subtitlenote is optional;
                                         %% can be repeated if necessary;
                                         %% contents suppressed with 'anonymous'
 
@@ -85,11 +85,11 @@
                                           %% can be repeated if necessary
 \orcid{nnnn-nnnn-nnnn-nnnn}               %% \orcid is optional
 \affiliation{
-  \position{Position1}
-  \department{School of Computer Science}              %% \department is recommended
+%  \position{Position1}
+%  \department{School of Computer Science}              %% \department is recommended
   \institution{McGill University}            %% \institution is required
 %  \streetaddress{Street1 Address1}
-  \city{Montreal}
+   \city{Montreal}
   \state{QC}
   \country{Canada}                    %% \country is recommended
 }
@@ -152,11 +152,13 @@ problem by formulating our logical relation on well-typed terms.
 Using this case study, we share some
 of the lessons learned tackling this challenge problem in Beluga \cite{PientkaC15}, a
 proof environment that supports higher-order abstract syntax
-encodings, first-class context and first-class substitutions. We also
-discuss and highlight similarities, strategies, and limitations in
-other proof assistants {when tackling this challenge problem.}
+encodings, first-class context and first-class substitutions. {We also
+discuss and highlight similarities, strategies, and limitations 
+% \newline
+in other proof assistants when tackling this challenge problem.}
 % %
- \newline\indent
+% \newline\indent
+
 We hope others will be motivated to submit solutions! The goal of this
 talk is to engage the community in discussions on what support in
 proof environments is needed to truly bring mechanized metatheory to
@@ -164,13 +166,18 @@ the masses.
 \end{abstract}
 
 
-\copyrightyear{2018} 
-\acmYear{2018} 
-\setcopyright{rightsretained} 
-\acmConference[CPP '18]{CPP '18: Certified Proofs and Programs }{January 8--9, 2018}{Los Angeles, CA, USA}
-\acmBooktitle{CPP '18: CPP '18: Certified Proofs and Programs , January 8--9, 2018, Los Angeles, CA, USA}
+%%% The following is specific to CPP'18 and the paper
+%%% 'POPLMark Reloaded: Mechanizing Logical Relations Proofs (Invited Talk)'
+%%% by Brigitte Pientka.
+%%%
+\setcopyright{rightsretained}
+\acmPrice{15.00}
 \acmDOI{10.1145/3167102}
+\acmYear{2018}
+\copyrightyear{2018}
 \acmISBN{978-1-4503-5586-5/18/01}
+\acmConference[CPP'18]{7th ACM SIGPLAN International Conference on Certified Programs and Proofs}{January 8--9, 2018}{Los Angeles, CA, USA}
+
 
 
 %% 2012 ACM Computing Classification System (CSS) concepts
@@ -251,109 +258,7 @@ Stark, and Steven Schaefer.                     %% acks environment is optional
 
 
 %% Bibliography
-% \bibliography{cpp}
-%%% Do NOT edit. File created by BibTeX with style
-%%% ACM-Reference-Format-Journals [18-Jan-2012].
-
-\begin{thebibliography}{5}
-
-%%% ====================================================================
-%%% NOTE TO THE USER: you can override these defaults by providing
-%%% customized versions of any of these macros before the \bibliography
-%%% command.  Each of them MUST provide its own final punctuation,
-%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
-%%% do not use final punctuation, in order to avoid confusing it with
-%%% the Web address.
-%%%
-%%% To suppress output of a particular field, define its macro to expand
-%%% to an empty string, or better, \unskip, like this:
-%%%
-%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
-%%%
-%%% \def \showDOI #1{\unskip}           % plain TeX syntax
-%%%
-%%% ====================================================================
-
-\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
-\ifx \showDOI      \undefined \def \showDOI       #1{#1}\fi
-\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
-\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
-\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
-\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
-\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
-\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
-\ifx \showURL      \undefined \def \showURL       {\relax}        \fi
-% The following commands are used for tagged output and should be
-% invisible to TeX
-\providecommand\bibfield[2]{#2}
-\providecommand\bibinfo[2]{#2}
-\providecommand\natexlab[1]{#1}
-\providecommand\showeprint[2][]{arXiv:#2}
-
-\bibitem[\protect\citeauthoryear{Ahmed}{Ahmed}{2015}]%
-        {Ahmed15}
-\bibfield{author}{\bibinfo{person}{Amal Ahmed}.}
-  \bibinfo{year}{2015}\natexlab{}.
-\newblock \showarticletitle{Verified Compilers for a Multi-Language World}. In
-  \bibinfo{booktitle}{{\em {SNAPL}}} {\em (\bibinfo{series}{LIPIcs})},
-  Vol.~\bibinfo{volume}{32}. \bibinfo{publisher}{Schloss Dagstuhl -
-  Leibniz-Zentrum fuer Informatik}, \bibinfo{pages}{15--31}.
-\newblock
-
-
-\bibitem[\protect\citeauthoryear{Aydemir, Bohannon, Fairbairn, Foster, Pierce,
-  Sewell, Vytiniotis, Washburn, Weirich, and Zdancewic}{Aydemir
-  et~al\mbox{.}}{2005}]%
-        {Aydemir05TPHOLs}
-\bibfield{author}{\bibinfo{person}{Brian~E. Aydemir}, \bibinfo{person}{Aaron
-  Bohannon}, \bibinfo{person}{Matthew Fairbairn}, \bibinfo{person}{J.~Nathan
-  Foster}, \bibinfo{person}{Benjamin~C. Pierce}, \bibinfo{person}{Peter
-  Sewell}, \bibinfo{person}{Dimitrios Vytiniotis}, \bibinfo{person}{Geoffrey
-  Washburn}, \bibinfo{person}{Stephanie Weirich}, {and} \bibinfo{person}{Steve
-  Zdancewic}.} \bibinfo{year}{2005}\natexlab{}.
-\newblock \showarticletitle{Mechanized Metatheory for the Masses: The
-  {\textsc{PoplMark}} Challenge}. In \bibinfo{booktitle}{{\em TPHOLs}} {\em
-  (\bibinfo{series}{LNCS})}, Vol.~\bibinfo{volume}{3603}.
-  \bibinfo{publisher}{Springer}, \bibinfo{pages}{50--65}.
-\newblock
-
-
-\bibitem[\protect\citeauthoryear{Bowman and Ahmed}{Bowman and Ahmed}{2015}]%
-        {BowmanA15}
-\bibfield{author}{\bibinfo{person}{William~J. Bowman} {and}
-  \bibinfo{person}{Amal Ahmed}.} \bibinfo{year}{2015}\natexlab{}.
-\newblock \showarticletitle{Noninterference for free}. In
-  \bibinfo{booktitle}{{\em {ICFP}}}. \bibinfo{publisher}{{ACM}},
-  \bibinfo{pages}{101--113}.
-\newblock
-
-
-\bibitem[\protect\citeauthoryear{Neis, Hur, Kaiser, McLaughlin, Dreyer, and
-  Vafeiadis}{Neis et~al\mbox{.}}{2015}]%
-        {NeisHKMDV15}
-\bibfield{author}{\bibinfo{person}{Georg Neis}, \bibinfo{person}{Chung{-}Kil
-  Hur}, \bibinfo{person}{Jan{-}Oliver Kaiser}, \bibinfo{person}{Craig
-  McLaughlin}, \bibinfo{person}{Derek Dreyer}, {and} \bibinfo{person}{Viktor
-  Vafeiadis}.} \bibinfo{year}{2015}\natexlab{}.
-\newblock \showarticletitle{Pilsner: a compositionally verified compiler for a
-  higher-order imperative language}. In \bibinfo{booktitle}{{\em {ICFP}}}.
-  \bibinfo{publisher}{{ACM}}, \bibinfo{pages}{166--178}.
-\newblock
-
-
-\bibitem[\protect\citeauthoryear{Pientka and Cave}{Pientka and Cave}{2015}]%
-        {PientkaC15}
-\bibfield{author}{\bibinfo{person}{Brigitte Pientka} {and}
-  \bibinfo{person}{Andrew Cave}.} \bibinfo{year}{2015}\natexlab{}.
-\newblock \showarticletitle{Inductive Beluga: Programming Proofs}. In
-  \bibinfo{booktitle}{{\em {CADE}}} {\em (\bibinfo{series}{Lecture Notes in
-  Computer Science})}, Vol.~\bibinfo{volume}{9195}.
-  \bibinfo{publisher}{Springer}, \bibinfo{pages}{272--281}.
-\newblock
-
-
-\end{thebibliography}
-
+ \bibliography{cpp}
 
 %% Appendix
 % \appendix

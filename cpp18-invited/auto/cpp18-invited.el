@@ -9,9 +9,6 @@
     "acmart10"
     "booktabs"
     "subcaption")
-   (TeX-add-symbols
-    '("showeprint" ["argument"] 1)
-    '("natexlab" 1)
-    '("bibinfo" 2)
-    '("bibfield" 2))))
+   (LaTeX-add-bibliographies
+    "cpp")))
 

@@ -1,6 +1,8 @@
 (TeX-add-style-hook
  "sn-proof"
  (lambda ()
+   (TeX-add-to-alist 'LaTeX-provided-package-options
+                     '(("natbib" "authoryear")))
    (add-to-list 'LaTeX-verbatim-environments-local "lstlisting")
    (add-to-list 'LaTeX-verbatim-macros-with-braces-local "lstinline")
    (add-to-list 'LaTeX-verbatim-macros-with-delims-local "lstinline")
@@ -11,6 +13,7 @@
     "art10"
     "lmodern"
     "enumitem"
+    "natbib"
     "amsmath"
     "amsthm"
     "latexsym"
@@ -33,6 +36,10 @@
     '("dent" 2)
     '("den" 1)
     '("clos" 1)
+    '("inden" 3)
+    '("denot" 1)
+    '("neu" 2)
+    '("nf" 2)
     '("ext" 1)
     '("hs" 1)
     "nl"
@@ -56,6 +63,7 @@
     "rv"
     "ednote")
    (LaTeX-add-labels
+    "lem:redprop"
     "def:norm"
     "lem:psn"
     "pp2"
@@ -75,9 +83,10 @@
     "fig:sn"
     "lm:renameSN"
     "lm:anti-renameSN"
+    "lem:SNsubst"
+    "lm:pSN"
     "lm:pSN1"
     "lm:pSN2"
-    "lm:pSN"
     "csn1"
     "csn2"
     "thm:redcand"
@@ -90,7 +99,11 @@
     '("ADDITIONAL" 1)
     "problem"
     "sol"
-    "axiom")
+    "axiom"
+    "lemma")
+   (LaTeX-add-bibliographies
+    "../../bibliography/bibi"
+    "../../bibliography/bp")
    (LaTeX-add-amsthm-newtheorems
     "exercise")))
 
