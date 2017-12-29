@@ -76,6 +76,9 @@
  \newtheorem*{@lemma-nonum}{Lemma}
  \newenvironment{lemma*}{\begin{@lemma-nonum}\rm}{\end{@lemma-nonum}}
 
+ \newtheorem*{@thm-nonum}{Theorem}
+ \newenvironment{theorem*}{\begin{@thm-nonum}\rm}{\end{@thm-nonum}}
+
 
 
 \input prelude
@@ -98,6 +101,7 @@
 \newcommand{\nf}[2]{#1 : #2 ~\mathsf{nf}}
 \newcommand{\neu}[2]{#1 : #2 ~\mathsf{ne}}
 
+ \newcommand{\one}{1}
 \newcommand{\SN}{\mathsf{SN}}
 \newcommand{\SNe}{\mathsf{SNe}}
 \newcommand{\csn}{\mathsf{sn}}
@@ -1370,7 +1374,100 @@ Using the fundamental lemma with the identity substitution $\inden{\Gamma}{\text
 \newpage
 
 \section{Extension: Unit type}
+We will now extend our simply-typed lambda-calculus the unit type, written as $\one$.
 
+\[
+\begin{array}{llcl}
+\mbox{Types}  & A & \bnfas & \ldots \mid \one\\
+\mbox{Terms}  & M & \bnfas & \ldots \mid ()
+\end{array}
+\]
+
+In particular, we extend our type-directed reduction rules and allow any term $M$ of type $\one$ to be reduced to $()$.
+
+\[
+  \begin{array}{c}
+\ianc{M \not= ()}{\Gamma \vdash M \red () : \one}    {}
+  \end{array}
+\]
+
+We extend our definition of $\SN$ and $\redSN$ as follows:
+
+\[
+  \begin{array}{c}
+\ianc{}{\Gamma \vdash () : \one \in \SN}    {} \qquad 
+\ianc{\Gamma \vdash M : \one}{\Gamma \vdash M \redSN () : \one}{}
+  \end{array}
+\]
+
+We omit here the extensions in the proofs about $\SN$, in particular the renaming, anti-renaming and substitution lemmas. 
+
+As $\one$ is simply a new base type, we simply say
+
+\begin{center}
+\begin{tabular}{lcl}
+$\inden{\Gamma}{M}{\one}$ & iff & $\Gamma \vdash M : \one \in \SN$ 
+\end{tabular}  
+\end{center}
+
+We revisit our previous theorem \ref{thm:redcand} and highlight the cases for unit.
+
+\begin{theorem*}
+\CR 1: If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$. % , i.e. $\den{A} \subseteq \SN$.%  
+\end{theorem*}
+
+\begin{proof}
+Induction on type $A$.
+
+\paragraph{Case} $A = \one$. 
+\\[1em]
+$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\inden{\Gamma}{M}{A}$ 
+
+\end{proof}
+
+\begin{theorem*}
+\CR 2: If $\Gamma \vdash M : A \in \SNe$ then $\inden{\Gamma}{M}{A}$. % , i.e. $\SNe \subseteq \den{A}$. %
+\end{theorem*}
+\begin{proof}
+Induction on $A$.
+
+\paragraph{Case} $A = \one$.
+\\[1em]
+$\Gamma \vdash M : \one \in \SNe$ \hfill by assumption \\
+$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\SN$\\
+$\inden \Gamma M \one$ \hfill by def. of semantic interpretation of $\one$  
+
+\end{proof}
+
+
+\begin{theorem*}
+ \CR 3: If $\Gamma \vdash M \redSN M' : A$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.  
+\end{theorem*}
+\begin{proof}
+Induction on $\redSN$.
+
+\paragraph{Case} $\ianc{\Gamma \vdash M : \one}{\Gamma \vdash M \redSN () : \one}{}$ 
+\\[1em]
+$\Gamma \vdash () : \one \in \SN$ \hfill by def. of $\SN$\\
+$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\SN$ using $\Gamma \vdash M \redSN () : \one$
+
+\end{proof}
+
+We can now revisit the fundamental lemma.
+
+ \begin{lemma}[Fundamental lemma]
+ If $\Gamma \vdash M : C$ and $\inden{\Gamma'}{\sigma}{\Gamma}$
+ then $\inden{\Gamma'}{[\sigma]M}{C}$.  
+ \end{lemma}
+ \begin{proof}
+ By induction on $\Gamma \vdash M : C$.
+
+\paragraph{Case} $\D = \ianc{}{\Gamma \vdash () : \one}{}$
+\\[1em]
+$\Gamma \vdash () : \one \in \SN$ \hfill by def. of $\SN$\\
+$\inden \Gamma {()} \one$ \hfill by def. of $\mathcal{R}_\one$\\
+
+\end{proof}
 
 \newpage
 

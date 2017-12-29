@@ -47,6 +47,7 @@
     "C"
     "G"
     "Q"
+    "one"
     "SN"
     "SNe"
     "csn"
@@ -100,7 +101,8 @@
     "problem"
     "sol"
     "axiom"
-    "lemma")
+    "lemma"
+    "theorem")
    (LaTeX-add-bibliographies
     "../../bibliography/bibi"
     "../../bibliography/bp")
