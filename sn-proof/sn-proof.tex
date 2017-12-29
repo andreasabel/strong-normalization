@@ -933,7 +933,7 @@ Simultaneous induction on $\Gamma, x{:}A \vdash M \in \SN$.
 
 \end{proof}
 
-\begin{lemma}[$\SN$ is closed under application]\label{lm:pSN}
+\begin{lemma}[$\SN$ is closed under application]\label{lm:pSN0}
 If $\Gamma \vdash M : A \arrow B \in \SN$ and $\Gamma \vdash N : A \in \SN$ then $\Gamma \vdash M~N : B \in \SN$.    
 \end{lemma}
 \begin{proof}
@@ -965,7 +965,7 @@ $\Gamma \vdash M~N : B \in \SN$ \hfil by def. of $\SN$.
 If $\Gamma \vdash M : A \arrow B \in \SN$ and $x{:}A \in \Gamma$ then \mbox{$\Gamma \vdash M~x : B \in \SN$}.  
 \end{lemma}
 \begin{proof}
-Follows from the previous lemma \ref{lm:pSN}\footnote{For proving the $\CR$ properties this lemma suffices and our mechanization in Beluga proves this lemma inductively; we need the more general lemma to show completeness of $\SN$ with respect to $\csn$.}.
+Follows from the previous lemma \ref{lm:pSN0}\footnote{For proving the $\CR$ properties this lemma suffices and our mechanization in Beluga proves this lemma inductively; we need the more general lemma to show completeness of $\SN$ with respect to $\csn$.}.
 
 % By induction on $\SN$.
 
@@ -1055,66 +1055,67 @@ For proving normalization, soundness of the inductive definition of $\SN$ suffic
 \begin{theorem}[Soundness of $\SN$]
 \mbox{}
   \begin{enumerate}
-  \item If $\Gamma \vdash M \in \SN$ then $\Gamma \vdash M \in \csn$.
-  \item If $\Gamma \vdash C[x] \in \SNe$ then $\Gamma \vdash C[x] \in \csn$.
-  \item If $\Gamma \vdash M \redSN M'$ then $\Gamma \vdash M \redsn M'$.
+  \item If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.
+  \item If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
+  \item If $\Gamma \vdash M \redSN M' : A$ then $\Gamma \vdash M \redsn M' : A$.
   \end{enumerate} 
 \end{theorem}
 \begin{proof}
 By mutual structural induction on the given derivations using the
 closure properties. \\[1em]
 \noindent
-1. If $\Gamma \vdash M \in \SN$ then $\Gamma \vdash M \in \csn$.
+1. If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.
 
-\paragraph{Case} $\D = \ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{}$ 
+\paragraph{Case} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{}$ 
 \\[1em]
-$R = C[x] $ \hfill since $\Gamma \vdash R \in \SNe$ \\
-$\Gamma \vdash R \in \csn$ \hfill by IH(1)
+$R = C[x] $ \hfill since $\Gamma \vdash R : A \in \SNe$ \\
+$\Gamma \vdash R : A \in \csn$ \hfill by IH(1)
 
-\paragraph{Case} $\D = \ianc{\Gamma, x{:}A \vdash M \in \SN}
-                           {\Gamma  \vdash \lambda x{:}A.M \in \SN}{}$
+\paragraph{Case} $\D = \ianc{\Gamma, x{:}A \vdash M : B \in \SN}
+                           {\Gamma  \vdash \lambda x{:}A.M  : A \arrow B \in \SN}{}$
 \\[1em]
-$\Gamma, x{:}A \vdash M \in \csn$ \hfill by IH(1) \\
-$\Gamma \vdash \lambda x{:}A.M \in \csn$ \hfill by  Property \ref{lm:closn}(\ref{pp3})
+$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by IH(1) \\
+$\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{lm:closn}(\ref{pp3})
 
-\paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M'}{
-                             \Gamma \vdash M' \in \SN}
-                            {\Gamma \vdash M \in \SN}{} $
+\paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M' : A}{
+                             \Gamma \vdash M' : A \in \SN}
+                            {\Gamma \vdash M  : A \in \SN}{} $
 \\[1em]
-$\Gamma \vdash M' \in \csn$ \hfill by IH(1)\\
-$\Gamma \vdash M \redsn M'$ \hfill by IH(3)\\
-$\Gamma \vdash M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5})
+$\Gamma \vdash M' : A \in \csn$ \hfill by IH(1)\\
+$\Gamma \vdash M \redsn M' : A$ \hfill by IH(3)\\
+$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5})
 \\[1em]
 \noindent
-2. If $\Gamma \vdash C[x] \in \SNe$ then $\Gamma \vdash C[x] \in \csn$.
+2. If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
 
-\paragraph{Case} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{}$
+\paragraph{Case} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{}$
 \\[1em]
 $C = \_ $ \hfill since $C[x] = x$\\
-$\forall M'.~\Gamma \vdash x \red M' \imply \Gamma \vdash M' \in \csn$ \hfill since $\Gamma \vdash x \red M'$ is impossible
+$\forall M'.~\Gamma \vdash x \red M' : A \imply \Gamma \vdash M' : A \in \csn$ \hfill since $\Gamma \vdash x \red M' : A$ is impossible
 \\
 $\Gamma \vdash x \in \csn$
 
-\paragraph{Case}$\D = \ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{}$
+\paragraph{Case}$\D = \ibnc{\Gamma \vdash R : A \arrow B \in \SNe}{\Gamma \vdash M : A \in \SN}{\Gamma \vdash R\,M : B \in \SNe}{}$
 \\
 $C'[x] = R$ \hfill since $C[x] = R\;M$\\
-$\Gamma \vdash C'[x] \in \csn$ \hfill by IH(2) \\
-$\Gamma \vdash M \in \csn$ \hfill by IH(1)\\
-$\Gamma \vdash C'[x]\;M \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp3})\\
-$\Gamma \vdash C[x] \in \csn$ \hfill since $C[x] = C'[x]~M$
+$\Gamma \vdash C'[x] : A \arrow B\in \csn$ \hfill by IH(2) \\
+$\Gamma \vdash M : A \in \csn$ \hfill by IH(1)\\
+$\Gamma \vdash C'[x]\;M : B \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp3})\\
+$\Gamma \vdash C[x] : A \arrow B \in \csn$ \hfill since $C[x] = C'[x]~M$
 \\[1em]
 \noindent
-3.  If $\Gamma \vdash M \redSN M'$ then $\Gamma \vdash M \redsn M'$.
+3.  If $\Gamma \vdash M \redSN M' : A$ then $\Gamma \vdash M \redsn M' : A$.
 
-\paragraph{Case} $\D = \ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M}{}$
+\paragraph{Case} $\D = \ianc{\Gamma \vdash N : A \in \SN \qquad \Gamma, x{:}A \vdash M : B}
+                            {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
 \\[1em]
-$\Gamma \vdash N \in \csn$ \hfill by IH(1) \\
-$\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M$ \hfill by def. of $\redsn$
+$\Gamma \vdash N : A \in \csn$ \hfill by IH(1) \\
+$\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B$ \hfill by def. of $\redsn$
 
-\paragraph{Case} $\D = \ibnc{\Gamma \vdash R \redSN R'}{R\;\text{is not a}\;\lambda}{\Gamma \vdash R\,M \redSN R'\,M}{}$
+\paragraph{Case} $\D = \ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash M : A}{\Gamma \vdash R\,M \redSN R'\,M : B}{}$
 \\[1em]
-$\Gamma \vdash R \redsn R'$ \hfill by IH(3) \\
-${\Gamma \vdash R\,M \redsn R'\,M}$ \hfill by def. or $\redsn$
+$\Gamma \vdash R \redsn R' : A \arrow B$ \hfill by IH(3) \\
+${\Gamma \vdash R\,M \redsn R'\,M : B}$ \hfill by def. or $\redsn$
 
 \end{proof}
 
@@ -1122,13 +1123,13 @@ ${\Gamma \vdash R\,M \redsn R'\,M}$ \hfill by def. or $\redsn$
 
 \begin{theorem}[Completeness of $\SN$]\mbox{}
 \begin{enumerate}
-\item\label{csn1} If $\Gamma \vdash C[x] \in \csn$ then $\Gamma \vdash C[x] \in \SNe$.
-\item\label{csn2} If $\Gamma \vdash C[(\lambda x.M)~N] \in \csn$ 
-      then $\Gamma \vdash  C[(\lambda x.M)~N] \redSN  C[[N/x]M]$ 
-      and $\Gamma \vdash C[[N/x]M] \in \SN$. 
+\item\label{csn1} If $\Gamma \vdash C[x] : A \in \csn$ then $\Gamma \vdash C[x] : A \in \SNe$.
+\item\label{csn2} If $\Gamma \vdash C[(\lambda x.M)~N] : A \in \csn$ 
+      then $\Gamma \vdash  C[(\lambda x.M)~N] \redSN  C[[N/x]M] : A$ 
+      and $\Gamma \vdash C[[N/x]M] : A \in \SN$. 
 % \item If $\Gamma \vdash M \in \csn$ and $\Gamma \vdash M \redSN M'$
 %  then $\Gamma \vdash M' \in \SN$.
- \item If $\Gamma \vdash M \in \csn$ then $\Gamma \vdash M \in \SN$.
+ \item If $\Gamma \vdash M : A \in \csn$ then $\Gamma \vdash M : A \in \SN$.
 %  \item If $R = x\,\vec N \in \csn$ then $x\,\vec N\in \SNe$.
 %  \item If $R = (\lambda x.M)\,N\,\vec N \in \csn$ then $R \redSN [N/x]M\,\vec  N$.
 %  \item If $R \in \csn$ then $R \in \SN$.
@@ -1136,84 +1137,84 @@ ${\Gamma \vdash R\,M \redsn R'\,M}$ \hfill by def. or $\redsn$
 \end{theorem}
 \begin{proof}
 
-\fbox{\ref{csn1}. If $\Gamma \vdash C[x] \in \csn$ then $\Gamma \vdash C[x] \in \SNe$.}
+\fbox{\ref{csn1}. If $\Gamma \vdash C[x] : A \in \csn$ then $\Gamma \vdash C[x] : A \in \SNe$.}
 \\[1em]
 By structural induction on $C[x]$.
 
 \paragraph{Case} $C = \_$
 \\[0.5em]
-$\Gamma \vdash x \in \SNe$ \hfill by def. of
-$\SNe$\footnote{Technically we should keep around explicitly that
-  $\csn$ is defined on well-typed terms, so we actually have the
-  assumption that $x{:}A$ is in $\Gamma$. }
+$\Gamma \vdash x:A$ \hfill by assumption $\Gamma \vdash x : A \in \csn$\\
+$\Gamma \vdash x : A \in \SNe$ \hfill by def. of $\SNe$\\
+% \footnote{Technically we should keep around explicitly that
+%  $\csn$ is defined on well-typed terms, so we actually have the
+%  assumption that $x{:}A$ is in $\Gamma$. }
 
 \paragraph{Case} $C = C'~M$
 \\[0.5em]
-$\Gamma \vdash C'[x]~M \in \csn$ \hfill by assumption \\
-$\Gamma \vdash C'[x] \in \csn$ and $\Gamma \vdash M \in \csn$ \hfill
-by Lemma \ref{lem:psn} (Property \ref{pp6})\\
-$\Gamma \vdash C'[x] \in \SNe$ \hfill by IH(1) \\
-$\Gamma \vdash M \in \SN$ \hfill by IH (3) \\
-$\Gamma \vdash C'[x]~M \in \SNe $ \hfill by def. of $\SNe$
+$\Gamma \vdash C'[x]~M : B \in \csn$ \hfill by assumption \\
+$\Gamma \vdash C'[x] : A \arrow B \in \csn$ and $\Gamma \vdash M : A \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
+$\Gamma \vdash C'[x] : A \arrow B \in \SNe$ \hfill by IH(1) \\
+$\Gamma \vdash M : A \in \SN$ \hfill by IH (3) \\
+$\Gamma \vdash C'[x]~M : B \in \SNe $ \hfill by def. of $\SNe$
 \\[1em]
-\fbox{\ref{csn2}. If $\Gamma \vdash C[(\lambda x.M)~N] \in \csn$ 
-      then $\Gamma \vdash  C[(\lambda x.M)~N] \redSN  C[[N/x]M]$ and $\Gamma \vdash C[[N/x]M] \in \SN$. }
+\fbox{\ref{csn2}. If $\Gamma \vdash C[(\lambda x{:}A.M)~N] : B \in \csn$ 
+      then $\Gamma \vdash  C[(\lambda x{:}A.M)~N] \redSN  C[[N/x]M] : B$ and $\Gamma \vdash C[[N/x]M] : B \in \SN$. }
 \\[0.5em]
-By structural induction on $C[(\lambda x.M)~N]$.
+By structural induction on $C[(\lambda x.M)~N]$. We again leave some of the reasoning about well-typed terms implicit.
 
 \paragraph{Case} $C = \_$
 \\[0.5em]
-$\Gamma \vdash (\lambda x{:}A.M)~N \in \csn$ \hfill by assumption \\
-$\Gamma \vdash \lambda x{:}A.M \in \csn$ and $\Gamma \vdash N \in \csn$\hfill by Lemma
+$\Gamma \vdash (\lambda x{:}A.M)~N : B \in \csn$ \hfill by assumption \\
+$\Gamma \vdash \lambda x{:}A.M : A \arrow B\in \csn$ and $\Gamma \vdash N  : A \in \csn$\hfill by Lemma
 \ref{lem:psn}(Property \ref{pp6})\\
-$\Gamma \vdash N \in \SN$ \hfill by IH (3) \\
-$\Gamma \vdash \lambda x{:}A.M \in \SN$ \hfill by IH (3)\\
-$\Gamma, x{:}A \vdash M \in \SN$ \hfill by def. of $\SN$\\
-$\Gamma \vdash [N/x]M \in \SN$ \hfill by subst. lemma \ref{lem:SNsubst}\\
-$\Gamma \vdash (\lambda x{:}A.M)~N \redSN [N/x]M$ \hfill by def. of $\redSN$
+$\Gamma \vdash N : A \in \SN$ \hfill by IH (3) \\
+$\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \SN$ \hfill by IH (3)\\
+$\Gamma, x{:}A \vdash M : B \in \SN$ \hfill by def. of $\SN$\\
+$\Gamma \vdash [N/x]M : B \in \SN$ \hfill by subst. lemma \ref{lem:SNsubst}\\
+$\Gamma \vdash (\lambda x{:}A.M)~N \redSN [N/x]M : B$ \hfill by def. of $\redSN$
 
 \paragraph{Case} $C = C'~M'$
 \\[0.5em]
-$\Gamma \vdash C'[(\lambda x.M)~N]~M' \in \csn$ \hfill by assumption
+$\Gamma \vdash C'[(\lambda x{:}A.M)~N]~M' : B\in \csn$ \hfill by assumption
 \\
-$\Gamma \vdash C'[(\lambda x.M)~N] \in \csn$ and $\Gamma \vdash M' \in \csn$ \hfill by Lemma \ref{lem:psn}(Property \ref{pp6})\\
-$\Gamma \vdash N \in \csn$ \hfill by Lemma \ref{lem:psn}(Property \ref{pp6})\\
-$\Gamma \vdash C'[(\lambda x.M)~N] \redSN  C'[[N/x]M]$ and $\Gamma C'[[N/x]M] \in \SN$ \hfill by IH (2)\\
-$\Gamma \vdash C'[(\lambda x.M)~N]~M' \redSN  C'[[N/x]M]~M'$ \hfill by def. $\redSN$\\
-$\Gamma \vdash M' \in \SN$ \hfill by IH (3) \\
-$\Gamma \vdash  C'[[N/x]M]~M' \in \SN$ \hfill by Closure property (Lemma \ref{lm:pSN})
+$\Gamma \vdash C'[(\lambda x{:}A.M)~N] : B' \arrow B \in \csn$ and $\Gamma \vdash M' : B'\in \csn$ \hfill by Lemma \ref{lem:psn}(Property \ref{pp6})\\
+$\Gamma \vdash N : A \in \csn$ \hfill by Lemma \ref{lem:psn}(Property \ref{pp6}) (iterated)\\
+$\Gamma \vdash C'[(\lambda x{:}A.M)~N] \redSN  C'[[N/x]M] : B' \arrow B$ and $\Gamma \vdash C'[[N/x]M] : B' \arrow B \in \SN$ \hfill by IH (2)\\
+$\Gamma \vdash C'[(\lambda x{:}A.M)~N]~M' : B \redSN  C'[[N/x]M]~M' : B$ \hfill by def. $\redSN$\\
+$\Gamma \vdash M' : B'\in \SN$ \hfill by IH (3) \\
+$\Gamma \vdash  C'[[N/x]M]~M' : B \in \SN$ \hfill by Closure property (Lemma \ref{lm:pSN0})
 \\[1em]
-\fbox{If $\Gamma \vdash M \in \csn$ then $\Gamma \vdash M \in \SN$.}
+\fbox{If $\Gamma \vdash M : A \in \csn$ then $\Gamma \vdash M : A \in \SN$.}
 \\[1em]
 Induction on $M$.
 
 \paragraph{Case} $M = x$ where $x{:}A \in \Gamma$.
 \\[1em]
-$\Gamma \vdash x \in \SNe$ \hfill by def. of $\SNe$\\
-$\Gamma \vdash x \in \SN$ \hfill by def. of $\SN$.
+$\Gamma \vdash x : A \in \SNe$ \hfill by def. of $\SNe$\\
+$\Gamma \vdash x : A \in \SN$ \hfill by def. of $\SN$.
 
-\paragraph{Case} $M = \lambda x.M'$
+\paragraph{Case} $M = \lambda x{:}A.M'$
 \\[1em]
-$\Gamma \vdash \lambda x.M' \in \csn$ \hfill by assumption\\
-$\Gamma, x{:}A \vdash M' \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp7})\\
-$\Gamma, x{:}A \vdash M' \in \SN$ \hfill by IH \\ 
-$\Gamma \vdash \lambda x{:}A.M' \in \SN$ \hfill  by def. of $\SN$ 
+$\Gamma \vdash \lambda x{:}A.M' : A \arrow B \in \csn$ \hfill by assumption\\
+$\Gamma, x{:}A \vdash M' : B\in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp7})\\
+$\Gamma, x{:}A \vdash M' : B \in \SN$ \hfill by IH \\ 
+$\Gamma \vdash \lambda x{:}A.M' : A \arrow B \in \SN$ \hfill  by def. of $\SN$ 
 
 \paragraph{Case} $M = M_1~M_2$
 \\[1em]
-$\Gamma \vdash M_1~M_2 \in \csn$ \hfill by assumption\\
-$\Gamma \vdash M_1 \in \csn$ and $\Gamma \vdash M_2 \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})
+$\Gamma \vdash M_1~M_2 : B \in \csn$ \hfill by assumption\\
+$\Gamma \vdash M_1 : A \arrow B \in \csn$ and $\Gamma \vdash M_2 : A \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})
 \\[0.5em]
  \textbf{Sub-case:} $C[x] = M_1~M_2$ \\[0.5em]
- $\Gamma \vdash M_1~M_2 \in \SNe$ \hfill by IH (1) (note this is valid,
+ $\Gamma \vdash M_1~M_2 : B \in \SNe$ \hfill by IH (1) (this is valid,
  since (1) is strictly decreasing when we refer to (3))\\
- $\Gamma \vdash M_1~M_2 \in \SN$ \hfill by def. of $\SN$
+ $\Gamma \vdash M_1~M_2 : B \in \SN$ \hfill by def. of $\SN$
  \\[1em]
  \textbf{Sub-case:} $C[(\lambda x.M)~N] = M_1~M_2$ \\[0.5em]
- $\Gamma \vdash C[(\lambda x.M)~N] \redSN C[[N/x]M]$ and $\Gamma \vdash C[[N/x]M] \in \SN$ \hfill by IH(2)\\
+ $\Gamma \vdash C[(\lambda x.M)~N] \redSN C[[N/x]M] : B$ and $\Gamma \vdash C[[N/x]M] : B\in \SN$ \hfill by IH(2)\\
  % $\Gamma \vdash N \in \csn$ \hfill by generalization of by Lemma \ref{lem:psn} (Property \ref{pp6})\\
  % $\Gamma \vdash N \in \SN$ \hfil by IH(3) \\
- $\Gamma \vdash C[(\lambda x.M)~N] \in \SN$ \hfill by def of $\SN$ \\
+ $\Gamma \vdash C[(\lambda x.M)~N] : B \in \SN$ \hfill by def of $\SN$ \\
 
 \end{proof}
 
@@ -1241,68 +1242,68 @@ to satisfy. If a semantic type satisfies these key properties, then our proof of
 \begin{theorem}\label{thm:redcand}~
 % For all types $C$, $\Gamma \vdash M \den{C}  \in \CR$, i.e. it satisfies the conditions $\CR_1$, $\CR_2$, and $\CR_3$.
   \begin{enumerate}
-  \item\label{cr1} \CR 1: If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M \in \SN$. % , i.e. $\den{A} \subseteq \SN$.% \\[0.5em]
-  \item\label{cr2} \CR 2: If $\Gamma \vdash M \hastype A$ and $\Gamma \vdash M \in \SNe$ then $\inden{\Gamma}{M}{A}$. % , i.e. $\SNe \subseteq \den{A}$. % \\[0.5em]
-  \item\label{cr3} \CR 3: If $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.
+  \item\label{cr1} \CR 1: If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$. % , i.e. $\den{A} \subseteq \SN$.% \\[0.5em]
+  \item\label{cr2} \CR 2: If $\Gamma \vdash M : A \in \SNe$ then $\inden{\Gamma}{M}{A}$. % , i.e. $\SNe \subseteq \den{A}$. % \\[0.5em]
+  \item\label{cr3} \CR 3: If $\Gamma \vdash M \redSN M' : A$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.
   \end{enumerate} 
 \end{theorem}
 \begin{proof}
 We prove these three properties simultaneously.
 \\[1em]
-\fbox{\CR \ref{cr1}.  If $\inden{\Gamma}{M}{C}$ then $\Gamma \vdash M \in \SN$.}
+\fbox{\CR \ref{cr1}.  If $\inden{\Gamma}{M}{C}$ then $\Gamma \vdash M : A \in \SN$.}
 \\[0.5em]
 By induction on the structure of $C$. 
 
 \paragraph{Case: $C =\base$}.\\
 $\inden{\Gamma}{M}{\base}$ \hfill by assumption \\
-$\Gamma \vdash M \in \SN$ \hfill by def. of sem. typing for $\base$
+$\Gamma \vdash M : \base \in \SN$ \hfill by def. of sem. interpretation for $\base$
 
 \paragraph{Case: $C = A \arrow B$}.
 \\
-$\Gamma, x{:}A \vdash x \in \SNe$ \hfill by def. of $\SNe$\\
+$\Gamma, x{:}A \vdash x : A \in \SNe$ \hfill by def. of $\SNe$\\
 $\inden{\Gamma. x{:}A}{x}{A}$ \hfill by IH (\ref{cr2}) \\
 % $\Gamma, x{:}A \models x : A$ \hfill by Lemma \ref{lm:closn} (Property \ref{cp2})\\
 $\Gamma, x{:}A \ext{\id} \Gamma$ \hfill by def. of context extensions \\
 % $\Gamma, x{:}A \models M  : A \arrow B$ \hfill by Semantic Weakening Lemma \ref{lm:sweak}\\
 $\inden{\Gamma, x{:}A}{[\id]M~x}{B}$ \hfill by def. of  $\inden{\Gamma, x{:}A}{M}{A \arrow B}$\\
-$\Gamma, x{:}A \vdash [\id]M~x\in \SN$ \hfill by IH (\CR \ref{cr1})\\
-$\Gamma, x{:}A \vdash [\id]M \in \SN$ \hfill by  Extensionality Lemma \ref{lm:pSN} \\% Lemma \ref{lem:psn} (Property \ref{pp6})\\
-$\Gamma \vdash M \in \SN$ \hfill by Ani-renaming Lemma \ref{lm:anti-renameSN}
+$\Gamma, x{:}A \vdash [\id]M~x : B\in \SN$ \hfill by IH (\CR \ref{cr1})\\
+$\Gamma, x{:}A \vdash [\id]M : A \arrow B \in \SN$ \hfill by  Extensionality Lemma \ref{lm:pSN} \\% Lemma \ref{lem:psn} (Property \ref{pp6})\\
+$\Gamma \vdash M : A \arrow B\in \SN$ \hfill by Anti-renaming Lemma \ref{lm:anti-renameSN}
 \\[1em]
-\fbox{\CR \ref{cr2}. If $\Gamma \vdash M \hastype C$ and $\Gamma \vdash M \in \SNe$ then $\inden{\Gamma}{M}{C}$.}
+\fbox{\CR \ref{cr2}. If $\Gamma \vdash M : C\in \SNe$ then $\inden{\Gamma}{M}{C}$.}
 \\[0.5em]
-By induction on $\Gamma \vdash M \in \SNe$. 
+By induction on $\Gamma \vdash M : C \in \SNe$. 
 
 \paragraph{Case: $C=\base$}.\\
-$\Gamma \vdash M \in \SNe$ \hfill by assumption \\
-$\Gamma \vdash M \in \SN$ \hfill by def. of $\SN$\\
-$\Gamma \vdash M \hastype \base$ \hfill by assumption \\
+$\Gamma \vdash M : C \in \SNe$ \hfill by assumption \\
+$\Gamma \vdash M : C \in \SN$ \hfill by def. of $\SN$\\
+% $\Gamma \vdash M \hastype \base$ \hfill by assumption \\
 $\inden{\Gamma}{M}{\base}$ \hfill by def. of semantic typing 
 
 \paragraph{Case: $C = A \arrow B$}.\\
 Assume $\Gamma' \ext{\rho} \Gamma$ and $\inden{\Gamma'}{N}{A}$ \\
-$\Gamma' \vdash N \in \SN$ \hfill by IH (\CR \ref{cr1}) \\
-$\Gamma \vdash M \in \SNe$ \hfill by assumption \\
-$\Gamma' \vdash [\rho]M \in \SNe$ \hfill by Renaming Lemma \ref{lm:renameSN} \\
-$\Gamma' \vdash [\rho]M~N \in \SNe$ \hfill by def. of $\SNe$\\
+$\Gamma' \vdash N : A\in \SN$ \hfill by IH (\CR \ref{cr1}) \\
+$\Gamma \vdash M : A \arrow B \in \SNe$ \hfill by assumption \\
+$\Gamma' \vdash [\rho]M : A \arrow B \in \SNe$ \hfill by Renaming Lemma \ref{lm:renameSN} \\
+$\Gamma' \vdash [\rho]M~N : B \in \SNe$ \hfill by def. of $\SNe$\\
 $\inden{\Gamma'}{[\rho]M~N}{B}$ \hfill by IH (\CR \ref{cr2})\\
 $\inden{\Gamma}{M}{A \arrow B}$ \hfill since $\inden{\Gamma'}{N}{A}$ was arbitrary
 \\[1em]
-\fbox{\CR \ref{cr3}.   If $\Gamma \vdash M \redSN M'$ and $\inden{\Gamma}{M'}{C}$ then $\inden{\Gamma}{M}{C}$}
+\fbox{\CR \ref{cr3}.   If $\Gamma \vdash M \redSN M' : C$ and $\inden{\Gamma}{M'}{C}$ then $\inden{\Gamma}{M}{C}$}
 \\[0.5em]
 By induction on $C$.
 \paragraph{Case: $C = \base$}.\\[0.5em]
-$\Gamma \vdash M' \in \SN$  \hfill since $\inden{\Gamma}{M'}{\base}$\\
-$\Gamma \vdash M \in \SN$ \hfill by closure rule for $\SN$\\
+$\Gamma \vdash M' : \base \in \SN$  \hfill since $\inden{\Gamma}{M'}{\base}$\\
+$\Gamma \vdash M : \base \in \SN$ \hfill by closure rule for $\SN$\\
 $\inden{\Gamma}{M}{\base}$ \hfill by definition of semantic typing 
 
 \paragraph{Case: $C = A \arrow B$}.
 \\[0.5em]
 Assume $\Gamma' \ext{\rho} \Gamma$,~$\inden{\Gamma'}{N}{A}$ \\
 $\inden{\Gamma'}{M'[\rho]~N}{B}$ \hfill by assumption $\inden{\Gamma}{M'}{A \arrow B}$\\
-$\Gamma \vdash M \redSN M'$ \hfill by assumption \\
-$\Gamma' \vdash [\rho]M \redSN [\rho]M'$ \hfill by Renaming Lemma \ref{lm:renameSN}\\
-$\Gamma' \vdash [\rho]M~N \redSN [\rho]M'~N$ \hfill by $\redSN$\\
+$\Gamma \vdash M \redSN M' : A \arrow B$ \hfill by assumption \\
+$\Gamma' \vdash [\rho]M \redSN [\rho]M' : A \arrow B$ \hfill by Renaming Lemma \ref{lm:renameSN}\\
+$\Gamma' \vdash [\rho]M~N \redSN [\rho]M'~N : B$ \hfill by $\redSN$\\
 $\inden{\Gamma}{[\rho]M~N}{B}$ \hfill by IH (\CR\ref{cr3})\\
 $\inden{\Gamma}{M}{A \arrow B}$ \hfill since $\inden{\Gamma'}{N}{A}$ was arbitrary\\
 
@@ -1313,7 +1314,7 @@ $\inden{\Gamma}{M}{A \arrow B}$ \hfill since $\inden{\Gamma'}{N}{A}$ was arbitra
 As mentioned before, we prove that if a term is well-typed, then it is strongly normalizing in  two steps:
 
 \begin{description}
-\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M \in \SN$. 
+\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$. 
 \item[Step 2] If $\Gamma \vdash M : A$ and $\inden{\Gamma'}{\sigma}{\Gamma}$ then $\inden{\Gamma'}{[\sigma] M}{A}$.
 \end{description}
 
@@ -1358,7 +1359,7 @@ $\inden{\Gamma'}{[\sigma](\lambda x.M)}{A \arrow B}$ \hfill since $\Gamma'' \ext
 
 
 \begin{corollary}
-If $\Gamma \vdash M : A$ then $\Gamma \vdash M \in \SN$.  
+If $\Gamma \vdash M : A$ then $\Gamma \vdash M : A \in \SN$.  
 \end{corollary}
 
 \begin{proof}
