@@ -86,7 +86,6 @@
     "lem:SNsubst"
     "lm:pSN"
     "lm:pSN1"
-    "lm:pSN2"
     "csn1"
     "csn2"
     "thm:redcand"
