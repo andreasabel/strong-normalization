@@ -1444,12 +1444,13 @@ $\inden \Gamma M \one$ \hfill by def. of semantic interpretation of $\one$
  \CR 3: If $\Gamma \vdash M \redSN M' : A$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.  
 \end{theorem*}
 \begin{proof}
-Induction on $\redSN$.
+Induction on $A$.
 
-\paragraph{Case} $\ianc{\Gamma \vdash M : \one}{\Gamma \vdash M \redSN () : \one}{}$ 
+\paragraph{Case} $A = \one$ 
 \\[1em]
-$\Gamma \vdash () : \one \in \SN$ \hfill by def. of $\SN$\\
-$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\SN$ using $\Gamma \vdash M \redSN () : \one$
+$\Gamma \vdash M' : \one \in \SN$ \hfill by assumption $\inden{\Gamma}{M'}{\one}$ \\
+$\Gamma \vdash M \redSN M' : \one$ \hfill by assumption 
+$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\SN$ 
 
 \end{proof}
 

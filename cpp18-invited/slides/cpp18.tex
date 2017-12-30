@@ -5,6 +5,7 @@
 
 %% ----------------------------------------------
 %% Packages 
+\newcommand{\beluga}{\textsc{Beluga}}
 
 \usepackage{alltt}
 \usepackage{amsmath}
@@ -29,7 +30,11 @@
    \definecolor{myotherblue}{rgb}{0.5,0,0.5}
    \definecolor{dimgrey}{rgb}{0.8,0.8,0.8}
 
+\definecolor{dRed}{rgb}{0.65, 0.0, 0.0}
+\newcommand{\dRed}[1]{{\color{orange}#1}}
 
+\definecolor{dGreen}{rgb}{0.133, 0.56, 0.0}
+\newcommand{\mygreen}[1]{#1}
 
 \newcommand{\xmark}{\text{\ding{55}}}
 \newcommand{\emphFact}[1]{{\emph{#1}}}
@@ -381,8 +386,8 @@ type environments.'' [Aydemir et. al. 2005]
 
 
   \begin{itemize}
-  \item A good way to learn a useful and wide-spread proof technique
   \item Teach logical relations proofs a modern way 
+  \item A good way to learn a useful and wide-spread proof technique
   \item Deeper understanding of the mechanics behind the technique
   \item Understand the trade-offs in choosing a particular proof
     environment when tackling such a proof
@@ -520,7 +525,7 @@ Matthes
 \end{quote}
 \end{frame}
 
-\begin{frame}{An modular approach to strongly normalizing terms}
+\begin{frame}{A modular approach to strongly normalizing terms}
 
 Alternative approach ({\small{F. van Raamsdonk and P. Severi [1995] and R. Matthes and F. Joachimski [AML 2003]}})
   \begin{itemize}
@@ -538,7 +543,7 @@ type expressions
 
 \end{frame}
 
-\begin{frame}{Inductive definition of strongly normalizing terms}
+\begin{frame}{Inductive definition of well-typed strongly normalizing terms}
 \[
 \begin{array}{c}
 \multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
@@ -664,14 +669,86 @@ Renaming, Anti-renaming, Substitution properties for
 
 
 
-\section{Existing mechanization of normalization}
+\section{Towards solving the challenge problems}
+
+\begin{frame}
+  \frametitle{On the way}
+  
+  \begin{itemize}
+  \item Coq mechanization using Autosubst
+\\ -- add pictures of people involved
+
+  \item Abella\\
+-- add pictures of people involved
+
+  \item Agda using well-scoped de Bruijn indices
+\\ -- add pictures of people involved
+
+\item \beluga
+  \end{itemize}
+\end{frame}
+
+
+%----------------------------------------------------------------------------
+\begin{frame}[fragile]\frametitle {\beluga: Programming and Proof Environment}
+%-------------------------------------------------
+
+
+
+\begin{center}     
+\includegraphics[width=10cm,height=5cm, clip=true]{pics/eisberg.jpg}\\
+\begin{scriptsize}
+\begin{picture}(0,0)(200,60)
+       \put(185,165){\dRed{Main Proof}}
+%       \put(185,155){Beweis}
+       \put(190,103){\rotatebox{15}{Eigenvariables}}
+       \put(180,130){\rotatebox{-5}{Hypothesis}}
+       \put(242,120){\rotatebox{-5}{\mygreen{Context}}}
+       \put(230,127){\rotatebox{5}{Variables}}
+       \put(170,140){\rotatebox{0}{Renaming}}
+       \put(202,90){\rotatebox{25}{\mygreen{Derivation Tree}}}
+       \put(180,115){\rotatebox{5}{\mygreen{Substitution}}}
+       \put(220,140){\rotatebox{5}{Scope}}
+       \put(250,140){\rotatebox{-5}{Binding}}
+       \put(68,120){\mygreen{Contextual }}
+       \put(68,110){Logical Framework LF}
+%       \put(68,110){\mygreen{[TOCL'08,POPL'08,LFMTP'13,...]}}
+%        \put(68,180){\dRed{Functional}}
+       \put(68,184){\dRed{Functional Programs with}}
+       \put(68,174){\dRed{Indexed (Co)data Types}}
+%       \put(68,164){\dRed{[POPL'08,POPL'12,}}
+%       \put(68,154){\dRed{POPL'13,ICFP'16]}}
+\end{picture}  
+\end{scriptsize}
+\end{center}
+\vspace{-1cm}
+
+
+% \beluga: Abh{\"a}ngig getypte Programmiersprache und Beweiseumgebung
+\begin{small}
+\begin{itemize}
+\item Below the surface: \footnotesize{Support for key concepts based on Contextual
+  LF}
+{\footnotesize{[TOCL'08,POPL'08,LFMTP'13, ESOP'17, $\ldots$]}}
+\item Above the surface: \footnotesize{(Co)Inductive Proofs
+    \\\hspace{2cm}~~as (Co)Recursive Programs
+  using (Co)pattern Matching} \\% with built-in index language of  Contextual LF objects\\
+{\footnotesize{[POPL'08,IJCAR'10, POPL'12,POPL'13,CADE'15,ICFP'16, $\ldots$]}}
+\end{itemize} 
+\end{small}
+
+
+\end{frame}
 
 
 \begin{frame}
-  \frametitle{Beluga}
+  \frametitle{A Quick Guided Tour}
   
+Demo
 
 \end{frame}
+
+
 
 \begin{frame}\frametitle{A confession ...}
   
@@ -690,6 +767,35 @@ A confession
 Thanks, Aliya.
 
 \end{frame}
+
+
+\begin{frame}
+  \frametitle{Lessons learned -- The Good}
+Elegant.
+  \begin{itemize}
+  \item HOAS is great!
+  \item Built-in support for simultaneous substitutions and renamings
+    is great!
+  \item Take advantage of dependent types to model intrinsically typed
+    terms, typed-reductions, typed $\SN$, etc.
+  \item Modular, scales
+  \item Compact
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Lessons learned -- The Bad and Ugly}
+  \begin{itemize}
+  \item How to pattern matching on renamings $[\rho]M$?
+  \item Interactive Mode to develop proofs needs work
+  \item Termination checker not powerful enough
+  \item 
+  \end{itemize}
+
+Confession: we are missing implementation or anti-renaming lemmas ...
+\end{frame}
+
+
 
 \begin{frame}
   \frametitle{Extensions}
@@ -713,20 +819,6 @@ Thanks, Aliya.
 \end{frame}
 
 
-\begin{frame}
-  \frametitle{On the way}
-  
-  \begin{itemize}
-  \item Coq mechanization using Autosubst
-\\ -- add pictures of people involved
-
-  \item Abella\\
--- add pictures of people involved
-
-  \item Agda using well-scoped de Bruijn indices
-\\ -- add pictures of people involved
-  \end{itemize}
-\end{frame}
 
 % \begin{frame}\frametitle{Question 2}%-------------------------------------------------
 % \vspace{4em}
@@ -746,7 +838,7 @@ Thanks, Aliya.
 
 % \end{frame}
 
-\section{Isn't proving strong normalization an old hat?}
+\section{Isn't proving strong normalization in a proof assistant an old hat?}
 
 \begin{frame}\frametitle{Witness 1: Lego [Altenkirch'93]}
 
