@@ -35,6 +35,8 @@
 
 \definecolor{dGreen}{rgb}{0.133, 0.56, 0.0}
 \newcommand{\mygreen}[1]{#1}
+%\newcommand{\dim}[1]{{\color{dimgrey}{#1}}}
+
 
 \newcommand{\xmark}{\text{\ding{55}}}
 \newcommand{\emphFact}[1]{{\emph{#1}}}
@@ -42,6 +44,7 @@
 \usepackage{../../sn-proof/cdsty}
 \include{macro}
 
+\newcommand{\unit}{\textsf{unit}}
 \newcommand{\red}{\longrightarrow}
 \newcommand{\base}{\textsf{i}}
 
@@ -53,9 +56,18 @@
 
 \title{POPLMark Reloaded: \newline Mechanizing Logical Relations Proofs}
 % \date{\today}
-\date{}
-\author{Brigitte Pientka}
-\institute{McGill University}
+
+\author{Brigitte Pientka\\[1em]McGill University }
+\institute{\quad\\[4em] Joint work with A. Abel
+  (Chalmers), A. Hameer (McGill), A. Momigliano (Milan),
+  S. Sch{\"a}fer (Saarbr{\"u}cken), K. Stark (Saarbr{\"u}cken)}
+
+
+\date{\begin{picture}(0.0,0.0)
+%  \put(-35,145){\includegraphics[width=25mm]{mcgill-letterhead-logo}}
+%  \put(-35,128){\includegraphics[width=25mm]{mcgill-letterhead-logo}}
+ \put(+180,0){\includegraphics[width=3.5cm,clip=true]{pics/large-beluga-black-white-copy.png}}
+\end{picture}}
 
 \begin{document}
   \maketitle
@@ -70,7 +82,7 @@
 
 
 
-\begin{frame}\frametitle{Programs go wrong - case in point}
+\begin{frame}\frametitle{Programs go wrong.}
 \pause
 \vspace{-3.5cm}
 Testing correctness of C Compilers {\small{[Le et.al  PLDI'14]}}:
@@ -167,12 +179,57 @@ Correct proofs are tricky to write
 
 
 \end{frame}
+\section{What are good high-level proof languages that make it easier to mechanize and maintain formal guarantees?}
+
+% \begin{frame}[fragile]\frametitle{Question}%-------------------------------------------------
+
+
+% %  \emphFact{{\Large{Question:}}
+% % \color{dGreen}
+%   \begin{Large}
+%   \begin{center}
+%     \begin{tabular}{p{11cm}}
+%     Can we develop very high-level proof languages that make it
+%      easier to develop and maintain formal guarantees by providing the
+%       right primitives and abstractions  to bring down the cost of verification?
+% %       What are good meta-languages to program and reason with formal
+% %       systems and proofs?
+% \\[2em]
+%     \end{tabular}
+%  %    \begin{enumerate}
+%  %    \item[1)] What are good meta-languages to   
+%  % program and reason with formal systems and proofs? \\[0.5em]
+%  %    \item[2)] How can we integrate formal systems and proofs tightly in
+%  %          existing programming languages?   
+%  %    \end{enumerate}
+%   \end{center}
+%   \end{Large}
+
+
+%  \begin{small}
+%    \begin{tabular}{p{11cm}}
+%  {\textit{     
+%  ``The motivation behind the work in very-high-level languages is to
+%  ease the programming task by providing the programmer with a
+%  language containing primitives or abstractions suitable to his problem
+%  area. The programmer is then able to spend his effort in the right
+%  place; he concentrates on solving his problem, and the resulting
+%  program will be more reliable as a result. Clearly, this is a
+%  worthwhile goal.'' \hfill B. Liskov [1974]
+%  }}
+%    \end{tabular}
+
+%  \end{small}
+
+ %\end{frame}
+
 
 
   \section{POPLMark -- A Look Back ...}
 
 %----------------------------------------------------------------------------
-\begin{frame}\frametitle{POPLMark Challenge: Mechanize System F$_<$ [2005]}%-------------------------------------------------
+\begin{frame}\frametitle{POPLMark Challenge: Mechanize System F$_<$ \\
+{\small{[Ayedemir, ... 2005]}}}%-------------------------------------------------
 
 
  Spotlight on
@@ -246,14 +303,14 @@ Correct proofs are tricky to write
 
 %----------------------------------------------------------------------------
 \begin{frame}\frametitle{POPLMark Challenge -- The Ugly}%-------------------------------------------------
-\vspace{-3cm}
+\vspace{-1.5cm}
   \begin{minipage}{9cm}
 \begin{itemize}
 \item[\xmark] Did not identify bugs or flaws in existing systems
 \item[\xmark] Did not inspired the development of new theoretical
   foundations
 \item[\xmark] Did not push existing systems to their limit
-\\[0.5em]
+\\[4.5em]
 \begin{tabular}{p{7.5cm}}
   \emph{   ``Type soundness results are two a penny.''}\\\quad \hfill Andrew Pitts
 \end{tabular}
@@ -389,10 +446,11 @@ type environments.'' [Aydemir et. al. 2005]
   \item Teach logical relations proofs a modern way 
   \item A good way to learn a useful and wide-spread proof technique
   \item Deeper understanding of the mechanics behind the technique
+  \item Be able to grow the development to rich type theories \\
+    (for example dependently typed systems)
   \item Understand the trade-offs in choosing a particular proof
     environment when tackling such a proof
-  \item Be able to grow the development to rich type theories \\
-(ultimate goal: normalization of dependently typed systems)
+
 %  \item Understand how the technique scales
   \end{itemize}
 
@@ -408,9 +466,9 @@ type environments.'' [Aydemir et. al. 2005]
 \begin{itemize}
 \item Highlight features that are ideally suited for built-in support
 \item Highlight current shortcomings (theoretical and practical) in existing proof environments
-\item Benchmark for evaluating and comparing systems
 \item Signpost to advertise a given system
 \item Stimulate research on foundations of proof environments
+\item Benchmark for evaluating and comparing systems
 \end{itemize}
 
 
@@ -447,29 +505,33 @@ Simply Typed $\lambda$-calculus:
   
 \[
 \begin{array}{llcl}
-\mbox{Terms}  & M,N & \bnfas & x \mid \lambda x{:A}. M \mid M\;N \\
-\mbox{Types} & A, B & \bnfas & \base \mid A \arrow B
+\mbox{Terms}  & M,N & \bnfas & x \mid \lambda x{:}A. M \mid M\;N \mid ()\\
+\mbox{Types} & A, B & \bnfas & \base \mid A \arrow B \mid \textsf{unit}
 \end{array}
 \]
 
 \pause 
-Type-directed reductions [Goguen'95]:
+Type-directed reductions [Goguen'95]: \fbox{$\Gamma \vdash M \red N :
+  A$} % : Term $M$ reduces to $N$ at type $A$
+\begin{small}
 \[
 \begin{array}{c}
 \infer[\beta]{\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }
-    {\Gamma \vdash \lambda x{:}A.M : A \arrow B & \Gamma \vdash  N : A}
+    {\color{dimgrey}\Gamma \vdash \lambda x{:}A.M : A \arrow B & \color{dimgrey}\Gamma \vdash  N : A}
 \qquad
+\color{orange}{\infer{\Gamma \vdash M \red () : \textsf{unit}}{M \not = ()}}
 %\infer[\eta]{\Gamma \vdash M \red \lambda x{:}A.M~x : A \arrow B}{
 % M \not= \lambda y{:}A.M'}
 \\[1em]
-\infer{\Gamma \vdash M\,N \red M'\,N : B}{\Gamma \vdash M \red M' : A \arrow B & \Gamma \vdash N : A} 
+\infer{\Gamma \vdash M\,N \red M'\,N : B}{\Gamma \vdash M \red M' : A \arrow B & \color{dimgrey}{\Gamma \vdash N : A}} 
 \qquad
-\infer{\Gamma \vdash M\,N \red M\,N' : B}{\Gamma \vdash M : A \arrow B & \Gamma \vdash N \red N' : A} 
+\infer{\Gamma \vdash M\,N \red M\,N' : B}{\color{dimgrey}{\Gamma \vdash M : A \arrow B} & \Gamma \vdash N \red N' : A} 
 \\[1em]
 \infer{\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M' : A \arrow B}{\Gamma, x{:}A \vdash M \red M' : B}
 \end{array}
 \]
-
+  
+\end{small}
 
 \end{frame}
 
@@ -477,19 +539,16 @@ Type-directed reductions [Goguen'95]:
 
 
   \begin{itemize}
-  \item Allows us to give a concise presentation of the important
-    issues that arise.
-\item Typed operational semantics simplifies the study of its
-  meta-theory.
+\item Simplifies the study of its meta-theory.
+  \item Concise presentation of the important issues that arise.
 \item Widely applicable in studying subtyping, type-preserving
   compilation, etc.
-\item Types are necessary if we want to allow $\eta$-expansion or
-  $\textsf{unit}$ types. 
+\item Types are necessary if we want $\eta$-expansion.% or $\textsf{unit}$ types. 
 
 
 \[
   \begin{array}{l}
-\infer{\Gamma \vdash M \red () : \textsf{unit}}{M \not = ()}  \quad
+
 \infer{\Gamma \vdash M \red \lambda x{:}A.M~x : A \arrow B}{M \not= \lambda y{:}A.M'}
   \end{array}
 \]
@@ -501,37 +560,54 @@ Type-directed reductions [Goguen'95]:
 \end{frame}
 
 
-\begin{frame}{Setting the Stage: How to define strong normalization?}
+\begin{frame}
+  \frametitle{Normalization}
+  
+  \begin{itemize}
+  \item A term $M$ is said to be \emph{weakly normalising} if there is a
+    rewrite sequence starting in $M$ that eventually ends in a  normal
+    form
+
+  \item A term $M$ is said to be \emph{strongly normalising} if all rewrite sequences starting in $M$ end eventually in a  normal form.
+
+  \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}\frametitle{Setting the Stage: How to define strong normalization?}
 
 Often defined as an accessibility relation:
 
-\[
-\infer[]{\csn \Gamma M}{\forall M'.~\Gamma\vdash M\Steps M' \Longrightarrow \csn \Gamma {M'}}
-\]
-\vspace{1ex}
-% \begin{itemize}
-% \item Reason about reduction sequences and about positions of terms
-% \end{itemize}
+ \[
+   \begin{array}{c}
+ \infer[]{\csn{\Gamma} {M : A}}{\forall M'.~\Gamma\vdash M \red N : A  \Longrightarrow \csn{\Gamma} {N : A}}     
+   \end{array}
+ \]
+ \vspace{1ex}
+% % \begin{itemize}
+% % \item Reason about reduction sequences and about positions of terms
+% % \end{itemize}
 
-\begin{quote}
-``the reduct analysis becomes increasingly annoying in normalization
-proofs for more and more complex systems.'' \hfill Joachimski and
-Matthes  
-\end{quote}
+ \begin{quote}
+ ``the reduct analysis becomes increasingly annoying in normalization
+ proofs for more and more complex systems.'' \hfill Joachimski and Matthes [2003]
+ \end{quote}
 
-
-\begin{quote}
-
-\end{quote}
 \end{frame}
 
-\begin{frame}{A modular approach to strongly normalizing terms}
 
-Alternative approach ({\small{F. van Raamsdonk and P. Severi [1995] and R. Matthes and F. Joachimski [AML 2003]}})
+
+\begin{frame}\frametitle{A modular approach to strongly normalizing
+    terms \newline {\small{[F. van
+  Raamsdonk and P. Severi 1995]}}}
+
+% Pioneered by {\small{F. van Raamsdonk and P. Severi [1995]}}
+%  R. Matthes and F. Joachimski [AML 2003]}})
   \begin{itemize}
-  \item Inductive characterization of normal forms ($\sn \Gamma M$)
-  \item Normalization proof is by induction on normal forms and
-type expressions
+  \item Inductive characterization of normal forms ($\Gamma \vdash M : A \in \SN$)
+%  \item Normalization proof is by induction on normal forms and
+% type expressions
   \item Leads to modular proofs -- on paper and in mechanizations
 %  \item Show: $\csn \Gamma M$ iff $\Gamma \vdash M \in \SN$.
   \end{itemize}
@@ -544,44 +620,48 @@ type expressions
 \end{frame}
 
 \begin{frame}{Inductive definition of well-typed strongly normalizing terms}
+\begin{small}
+
 \[
 \begin{array}{c}
 \multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
-\ianc{x{:}A \in \Gamma}{\Gamma \vdash x \in \SNe}{} \qquad  
-\ibnc{\Gamma \vdash R \in \SNe}{\Gamma \vdash M \in \SN}{\Gamma \vdash R\,M \in \SNe}{} 
+\ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{} \quad  
+\ianc{\Gamma \vdash R : A \arrow B \in \SNe \quad \Gamma \vdash M : A \in \SN}{\Gamma \vdash R\,M : B \in \SNe}{} 
 \\[1em]
 \multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
-\ianc{\Gamma \vdash R \in \SNe}{\Gamma \vdash R \in \SN}{} \qquad 
-\ianc{\Gamma, x{:}A \vdash M \in \SN}{\Gamma \vdash \lambda x{:}A.M \in \SN}{} \qquad
-\ibnc{\Gamma \vdash M \redSN M'}{\Gamma \vdash M' \in \SN}{\Gamma \vdash M \in \SN}{} 
+\ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{} \qquad 
+\ianc{\Gamma, x{:}A \vdash M : A \arrow B \in \SN}{\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \SN}{} \\[1em]
+\ibnc{\Gamma \vdash M \redSN M' : A}{\Gamma \vdash M' : A \in \SN}{\Gamma \vdash M : A \in \SN}{} 
 \\[1em]
 \multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
-\ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M}{} \qquad
-\ianc{\Gamma \vdash R \redSN R'}{\Gamma \vdash R\,M \redSN R'\,M}{}
+\ianc{\Gamma \vdash N : A \in \SN \quad \color{dimgrey}\Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{} \quad
+\ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \color{dimgrey}\Gamma \vdash M : A}{\Gamma \vdash R\,M \redSN R'\,M}{}
 \end{array}
 \]
 
+\end{small}
 \end{frame}
 
 \section{Challenge 1: Equivalence between accessibility and inductive
-  definition of strongly normalizing terms:\newline \newline $\csn \Gamma M$ iff $\Gamma \vdash M \in \SN$.}
+  definition of strongly normalizing terms:\newline \newline $\csn
+  \Gamma {M : A}$ iff $\Gamma \vdash M : A \in \SN$.}
 
 
-\begin{frame}
-  \frametitle{Challenges in the proof}
-  \begin{itemize}
-  \item Richer induction principles needed than just structural  induction based on sub-derivations
-  \item Model and work with well-scoped and well-typed terms 
-  \item Basic infrastructure
-    \begin{itemize}
-    \item[-] Weakening and Strengthening of type-directed reductions
-    \item[-] Weakening and Exchange strongly normalizing terms ($\csn \Gamma  M$)
-    \end{itemize}
+% \begin{frame}
+%   \frametitle{Challenges in the proof}
+%   \begin{itemize}
+%   \item Richer induction principles needed than just structural  induction based on sub-derivations
+%   \item Model and work with well-scoped and well-typed terms 
+%   \item Basic infrastructure
+%     \begin{itemize}
+%     \item[-] Weakening and Strengthening of type-directed reductions
+%     \item[-] Weakening and Exchange strongly normalizing terms ($\csn \Gamma  M$)
+%     \end{itemize}
 
-  \item Reason about different shapes of terms (neutral, reded in head
-    position, etc.)
-  \end{itemize}
-\end{frame}
+%   \item Reason about different shapes of terms (neutral, reded in head
+%     position, etc.)
+%   \end{itemize}
+% \end{frame}
 
 
 \begin{frame}{Strong normalization using logical relations}
@@ -595,17 +675,19 @@ type expressions
 \pause
 % \alt<2>{
 \begin{definition}
- [Reducibility Candidates: $\rcs \Gamma M B$]
+ [Reducibility Candidates: $\rcs \Gamma M A$]
 \mbox{}
 \begin{tabular}{l@{~}c@{~}lll}
-  $\Gamma \vdash M$ & $\in$ & $\R_B$ & iff & $\Gamma\vdash M\hastype B$
-                                          and $\sn \Gamma M$\\
-  $\Gamma \vdash M$ & $\in$ & $\R_{T\arrow S}$ & iff &
-$ \Gamma\vdash M\hastype {T\arrow S}$ and  \\
+  $\Gamma \vdash M$ & $\in$ & $\R_{\base}$ & iff & % B = \{\base, \textsf{unit}\} and % $\Gamma\vdash M\hastype \base $ and 
+                                               $\Gamma \vdash M : \base \in \SN $\\
+  $\Gamma \vdash M$ & $\in$ & $\R_{\unit}$ & iff & % B = \{\base, \textsf{unit}\} and % $\Gamma\vdash M\hastype \base $ and 
+                                               $\Gamma \vdash M : \unit \in \SN $\\
+  $\Gamma \vdash M$ & $\in$ & $\R_{A\arrow B}$ & iff &
+$ \Gamma\vdash M\hastype {A\arrow B}$ and  \\
   & & & & for all $N,\Delta$ such that
   $\Gamma \leq_\rho \Delta$,  \\
-  & & & & ~~~~~~if $\rcs \Delta N {T}$ then
-  $\rcs \Delta {([\rho]M) \app N} {S}$.
+  & & & & ~~~~~~if $\rcs \Delta N {A}$ then
+  $\rcs \Delta {([\rho]M) \app N} {B}$.
 
 \end{tabular}
 % \begin{itemize}
@@ -618,8 +700,8 @@ $ \Gamma\vdash M\hastype {T\arrow S}$ and  \\
 \end{definition}
 \vspace{1ex}
 \begin{itemize}
-\item Contexts arise naturally when we want to state properties about
-  well-typed terms and we want to be precise.
+\item Contexts arise naturally % when we want to state properties about
+%   well-typed terms and we want to be precise.
 \item They are necessary! 
 \item The definition scales to dependently typed setting and stating
   properties about type-directed equivalence of lambda-terms.
@@ -639,27 +721,32 @@ $ \Gamma\vdash M\hastype {T\arrow S}$ and  \\
 
 \section{Challenge 2: Strong normalization  for simply typed
   $\lambda$-calculus \newline \newline
-Main fundamental lemma: \newline If $\Gamma \vdash M : A$ and $\Gamma \leq_\rho
-\Gamma'$ then $\Gamma' \vdash [\rho]M \in \R_A$. 
+Main fundamental lemma: \newline If $\Gamma \vdash M : A$ and $\Gamma \vdash \sigma \in \R_{\Gamma'}$ then $\Gamma' \vdash [\sigma]M \in \R_A$. 
 }
 
 
 \begin{frame}
-  \frametitle{Challenges in the proof}
+  \frametitle{Challenges in the proof(s)}
 \begin{itemize}
-  \item Stratified definitions for reducibility candidates (not
+  \item Definitions use well-typed terms 
+  \item Stratified definitions for reducibility candidates \\(not
     strictly positive!)
-  \item Model and work with well-scoped and well-typed terms 
+  \item Simultaneous substitutions and renamings 
+
 % (comparison between different approaches 
 % well-scoped de Bruijn, libraries, contextual types, nominal, 
   \item Basic infrastructure
-%    \begin{itemize}
-%    \item[-] Weakening and Strengthening of type-directed reductions
-%    \item[-] Weakening and Exchange strongly normalizing terms (
-% $\csn \Gamma  M$)
-Renaming, Anti-renaming, Substitution properties for
+    \begin{itemize}
+    \item[-] Substitution properties about terms
+    \item[-] Weakening and Strengthening of type-directed reductions
+    \item[-] Weakening, Exchange, and Strengthening for typing
+    \item[-] Weakening and Exchange strongly normalizing terms 
+    \item[-] Renaming, Anti-renaming, Substitution properties for
       strongly normalizing terms 
 %    \end{itemize}
+    \end{itemize}
+  \item Induction principles \\
+(not necessarily on direct sub-derivation)
 \end{itemize}
 %  \item Comparison and trade-offs when modelling well-scoped and
 %    well-typed terms
@@ -797,26 +884,26 @@ Confession: we are missing implementation or anti-renaming lemmas ...
 
 
 
-\begin{frame}
-  \frametitle{Extensions}
-  \begin{itemize}
-  \item Unit Type 
+% \begin{frame}
+%   \frametitle{Extensions}
+%   \begin{itemize}
+%   \item Unit Type 
 
-\[
-  \begin{array}{l}
-\infer{\Gamma \vdash M \red () : \textsf{unit}}{M \not = ()}  \quad
-% \infer{\Gamma \vdash M \red \lambda x{:}A.M~x : A \arrow B}{M \not= \lambda y{:}A.M'}
-  \end{array}
-\]
+% \[
+%   \begin{array}{l}
+% \infer{\Gamma \vdash M \red () : \textsf{unit}}{M \not = ()}  \quad
+% % \infer{\Gamma \vdash M \red \lambda x{:}A.M~x : A \arrow B}{M \not= \lambda y{:}A.M'}
+%   \end{array}
+% \]
 
-  \item Disjoint Sums\\
-    (requires closure)
+%   \item Disjoint Sums\\
+%     (requires closure)
 
-  \item Recursion (G{\"o}del's system T)
+%   \item Recursion (G{\"o}del's system T)
 
-  \end{itemize}
+%   \end{itemize}
 
-\end{frame}
+% \end{frame}
 
 
 
@@ -840,83 +927,86 @@ Confession: we are missing implementation or anti-renaming lemmas ...
 
 \section{Isn't proving strong normalization in a proof assistant an old hat?}
 
-\begin{frame}\frametitle{Witness 1: Lego [Altenkirch'93]}
+\begin{frame}\frametitle{Just following Girard's ``Proofs and Types''}
 
-$\ldots$ ``following Girard's Proofs and Types''
-\\[1em]
+% $\ldots$ ``following Girard's Proofs and Types''
+% \\[1em]
 Characteristic Features:
   \begin{itemize}
     \item Terms are not well-scoped or well-typed
     \item Candidate relation is untyped and does not enforce
       well-scoped terms
-$\Longrightarrow$ does not scale to typed-directed evaluation or equivalence\\
-$\Longrightarrow$ maybe better techniques to modularize and structure proof
   \end{itemize}
 
+
+$\Longrightarrow$ does not scale to typed-directed evaluation or equivalence\\
+$\Longrightarrow$ today we have better techniques to structure proof
+
+
 \end{frame}
 
+% Lego'93 Altenkirch
 
-
-\begin{frame}\frametitle{Witness 2: Abella, ATS/HOAS}\relax%-------------------------------------------------
+% \begin{frame}\frametitle{Witness 2: Abella, ATS/HOAS}\relax%-------------------------------------------------
+% % \pause
+% $\ldots$ ``following Girard's Proofs and Types''
 % \pause
-$\ldots$ ``following Girard's Proofs and Types''
-\pause
 
-\begin{itemize}
-% \item Lego [T. Altenkirch'93]: Untyped candidate relation
-% - terms are not well-scoped
-% - types are are well-scoped
-% - Candidate relation is untyped; works on not well-scoped terms;
-%   that's why you don't need Kripke-style
-%
-\item Strictly speaking:% \emph{SN for simply-typed $\lambda$-calculus plus constants.}
-\begin{center}
-\begin{tabular}{p{10cm}}
-\emph{SN for simply-typed $\lambda$-calculus plus one constant.}
-\end{tabular}
-\end{center}
+% \begin{itemize}
+% % \item Lego [T. Altenkirch'93]: Untyped candidate relation
+% % - terms are not well-scoped
+% % - types are are well-scoped
+% % - Candidate relation is untyped; works on not well-scoped terms;
+% %   that's why you don't need Kripke-style
+% %
+% \item Strictly speaking:% \emph{SN for simply-typed $\lambda$-calculus plus constants.}
+% \begin{center}
+% \begin{tabular}{p{10cm}}
+% \emph{SN for simply-typed $\lambda$-calculus plus one constant.}
+% \end{tabular}
+% \end{center}
 
-\item Adding a constant significantly simplifies the proof
-\item Reducibility of terms only defined on closed terms
-\\[1ex]
-\item Strictly speaking:
-\begin{center}
-\begin{tabular}{p{10cm}}
-\emph{Show that SN for simply-typed $\lambda$-calculus plus one
-  constant implies also SN for open simply-typed $\lambda$-terms}
-\end{tabular}
-\end{center}
-\end{itemize}
+% \item Adding a constant significantly simplifies the proof
+% \item Reducibility of terms only defined on closed terms
+% \\[1ex]
+% \item Strictly speaking:
+% \begin{center}
+% \begin{tabular}{p{10cm}}
+% \emph{Show that SN for simply-typed $\lambda$-calculus plus one
+%   constant implies also SN for open simply-typed $\lambda$-terms}
+% \end{tabular}
+% \end{center}
+% \end{itemize}
 
-\end{frame}
+% \end{frame}
 
 
-\begin{frame}
-  \frametitle{More Witnesses $\ldots$}
+% \begin{frame}
+%   \frametitle{More Witnesses $\ldots$}
 
-  \begin{itemize}
-  \item Berghofer : Program extraction from a proof of weak
-    normalization using Isabelle [2004]
-\\
-$\Longrightarrow$ Uses de Bruijn encoding (not well-scoped or
-well-typed)\\
-% $\Longrightarrow$ Uses de Bruijn encoding (not well-scoped or well-typed)\\
-$\Longrightarrow$ ``Compact'' mechanization (800 lines)
-\\[1em]
-\pause
-\item Berger et al. [TLCA'93]: Extraction of a normalization by
-  evaluation using strong evaluation in Minlog\\
-$\Longrightarrow$ Uses well-scoped de Bruijn encoding \\% (not
-                                % well-scoped or well-typed)
-$\Longrightarrow$ Domain theoretic semantics
-\\[1em]
-\pause
-\item Doczkal, Schwinghammer [LFMTP'09]:
-Mechanization of Strong Normalization Proof for Moggi’s Computational
-Metalanguage in Isabelle/Nominal\\
-$\Longrightarrow$ Use of nominals avoids Kripke-style formulation
-\end{itemize}
-\end{frame}
+%   \begin{itemize}
+%   \item Berghofer : Program extraction from a proof of weak
+%     normalization using Isabelle [2004]
+% \\
+% $\Longrightarrow$ Uses de Bruijn encoding (not well-scoped or
+% well-typed)\\
+% % $\Longrightarrow$ Uses de Bruijn encoding (not well-scoped or well-typed)\\
+% $\Longrightarrow$ ``Compact'' mechanization (800 lines)
+% \\[1em]
+% \pause
+% \item Berger et al. [TLCA'93]: Extraction of a normalization by
+%   evaluation using strong evaluation in Minlog\\
+% $\Longrightarrow$ Uses well-scoped de Bruijn encoding \\% (not
+%                                 % well-scoped or well-typed)
+% $\Longrightarrow$ Domain theoretic semantics
+% \\[1em]
+% \pause
+% \item Doczkal, Schwinghammer [LFMTP'09]:
+% Mechanization of Strong Normalization Proof for Moggi’s Computational
+% Metalanguage in Isabelle/Nominal\\
+% $\Longrightarrow$ Use of nominals avoids Kripke-style formulation
+% \end{itemize}
+% \end{frame}
 
 
 \section{Beyond strong normalization ...}
@@ -925,13 +1015,13 @@ $\Longrightarrow$ Use of nominals avoids Kripke-style formulation
 \begin{frame}
   \frametitle{Additional Challenge Problems}
   \begin{itemize}
-  \item Adding $\eta$-expansion
+  \item Weak normalization \\
+  (good starting point)
 
   \item Type-directed algorithmic equality\\
 (done in Beluga)
 
-  \item Weak normalization \\
-  (good starting point)
+  \item Adding $\eta$-expansion
 
   \item Normalization of System F \\
    (excellent suggestion -- currently beyond what Beluga can do)
