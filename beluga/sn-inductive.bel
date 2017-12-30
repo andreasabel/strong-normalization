@@ -45,11 +45,55 @@ and inductive SNRed : (g : cxt) {M : [g |- tm A[]]} {M' : [g |- tm A[]]} ctype =
 %{
 Lemma 3.6: Anti-Renaming
 }%
+inductive Eq : (g : cxt)[g |- tm A[]] -> [g |- tm A[]] -> ctype = 
+Refl : Eq [g |- M] [g |- M];
 
 inductive SNRed' : (g : cxt)(g' : cxt) {M : [g |- tm A[]]} {M' : [g' |- tm A[]]} ctype = 
 | SNRed' : {g' : cxt}{g : cxt}{#R:[g' |- g]}{N:[g |- tm A[]]}
            SNRed [g |- M] [g |- N]  
-        -> SNRed' [g |- M] [g' |- N[#R]] ;
+        -> Eq [g' |- N']  [g' |- N[#R]]
+        -> SNRed' [g |- M] [g' |- N'] ;
+
+rec anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNe [g' |- M[#R]] -> SNe [g |- M]  =
+%        / total s (anti_renameSNe g g' a r m s) / 
+? 
+
+and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N'] -> SNRed' [g |- M] [g' |- N'] =
+%   / total s (anti_renameSNRed g g' a r m s) / 
+? 
+
+
+
+and anti_renameSN   : {h : cxt}{h' : cxt} {#R : [h' |-# h]}{M : [h |- tm A[]]} SN [h' |- M[#R]] -> SN [h |- M]  =
+%     / total s (anti_renameSN h h' a r m s) / 
+mlam h, h', #R, M => fn s => case [h |- M] of 
+| [h |- abs A[] \x.M] =>  
+  (case s of % coverage fails -- this is due to the fact that we must unify SN [h' |- M[#R]] with type of constructors defining SN.
+  | SAbs s' =>  SAbs (anti_renameSN [h, x:tm _] [h', x:tm A[] ] [h', x:tm A[] |- #R[..], x] [h, x:tm A[] |- M] s')
+  | SNeu s' => impossible s'
+  | SRed r s' => impossible r
+  )
+
+ | [h |- app M N] =>  
+   % -- need to extend pattern matching to properly handle renamings
+   (case s of 
+   | SNeu s' => SNeu (anti_renameSNe [_ |- #R] [h |- app M N] s')
+   | SRed r' s' => 
+      let sr = anti_renameSNRed [_] [_] [h' |- #R] [_ |- _ ] r' in ? 
+%{     let SNRed' [h'] [h] [h' |- #R] [h |- _ ] r = anti_renameSNRed [_] [_] [h' |- #R] [_ |- _ ] r' in
+     ? % SRed  ? % (anti_renameSNRed [h] [h'] [h' |- #R] [h |- app M N] r)
+                   %      ? % (anti_renameSN [_] [_] [_ |- #R] [h |- _] s')
+}%
+     )
+
+
+ | [h |- #p] => SNeu (SVar [h |- #p])
+
+
+
+;
+
+%{
 
 rec anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNe [g' |- M[#R]] -> SNe [g |- M]  =
         / total s (anti_renameSNe g g' a r m s) / 
@@ -62,33 +106,9 @@ and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} S
 
 
 and anti_renameSN   : {h : cxt}{h' : cxt} {#R : [h' |-# h]}{M : [h |- tm A[]]} SN [h' |- M[#R]] -> SN [h |- M]  =
-  %   / total s (anti_renameSN h h' a r m s) / 
-mlam h, h', #R, M => fn s => case [h |- M] of 
-| [h |- abs A[] \x.M] =>  
-  (case s of 
-  | SAbs s' =>  SAbs (anti_renameSN [h, x:tm _] [h', x:tm A[] ] [h', x:tm A[] |- #R[..], x] [h, x:tm A[] |- M] s')
-  | SNeu s' => impossible s'
-  | SRed r s' => impossible r
-  )
-
- | [h |- app M N] =>  
-% -- need to extend pattern matchinh to properly handle renaminhs
-   (case s of 
-   | SNeu s' => SNeu (anti_renameSNe [_ |- #R] [h |- app M N] s')
-   | SRed r' s' => 
-%     let SNRed' [h'] [h] [h' |- #R] [h |- _ ] r = anti_renameSNRed [_] [_] [h' |- #R] [_ |- _ ] r' in
-     ? % SRed  ? % (anti_renameSNRed [h] [h'] [h' |- #R] [h |- app M N] r)
-                   %      ? % (anti_renameSN [_] [_] [_ |- #R] [h |- _] s')
-     )
-
-
- | [h |- #p] => SNeu (SVar [h |- #p])
-
-
-
+     / total s (anti_renameSN h h' a r m s) / 
+? 
 ;
-
-%{
 %{
 Lemma 3.5: Renaming for SN
 }%

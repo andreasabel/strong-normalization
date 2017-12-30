@@ -438,27 +438,7 @@ rec thm : {g : cxt} {M : [g |- tm A[]]}
           (thm [g, x : tm A[]] [g, x : tm A[] |- M] (RCons r (renRedS [g'] [g' |- #S] s))))
   | [g |- app M N    ] =>  fundApp (thm [g] [g |- M] s) (thm [g] [g |- N] s)
   ;
-%}
 
 
 
-%% TRASH
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% ==> : tm A -> tm A -> type.
-% %infix ==> 1 none.
-
-% rbeta : (app (abs M) N) ==> (M N).
-%   % | rabs  : ({x : tm A} (M x) ==> (M' x)) -> (abs M) ==> (abs M')
-
-
-%% Issue #32
-% rec fundVar : {g : cxt} {#p : [g |- tm A[]]}
-%           RedS [g] [g' |- #S]
-%        -> Red [|- A] [g' |- #p[#S]] =
-%   mlam g, #p => fn s => case s of
-%     | RNil       => impossible [ |- #p ]
-%     | RCons r s' => case [g, x : tm _ |- #p] of
-%       | [g, x : tm A[] |- x     ] => r
-%       | [g, x : tm A[] |- #q[..]] => fundVar [g] [g |- #q] s'
-%   ;

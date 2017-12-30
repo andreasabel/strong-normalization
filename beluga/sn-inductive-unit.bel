@@ -67,15 +67,16 @@ and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} S
 
 
 and anti_renameSN   : {h : cxt}{h' : cxt} {#R : [h' |-# h]}{M : [h |- tm A[]]} SN [h' |- M[#R]] -> SN [h |- M]  =
-     / total s (anti_renameSN h h' a r m s) /  ?
-%{mlam h, h', #R, M => fn s => case [h |- M] of 
-| [h |- abs A[] \x.M] =>  
-  (case s of 
+     / total s (anti_renameSN h h' a r m s) /  
+mlam h, h', #R, M => fn s => case [h |- M] of 
+| [h |- unit] => SUnit
+| [h |- abs A[] \x.M] =>  ?
+%{  (case s of 
   | SAbs s' =>  SAbs (anti_renameSN [h, x:tm _] [h', x:tm A[] ] [h', x:tm A[] |- #R[..], x] [h, x:tm A[] |- M] s')
   | SNeu s' => impossible s'
   | SRed r s' => impossible r  
   )
-
+}%
  | [h |- app M N] =>  
 % -- need to extend pattern matching to properly handle renamings
    (case s of 
@@ -88,7 +89,7 @@ and anti_renameSN   : {h : cxt}{h' : cxt} {#R : [h' |-# h]}{M : [h |- tm A[]]} S
 
 
  | [h |- #p] => SNeu (SVar [h |- #p])
-}%
+
 
 
 ;
