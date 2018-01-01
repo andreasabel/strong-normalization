@@ -60,9 +60,7 @@ mlam #R, N => fn s => case s of
    let s' = anti_renameSN [_] [_] [_ |- #R] [_ |- _] s in 
     SApp r' s'
 
- and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N'] -> SNRed' [g' |- #R] [g |- M] [g' |- N'] =
-% and anti_renameSNRed: (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]}{N : [g |- tm A[]]} 
-%                      SNRed [g' |- M[#R]] [g' |- N[#R]] -> SNRed [g |- M] [g |- N] =
+and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N'] -> SNRed' [g' |- #R] [g |- M] [g' |- N'] =
 %   / total s (anti_renameSNRed g g' a r m s) / 
 mlam g, g', #R, M => fn r => case r of 
 | SBeta [_ |- _ ] s => 
@@ -87,13 +85,19 @@ mlam h, h', #R, M => fn s => case s of
      SRed r s''
 ;
 
+
+
 %{
+Lemma 3.6: Anti-Renaming
+
+Their signatures is repeated to get around the fact that the current coverage checker cannot verify coverage in the presence of renamings
+}%
 
 rec anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNe [g' |- M[#R]] -> SNe [g |- M]  =
         / total s (anti_renameSNe g g' a r m s) / 
 ? 
 
-and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N'] -> SNRed' [g |- M] [g' |- N'] =
+and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N'] -> SNRed' [g' |- #R] [g |- M] [g' |- N'] =
    / total s (anti_renameSNRed g g' a r m s) / 
 ? 
 
@@ -131,35 +135,6 @@ mlam #R, M => fn s => case s of
 | SAppl s' =>    SAppl (renameSNRed [_ |- #R] [_ |- _ ] s')
 ;
 
-
-%{
-Lemma 3.6: Anti-Renaming
-}%
-rec anti_renameSN   : {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} SN [g' |- M[#R]] -> SN [g |- M]  =
-    / total s (anti_renameSN g g' a r m s) / 
-mlam g, g', #R, M => fn s => case [g |- M] of 
-| [g |- abs A[] \x.M] => ? 
-%{  (case s of 
-  | SAbs s' => ?
-  | SNeu s' => impossible s'
-  | SRed r s' => impossible r
-  )
-}%
- | [g |- app M N] => ? 
-%{ -- need to extend pattern matching to properly handle renamings
-   (case s of 
-   | SNeu s' => ?
-   | SRed r s' => ?
-  )
-}%
- | [g |- #p] => SNeu (SVar [g |- #p])
-
-
-and anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNe [g' |- M[#R]] -> SNe [g |- M]  =
-        / total s (anti_renameSNe g g' a r m s) / ? 
-
-and anti_renameSNRed: (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N[#R]] -> SNRed [g |- M] [g |- N] =         / total s (anti_renameSNRed g g' a r m s) / ? 
-;
 
 %{
 Lemma 3.7: SN is closded under application to variables
@@ -341,4 +316,4 @@ rec norm : {g : cxt} {M : [g |- tm A[]]} SN [g |- M] =
 / total  (norm) /
 mlam g, M => cr1 [_] [ |- _ ] [ _ |- _ ] (main_lemma [g] [g] [g |- M] [g |- ..] (id_red [g]) ) ;
 
-}%
+
