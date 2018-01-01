@@ -54,7 +54,7 @@ inductive SNRed' : (g : cxt)(g' : cxt) {#R:[g' |-# g]} {M : [g |- tm A[]]} {M' :
 rec anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNe [g' |- M[#R]] -> SNe [g |- M]  =
 %        / total s (anti_renameSNe g g' a r m s) / 
 mlam #R, N => fn s => case s of 
-% |  SVar [h' |- _ ] => SVar [ _ |- _ ]
+|  SVar [h' |- _ ] =>  SVar [ _ |- _ ]
 |  SApp r s => 
    let r' = anti_renameSNe [_ |- #R] [_ |- _] r in 
    let s' = anti_renameSN [_] [_] [_ |- #R] [_ |- _] s in 
@@ -64,7 +64,13 @@ mlam #R, N => fn s => case s of
 % and anti_renameSNRed: (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]}{N : [g |- tm A[]]} 
 %                      SNRed [g' |- M[#R]] [g' |- N[#R]] -> SNRed [g |- M] [g |- N] =
 %   / total s (anti_renameSNRed g g' a r m s) / 
-? 
+mlam g, g', #R, M => fn r => case r of 
+| SBeta [_ |- _ ] s => 
+  let s' = anti_renameSN [g] [g'] [g' |- #R] [_ |- _ ] s in 
+  SNRed' [_] [_] [_ |- _] (SBeta [_ |- _ ] s')
+| SAppl r' => 
+  let SNRed' [_] [_][_ |- _ ] r0 = anti_renameSNRed [g] [g'] [g' |-#R] [_ |- _ ] r' in 
+    SNRed' [_] [_] [_ |- _ ] (SAppl r0)
 
 
 
