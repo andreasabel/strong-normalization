@@ -88,26 +88,6 @@ mlam h, h', #R, M => fn s => case s of
 
 
 %{
-Lemma 3.6: Anti-Renaming
-
-Their signatures is repeated to get around the fact that the current coverage checker cannot verify coverage in the presence of renamings
-}%
-
-rec anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} SNe [g' |- M[#R]] -> SNe [g |- M]  =
-        / total s (anti_renameSNe g g' a r m s) / 
-? 
-
-and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N'] -> SNRed' [g' |- #R] [g |- M] [g' |- N'] =
-   / total s (anti_renameSNRed g g' a r m s) / 
-? 
-
-
-
-and anti_renameSN   : {h : cxt}{h' : cxt} {#R : [h' |-# h]}{M : [h |- tm A[]]} SN [h' |- M[#R]] -> SN [h |- M]  =
-     / total s (anti_renameSN h h' a r m s) / 
-? 
-;
-%{
 Lemma 3.5: Renaming for SN
 }%
 rec renameSN   : {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]}
@@ -136,22 +116,6 @@ mlam #R, M => fn s => case s of
 ;
 
 
-%{
-Lemma 3.7: SN is closded under application to variables
--- Seems not needed --
-
-}%
-rec closure_var_SN: {M:[g |- tm (arr A[] B[])]} {#p : [g |- tm A[]]} SN [g |- M] -> SN [g |- app M #p] = 
-/ total s (closure_var_SN g a b m p s) /
-mlam M, #p => fn s => case s of 
-| SNeu sn =>  SNeu (SApp sn (SNeu (SVar [_ |- #p])))
-| SRed r sm' => ?
-%  SRed (SAppl r) (closure_var_SN [_ |- _] [_ |- #p] sm')
-| SAbs sn => 
-  let (sn : SN [g, x:tm A[] |- M']) = sn in 
-  let sn' = renameSN [g, x:tm A[]] [g] [g |- .., #p]  [g, x:tm _ |- M'] sn in 
-      SRed (SBeta [g, x:tm A[] |- M'] (SNeu (SVar [g |- #p]))) sn'
-;
 
 
 %{
@@ -160,20 +124,18 @@ Lemma 3.9: Extensionality of SN
 }%
 
 rec ext_SN : {M: [g |- tm (arr A[] B[])]}{#p: [g |- tm A[]]} SN [g |- app M #p] -> SN [g |- M] =
-    / total s (ext_SN g a b m p s) /
+%     / total s (ext_SN g a b m p s) /
 mlam M, #p => fn s => case s of 
 | SNeu (SApp sm sv) => SNeu sm
-| SRed r sm' => 
-case [_ |- M] of 
-   | [g |- abs _ \x.M'] => 
-     (case r of 
-      | SBeta [g, x:tm _ |- M'] sn => ? 
-      | SAppl r' => impossible r')
-   | [g |- app _ _] => 
-%      let (sm' : SN [g |- app R #p]) = sm' in 
-%      let ih = ext_SN [_ |- _] [_ |- #p]  sm' in 
-     let  SAppl r' = r in SRed r' ?
-   |  [g |- #q] => let  SAppl r' = r in SRed r' ?
+| SRed r sm' => (case r of 
+  | SBeta [g, x:tm A[] |- M'] sn =>   
+    let sn' = anti_renameSN [g, x:tm A[] ] [g] [g |- .., #p[..]] [g, x:tm A[] |- M'] sm' in 
+      SAbs sn'
+   
+  | SAppl r'  => 
+     let (sm' : SN [g |- app N #p]) = sm' in 
+     let sn = ext_SN [g |- N] [g |- #p]  sm' in  %% Totality Checker does not accept recursive call as not smaller !!!
+    SRed r' sn)
 
 ;
 
@@ -222,7 +184,7 @@ and rename_redS: {g : cxt} {g' : cxt} {#R : [g' |-# g]} RedS [h] [g |- #S]   -> 
 %{ Reducibility Candidate Conditions 
 }%
 rec cr1 : {g:cxt}{A:[ |- ty]}{M : [g |- tm A[]]}  Red [ |- A] [g |- M] -> SN [g |- M] = 
-/ total a (cr1 g a ) /
+% / total a (cr1 g a ) /
 mlam g, A, M => fn r => case [ |- A ] of 
 | [ |- base] =>   let RBase s = r in s
 | [ |- arr A B] =>
@@ -233,7 +195,7 @@ mlam g, A, M => fn r => case [ |- A ] of
     anti_renameSN [ _ ] [ _ ] [g, x:tm A[] |- ..] [g |- M] sm
 		       
 and cr2 : {g:cxt}{A:[ |- ty]}{M : [g |- tm A[]]}SNe [g |- M] -> Red [ |- A] [g |- M] = 
-/ total a (cr2 g a) /
+% / total a (cr2 g a) /
 mlam g, A, M => fn sm => case [ |- A] of
     | [ |- base ] => RBase (SNeu sm)
     | [ |- arr A B] =>
@@ -244,7 +206,7 @@ mlam g, A, M => fn sm => case [ |- A] of
 	   )
 and cr3 :  {g:cxt}{A:[ |- ty]}{M : [g |- tm A[]]} {M' : [g |- tm A[]]}
            SNRed [g |- M] [g |- M'] -> Red [ |- A] [g |- M'] -> Red [ |- A] [g |- M] = 
- / total a (cr3 g a) / 
+% / total a (cr3 g a) / 
    mlam g, A, M, M' => fn sr, rm' => case [ |- A] of
     | [ |- base ] =>
       let RBase sm' = rm'  in RBase (SRed sr sm')
@@ -261,7 +223,7 @@ and cr3 :  {g:cxt}{A:[ |- ty]}{M : [g |- tm A[]]} {M' : [g |- tm A[]]}
 
 % Variables are reducible
 rec red_var : {g : cxt} {#p : [g |- tm A[]]} Red [ |- A] [g |- #p] = 
-/ total (red_var ) /
+% / total (red_var ) /
 mlam g, #p => cr2 [_ ][ |- _ ] [ _ |- _ ] (SVar [g |- #p]);
 
 
@@ -279,7 +241,7 @@ rec fundVar : {g : cxt} {#p : [g |- tm A[]]}
 %{ Main Lemma 
 }%
 rec main_lemma : {g : cxt}{g' : cxt}{M : [g |- tm A[]]} {#S : [g' |- g]} RedS [g] [g' |- #S] -> Red [ |- A[]] [g' |- M[#S]] = 
-/ total m (main_lemma g g' a m) /
+% / total m (main_lemma g g' a m) /
 mlam g, g', M, #S => fn rs => case [g |- M] of 
 | [g |- #p] => fundVar [g] [g |- #p] rs
 
@@ -303,7 +265,7 @@ mlam g, g', M, #S => fn rs => case [g |- M] of
 All well-typed terms are strongly normalizing.
 }%
 rec id_red : {g : cxt} RedS [g] [g |- ..] = 
-/ total g (id_red g) /
+% / total g (id_red g) /
 mlam g => case [g] of 
 | [ ] => RNil
 | [g, x: tm A[]] => 
@@ -313,7 +275,9 @@ mlam g => case [g] of
    ;
 
 rec norm : {g : cxt} {M : [g |- tm A[]]} SN [g |- M] = 
-/ total  (norm) /
+% / total  (norm) /
 mlam g, M => cr1 [_] [ |- _ ] [ _ |- _ ] (main_lemma [g] [g] [g |- M] [g |- ..] (id_red [g]) ) ;
 
+
+ 
 
