@@ -34,13 +34,11 @@ and inductive SNe : (g : cxt) {M : [ g |- tm A[] ] } ctype =
 | SVar : {#p:[g |- tm A[]]} SNe [g |- #p]
 | SApp : SNe [g |- R] -> SN [g |- M] -> SNe [g |- app R M]
 
-
 and inductive SNRed : (g : cxt) {M : [g |- tm A[]]} {M' : [g |- tm A[]]} ctype = 
 | SBeta :  {M:[g, x:tm A[] |- tm B[]]} SN [g |- N]
           -> SNRed [g |- app (abs A[] \x.M) N] [g |- M[..,N]]
 | SAppl  : SNRed [g |- R] [g |- R'] -> SNRed [g |- app R M] [g |- app R' M]
 ;
-
 
 %{
 Lemma 3.6: Anti-Renaming
@@ -70,8 +68,6 @@ mlam g, g', #R, M => fn r => case r of
   let SNRed' [_] [_][_ |- _ ] r0 = anti_renameSNRed [g] [g'] [g' |-#R] [_ |- _ ] r' in 
     SNRed' [_] [_] [_ |- _ ] (SAppl r0)
 
-
-
 and anti_renameSN   : {h : cxt}{h' : cxt} {#R : [h' |-# h]}{M : [h |- tm A[]]} SN [h' |- M[#R]] -> SN [h |- M]  =
      / total s (anti_renameSN h h' a r m s) / 
 mlam h, h', #R, M => fn s => case s of 
@@ -84,8 +80,6 @@ mlam h, h', #R, M => fn s => case s of
    let s'' = anti_renameSN [h] [h'] [h' |- #R] [h |- N ] s' in 
      SRed r s''
 ;
-
-
 
 %{
 Lemma 3.5: Renaming for SN
@@ -115,9 +109,6 @@ mlam #R, M => fn s => case s of
 | SAppl s' =>    SAppl (renameSNRed [_ |- #R] [_ |- _ ] s')
 ;
 
-
-
-
 %{
 Lemma 3.9: Extensionality of SN
 % Appeal to IH does not pass the totality checker -bp
@@ -138,9 +129,7 @@ mlam M, #p => fn s => case s of
 
 ;
 
-
 % Semanti_SN Typing / Reducibility 
-
 stratified Red : {A : [ |- ty ]} (g : cxt) {M : [ g |- tm A[] ]} ctype =
   | RBase : SN [g |- M] -> Red [ |- base ] [g |- M]
   | RArr  : ({g' : cxt} {#S : [g' |-# g]} {N : [g' |- tm A[]]}
@@ -219,12 +208,10 @@ and cr3 :  {g:cxt}{A:[ |- ty]}{M : [g |- tm A[]]} {M' : [g |- tm A[]]}
 	    )
 ;
 
-
 % Variables are reducible
 rec red_var : {g : cxt} {#p : [g |- tm A[]]} Red [ |- A] [g |- #p] = 
  / total (red_var ) /
 mlam g, #p => cr2 [_ ][ |- _ ] [ _ |- _ ] (SVar [g |- #p]);
-
 
 rec fundVar : {g : cxt} {#p : [g |- tm A[]]}
           RedS [g] [g' |- #S]
@@ -258,7 +245,6 @@ mlam g, g', M, #S => fn rs => case [g |- M] of
       cr3 [_] [ |- _ ] [_ |- _ ] [_ |- _ ] sn' r 
 )
   ;
-
 
 %{
 All well-typed terms are strongly normalizing.
