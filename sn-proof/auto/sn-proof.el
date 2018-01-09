@@ -104,8 +104,7 @@
     "lemma"
     "theorem")
    (LaTeX-add-bibliographies
-    "../../bibliography/bibi"
-    "../../bibliography/bp")
+    "bibi-extract")
    (LaTeX-add-amsthm-newtheorems
     "exercise")))
 
