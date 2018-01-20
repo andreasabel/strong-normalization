@@ -23,7 +23,6 @@ LF step : tm A -> tm A -> type =
   ;
 
 % Lemma: If [ρ]M ⇒ M' then M ⇒ N and M' = [ρ]N.
-
 inductive ExStep : (g1 : cxt) (g2 : cxt)
   {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]} {M' : [g2 |- tm A[]]} ctype =
   | Ex : [g1 |- step M N] -> ExStep [g1 |- M] [g2 |- #R] [g2 |- N[#R]]
@@ -43,8 +42,7 @@ mlam g1, g2, #R, M, N => fn s => case s of
 | [g1 |- rappr S] =>
    let [g2 |- S'] = renStep [g1] [g2] [g2 |- #R] [g1 |- _ ] [g1 |- _ ] [g1 |- S] in
      [g2 |- rappr S']
- ;
-
+;
 
 rec invRenStep : {g1 : cxt} {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]}
     [g2 |- step M[#R] M'] -> ExStep [g1 |- M] [g2 |- #R] [g2 |- M'] =
@@ -106,12 +104,12 @@ rec invRenStep : {g1 : cxt} {M : [g1 |- tm A[]]} {#R : [g2 |-# g1]}
 
     % Case variable: does not reduce
     | [g1 |- #p ] => impossible s
-  ;
+;
 
 inductive SN : (g : cxt) {M : [ g |- tm A[] ]} ctype =
   | Acc : ({M' : [ g |- tm A[] ]}{S: [ g |- step M M' ]} SN [ g |- M' ])
         -> SN [ g |- M ]
-  ;
+;
 
 % Lemma: closure of SN under renaming.
 %
@@ -123,7 +121,6 @@ inductive SN : (g : cxt) {M : [ g |- tm A[] ]} ctype =
 % Then M ⇒ N with M' = [ρ]N.
 % By IH on N ∈ SN, [ρ]N ∈ SN, thus, M' ∈ SN.
 % QED.
-
 rec renSN : {g2 : cxt} {#R : [g2 |-# g1]}{A:[ |- ty]} {M : [g1 |- tm A[]]}
        SN [g1 |- M]
     -> SN [g2 |- M[#R]] =
@@ -134,29 +131,146 @@ rec renSN : {g2 : cxt} {#R : [g2 |-# g1]}{A:[ |- ty]} {M : [g1 |- tm A[]]}
         let Ex [g1 |- S] = invRenStep [g1] [g1 |- M] [g2 |- #R] [g2 |- R0]
         in  renSN [g2] [g2 |- #R] [ |- _] [g1 |- _] (f [g1 |- _] [g1 |- S])
       )
-  ;
+;
 
 
-% Applicative contexts
+%% We show two fundamental properties simultaneously:
+empty: type.
 
-LF ecxt : (tm A -> tm B) -> type =
-  | eid  : ecxt \ x. x
-  | eext : ecxt C -> ecxt \ x. app (C x) M
+rec varDontStep : {g:cxt}{A : [|- ty]}
+			 {#p : [g |- tm A[]]}
+			 {M : [g |- tm A[]]}
+			 [g |- step #p M] -> [|- empty] =
+    mlam g => mlam A => mlam p => mlam M => fn s => impossible s;
 
-  ;
+% We cannot inline and directly prove that s of type [g |- step #p M'] does not step, as reconstruction will fail -- factoring the proof works.
+rec varSn : {g:cxt}{A: [|- ty]}
+		   {#p : [g |- tm A[]]}
+		   SN [g |- #p] =
+    mlam g => mlam A => mlam #p =>
+    Acc (mlam M', S => impossible (varDontStep [_] [|- _] [_ |- #p] [_ |- M'] [_ |- S]))
+;
 
-rec antiSubstSN' : {g:cxt}{A : [|- ty]} {B : [|- ty]}
+rec prop5a : {g:cxt}{A : [|- ty]}{B : [|- ty]}
+		    {M : [g |- tm (arr A[] B[])]}
+		    {N : [g |- tm A[]]}
+		    SN [g |- (app M N)] -> SN [g |- M] =
+    mlam g, A, B, M, N => fn sn => case sn of
+| Acc r  => Acc (mlam M' => mlam S =>
+		 let sn' = r [g |- app M' N] [g |- rappl S] in
+		 prop5a [_] [|- _] [|- _] [_ |- M'] [_ |- _] sn')
+;
+
+rec prop5b : {g:cxt}{A : [|- ty]}{B : [|- ty]}
+		    {M : [g |- tm (arr A[] B[])]}
+		    {N : [g |- tm A[]]}
+		    SN [g |- (app M N)] -> SN [g |- N] =
+    mlam g, A, B, M, N => fn sn =>
+case sn of
+| Acc r => Acc (mlam N' => mlam S =>
+		let sn' = r [g |- app M N'] [g |- rappr S] in
+		prop5b [_] [|- _] [|- _] [_ |- _] [_ |- N'] sn')
+;
+
+rec prop6 : {g:cxt}{A : [|- ty]}{B : [|- ty]}
+		   {M : [g, x : tm A[] |- tm B[]]}
+		   SN [g |- abs (\x. M)] -> SN [g, x : tm A[] |- M] =
+    mlam g => mlam A => mlam B => mlam M => fn sn =>
+    case sn of
+    | Acc r => Acc (mlam M' => mlam S => let sn' = r [g |- abs (\x. M')] [g |- rabs (\x.S)] in
+					 prop6 [_] [|- _] [|- _] [_ |- M'] sn')
+;
+
+rec prop3_helper : {g:cxt}{A : [|- ty]}{B : [|- ty]}
+			  {M : [g, x : tm A[] |- tm B[]]}
+			  {M' : [g |- tm (arr A[] B[])]}
+			  SN [g, x : tm A[] |- M] -> [g |- step (abs (\x.M)) M'] -> SN [g |- M'] =
+    mlam g => mlam A => mlam B => mlam M => mlam M' => fn sn => fn s =>
+    let [g |- rabs (\x. S1)] = s in
+    let Acc r = sn in
+    let [g, x : tm A[] |- S1] : [g, x : tm A[] |- step M M1] = [g, x : tm A[] |- S1] in
+    let sn' = r [g, x : tm A[] |- M1] [g, x : tm A[] |- S1] in
+    prop3 [_] [|- _] [|- _] [_ |- M1] sn'
+
+and prop3 : {g:cxt}{A : [|- ty]}{B : [|- ty]}
+		   {M : [g, x : tm A[] |- tm B[]]}
+		   SN [g, x : tm A[] |- M] -> SN [g |- abs (\x.M)] =
+    mlam g => mlam A => mlam B => mlam M => fn sn =>
+    case sn of
+    | Acc r => Acc (mlam M' => mlam S => prop3_helper [_] [|- _] [|- _] [_ |- M] [_ |- M'] sn [_ |- S])
+;
+
+rec prop2 : {g:cxt}{A : [|- ty]} {B : [|- ty]}
    {M : [g, x : tm A[] |- tm B[]]}
    {N : [g |- tm A[]]}
    SN [g |- M [.., N] ]
-    -> SN [g, x : tm A[] |- M ]
-  = ?
-  ;
+   -> SN [g, x : tm A[] |- M ] =
+    mlam g, A, B, M, N => fn sn =>
+    case [g, x : tm A[] |- M] of
+    | [g, x : tm A[] |- #p[..]] => varSn [g, x : tm A[]] [|- _] [g, x : tm A[] |- #p[..]]
+    | [g, x : tm A[] |- x] => varSn [g, x : tm A[]] [|- _] [g, x : tm A[] |- x]
+    | [g, x : tm A[] |- abs (\y. M')] =>
+      let [|- arr A' B'] = [|- B] in
+      let sn' = prop6 [g] [|- A'] [|- B'] [g, y:tm A'[] |- M'[.., (N[..]), y]] sn in
+      let sn'' = prop2 [g, y:tm A'[]] [|- A] [|- B'] [g, y:tm A'[], x:tm A[] |- M'[.., y]] [g, y:tm A'[] |- N[..]] sn' in
+      ? % prop3 [g, x:tm A[]] [|- A'] [|- B'] [g, x:tm A[], y:tm A'[] |- M'] sn'' % need exchange
+    | [g, x : tm A[] |- app M1 M2] => let sn1 = prop5a [_] [|- _] [|- _] [_ |- M1[.., N]] [_ |- M2[.., N]] sn in
+				      let sn2 = prop5b [_] [|- _] [|- _] [_ |- M1[.., N]] [_ |- M2[.., N]] sn in
+				      let sn1' = prop2 [_] [|- _] [|- _] [_ |- M1] [_ |- N] sn1 in
+				      let sn2' = prop2 [_] [|- _] [|- _] [_ |- M2] [_ |- N] sn2 in
+				      prop1 [_] [|- _] [|- _] [_ |- M1] [_ |- M2] sn1' sn2'
+
+and prop1_helper : {g:cxt}{A : [|- ty]}{B : [|- ty]}
+			  {M : [g |- tm (arr A[] B[])]}
+			  {N : [g |- tm A[]]}
+			  {Q : [g |- tm B[]]}
+			  {S : [g |- step (app M N) Q]}
+			  SN [g |- M] -> SN [g |- N] -> SN [g |- Q] =
+    mlam g => mlam A => mlam B => mlam M => mlam N => mlam Q => mlam S =>
+    fn sn1 => fn sn2 =>
+    let Acc r1 = sn1 in
+    let Acc r2 = sn2 in
+    case [g |- S] of
+    | [g |- rbeta] => let [g |- abs (\x.M')] = [g |- M] in
+		      let sn = prop6 [_] [|- _] [|- _] [_ |- M'] sn1 in
+		      prop4 [_] [|- _] [|- _] [_ |- M'] [_ |- N] sn sn2
+    | [g |- rappl S'] => let [g |- S'] : [g |- step M M'] = [g |- S'] in
+			 let sn = r1 [g |- M'] [g |- S'] in
+			 prop1 [_] [|- _] [|- _] [_ |- M'] [_ |- N] sn sn2
+    | [g |- rappr S'] => let [g |- S'] : [g |- step N N'] = [g |- S'] in
+			 let sn = r2 [g |- N'] [g |- S'] in
+			 prop1 [_] [|- _] [|- _] [_ |- M] [_ |- N'] sn1 sn
+
+and prop1 : {g:cxt}{A : [|- ty]}{B : [|- ty]}
+		   {M : [g |- tm (arr A[] B[])]}
+		   {N : [g |- tm A[]]}
+		   SN [g |- M] -> SN [g |- N] -> SN [g |- (app M N)] =
+    mlam g, A, B, M, N => fn sn1 => fn sn2 =>
+    Acc (mlam M', S => prop1_helper [_] [|- _] [|- _] [_ |- M] [_ |- N] [_ |- M'] [_ |- S] sn1 sn2)
+
+and prop4 : {g:cxt}{A: [|- ty]}{B : [|- ty]}
+		   {M : [g, x : tm A[] |- tm B[]]}
+		   {N : [g |- tm A[]]}
+		   SN [g, x : tm A[] |- M] -> SN [g |- N] -> SN [g |-M[.., N]] =
+    mlam g, A, B, M, N => fn sn1 => fn sn2 =>
+    (case [g, x : tm A[] |- M] of
+     | [g, x : tm A[] |- #p[..]] => varSn [_] [|- _] [_ |- #p[..]]
+     | [g, x : tm A[] |- x] => sn2
+     | [g, x : tm A[] |- abs (\y. M1)] => let sn = prop6 [_] [|- _] [|- _] [_ |- M1] sn1 in ? % need weakening and exchange
+     | [g, x : tm A[] |- app M1 M2] => let snl = prop5a [_] [|- _] [|- _] [_ |- M1] [_ |- M2] sn1 in
+				       let snr = prop5b [_] [|- _] [|- _] [_ |- M1] [_ |- M2] sn1 in
+				       let sn1' = prop4 [_] [|- _] [|- _] [_ |- M1] [_ |- N] snl sn2 in
+				       let sn2' = prop4 [_] [|- _] [|- _] [_ |- M2] [_ |- N] snr sn2 in
+				       prop1 [_] [|- _] [|- _] [_ |- M1[.., N]] [_ |- M2[.., N]] sn1' sn2'
+    )
+;
 
 rec antiSubstSN : {M : [g, x : tm A[] |- tm B[]]}
-   {N : [g |- tm A[]]}SN [g |- M [.., N] ]
-		  -> SN [g, x : tm A[] |- M ] = ?
-						    ;
+		      {N : [g |- tm A[]]}SN [g |- M [.., N] ]
+		  -> SN [g, x : tm A[] |- M ] =
+    mlam M => mlam N => fn sn =>
+    prop2 [_] [|- _] [|- _] [_ |- M] [_ |- N] sn
+;
 
   
 stratified Red : {A : [ |- ty ]} (g : cxt) {M : [ g |- tm A[] ]} ctype =
@@ -241,6 +355,14 @@ mlam g, A, B, M => fn s =>
 LF eq: tm A ->  tm A -> type =
  refl : eq  M M;
 
+% Applicative contexts
+
+LF ecxt : (tm A -> tm B) -> type =
+  | eid  : ecxt \ x. x
+  | eext : ecxt C -> ecxt \ x. app (C x) M
+
+;
+
 inductive ExEcxt : (g:cxt) [g |- tm A[]] -> ctype =
 | ExECxt : {#p:[g |- tm B[]]}{C: [g, x:tm B[] |- tm A[]]}
            [g |- eq C[.., #p] M]
@@ -320,22 +442,6 @@ mlam g, A, C, #p, E, g', #R, M => fn s2, s1 =>
  let s1' = renSN [g'] [g' |- #R] [|- arr _ _] [g |- C[.., #p]] s1 in
  snApp [g'] [g', u:tm A[] |- C[#R[..],u]] [g' |- E[#R]] [g' |- #p[#R]] s1' s2
 ;
-%% We show two fundamental properties simultaneously:
-empty: type.
-
-rec varDontStep: {g:cxt}{A:[ |- ty]}{M': [g, x:tm A[] |- tm A[]]}
-                 [g, x:tm A[] |- step x M'] -> [ |- empty] =
-mlam g, A, M' => fn s => let  [g, x:tm A[] |- S] = s in
-impossible [g, x:tm A[] |- S] in [g, x:tm A[]]
-;
-
-%{
-We cannot inline and directly prove that s of type [g, x:tm A[] |- step x M'] does not step, as reconstruction will fail -- factoring the proof works.
-}%
-rec varSn : {g:cxt} {A:[ |- ty]} SN [g, x:tm A[] |- x] =
-mlam g, A => Acc (mlam M', S =>
-  impossible (varDontStep [g] [|- A] [g, x:tm A[] |- M'] [g, x:tm A[] |- S])) ;
-
 
 rec redSn: {g:cxt}{A:[ |- ty]}{M:[g |- tm A[]]}
          Red [|- A] [g |- M] -> SN [g |- M] =
@@ -343,7 +449,7 @@ mlam g, A, M => fn r => case [ |- A] of
 | [ |- base] => let RBase s = r in s
 | [ |- arr A B] =>
   let RArr f = r in
-  let vsn = varSn [g] [|- A] in
+  let vsn = varSn [g, x:tm A[]] [|- A] [g, x : tm A[] |- x] in
   let vred = neutSn [g, x:tm A[]] [|- A] [ |- A]
                     [g, x:tm A[], y:tm A[] |- y] [g, x:tm A[] |- x] [g, x:tm A[] |- eid]  vsn in
   let m = redSn [g, x:tm A[]] [|- B] [g, x:tm A[] |- app M[..] x]
@@ -438,7 +544,3 @@ rec thm : {g : cxt} {M : [g |- tm A[]]}
           (thm [g, x : tm A[]] [g, x : tm A[] |- M] (RCons r (renRedS [g'] [g' |- #S] s))))
   | [g |- app M N    ] =>  fundApp (thm [g] [g |- M] s) (thm [g] [g |- N] s)
   ;
-
-
-
-
