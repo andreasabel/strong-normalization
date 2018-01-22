@@ -133,6 +133,10 @@ rec renSN : {g2 : cxt} {#R : [g2 |-# g1]}{A:[ |- ty]} {M : [g1 |- tm A[]]}
       )
 ;
 
+rec exchangeSN: {g : cxt} {M : [g, x:tm A[], y:tm A'[] |- tm B[]]} 
+                SN [g, y:tm A'[], x:tm A[] |- M[..,x,y]] -> SN [g, x:tm A[], y:tm A'[] |- M] = 
+? ;
+
 
 %% We show two fundamental properties simultaneously:
 empty: type.
@@ -212,8 +216,10 @@ rec prop2 : {g:cxt}{A : [|- ty]} {B : [|- ty]}
     | [g, x : tm A[] |- abs (\y. M')] =>
       let [|- arr A' B'] = [|- B] in
       let sn' = prop6 [g] [|- A'] [|- B'] [g, y:tm A'[] |- M'[.., (N[..]), y]] sn in
-      let sn'' = prop2 [g, y:tm A'[]] [|- A] [|- B'] [g, y:tm A'[], x:tm A[] |- M'[.., y]] [g, y:tm A'[] |- N[..]] sn' in
-      ? % prop3 [g, x:tm A[]] [|- A'] [|- B'] [g, x:tm A[], y:tm A'[] |- M'] sn'' % need exchange
+      let sn'' = prop2 [g, y:tm A'[]] [|- A] [|- B'] [g, y:tm A'[], x:tm A[] |- M'[.., x,y]] [g, y:tm A'[] |- N[..]] sn' in
+      let sn''' = exchangeSN [g] [g, x: tm A[], y : tm A'[] |- M'] sn'' in 
+       prop3 [g, x:tm A[]] [|- _] [|- B'] [g, x:tm A[], y:tm A'[] |- M'] sn''' %  exchange
+
     | [g, x : tm A[] |- app M1 M2] => let sn1 = prop5a [_] [|- _] [|- _] [_ |- M1[.., N]] [_ |- M2[.., N]] sn in
 				      let sn2 = prop5b [_] [|- _] [|- _] [_ |- M1[.., N]] [_ |- M2[.., N]] sn in
 				      let sn1' = prop2 [_] [|- _] [|- _] [_ |- M1] [_ |- N] sn1 in
