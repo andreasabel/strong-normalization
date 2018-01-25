@@ -4,3 +4,4 @@ contexts.v
 reduction.v
 stlc.v
 sn.v
+sn_inductive.v

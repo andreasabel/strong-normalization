@@ -38,8 +38,7 @@ Definition idren {G : ctx} : ren G G := fun A i => i.
 (*Lemma scons0 G P A hd tl : @scons G P A hd tl A var0 = hd.
 Proof. by []. Qed.
 
-Lemma sconsS G P A hd tl : shift >> @scons G P A hd tl = tl.
-Proof. by []. Qed.*)
+*)
 
 (** ** Environment simplification *)
 

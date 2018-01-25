@@ -41,9 +41,10 @@ Proof.
   - fsimpl. by rewrite ihs.
 Qed.
 
-Lemma rinst_inst {G1 G2 A} (f : ren G1 G2) (s : tm G1 A) :
-  rinst f s = inst (f >> ids) s.
+Lemma rinst_inst {G1 G2} (f : ren G1 G2) :
+  @rinst G1 G2 f = @inst G1 G2 (f >> ids).
 Proof.
+  fext. intros A s.
   elim: s G2 f => {G1 A}[//|G1 A B s ihs t iht|G1 A B s ihs]/= G2 f.
   - by rewrite ihs iht.
   - rewrite ihs /up. by fsimpl.
@@ -95,6 +96,19 @@ Proof.
   - by rewrite ihs up_comp.
 Qed.
 
+(* Automation comp *)
+
+Lemma comp_rinst_inst g g' g'' (xi: ren g g') (sigma : subst g' g'') :
+  @rinst g g' xi >> @inst g' g'' sigma = @inst g g'' ((xi >> ids) >> @inst _ _ sigma). 
+Proof. fext. intros A s. unfold scomp. now rewrite inst_rinst_comp. Qed.
+
+Lemma comp_idl g g' (xi: subst g g') :
+  ids >> @inst _ _ xi = xi. 
+Proof. fext. intros A x. reflexivity. Qed.
+
+Lemma sconsS G P A hd tl : shift >> @scons G P A hd tl = tl.
+Proof. by []. Qed.
+
 (** ** Automation *)
 
 Lemma rinst_idrenE G : @rinst G G idren = (fun A x => x).
@@ -104,4 +118,5 @@ Lemma inst_idsE G : @inst G G ids = (fun A x => x).
 Proof. fext=> A s. exact: inst_ids. Qed.
 
 Ltac asimpl :=
-  repeat first [progress rewrite ?rinst_idrenE ?inst_ids ?rinst_inst_comp ?inst_rinst_comp ?inst_comp /up|fsimpl].
+  repeat first [progress rewrite ?comp_rinst_inst ?sconsS ?comp_idl ?rinst_idrenE ?inst_ids ?rinst_inst_comp ?inst_rinst_comp ?inst_comp /up|fsimpl].
+(*  *)
