@@ -133,9 +133,21 @@ rec renSN : {g2 : cxt} {#R : [g2 |-# g1]}{A:[ |- ty]} {M : [g1 |- tm A[]]}
       )
 ;
 
-rec exchangeSN: {g : cxt} {M : [g, x:tm A[], y:tm A'[] |- tm B[]]} 
+rec weakSN: {g: cxt} {M : [g |- tm A[]]} SN [g |- M] -> SN [g, x: tm B[] |- M[..]] =
+    ?
+;
+
+rec exchange_helper: {g : cxt} {M : [g, x:tm A[], y:tm A'[] |- tm B[]]}
+			       {M' : [g, x:tm A[], y:tm A'[] |- tm B[]]}
+			       SN [g, y:tm A'[], x:tm A[] |- M[..,x,y]] -> [g, x:tm A[], y:tm A'[] |- step M M']
+		     -> SN [g, x:tm A[], y:tm A'[] |- M'] =
+    mlam g => mlam M => mlam M' => fn sn => fn s =>
+    let Acc f = sn in ?
+
+and exchangeSN: {g : cxt} {M : [g, x:tm A[], y:tm A'[] |- tm B[]]}
                 SN [g, y:tm A'[], x:tm A[] |- M[..,x,y]] -> SN [g, x:tm A[], y:tm A'[] |- M] = 
-? ;
+    mlam g => mlam M => fn sn => Acc (mlam M', R => exchange_helper [_] [_ |- M] [_ |- M'] sn [_ |- R])
+;
 
 
 %% We show two fundamental properties simultaneously:
@@ -262,7 +274,13 @@ and prop4 : {g:cxt}{A: [|- ty]}{B : [|- ty]}
     (case [g, x : tm A[] |- M] of
      | [g, x : tm A[] |- #p[..]] => varSn [_] [|- _] [_ |- #p[..]]
      | [g, x : tm A[] |- x] => sn2
-     | [g, x : tm A[] |- abs (\y. M1)] => let sn = prop6 [_] [|- _] [|- _] [_ |- M1] sn1 in ? % need weakening and exchange
+     | [g, x : tm A[] |- abs (\y. M1)] =>
+       let sn = prop6 [_] [|- _] [|- _] [_ |- M1] sn1 in
+       let sn : SN [g, x:tm A[], y:tm A'[] |- M1] = sn in
+       let exc = exchangeSN [g] [g, y: tm A'[], x:tm A[] |- M1[..,x,y]] sn in
+       let sn'' = prop4 [_] [|- _] [|- _] [g, y:tm _, x:tm _ |- M1[..,x,y]] [_ |- N[..]] exc
+			(weakSN [_] [_ |- N] sn2) in
+       prop3 [_] [|- _] [|- _] [g, y:tm A'[] |- M1[..,N[..],y]] sn''
      | [g, x : tm A[] |- app M1 M2] => let snl = prop5a [_] [|- _] [|- _] [_ |- M1] [_ |- M2] sn1 in
 				       let snr = prop5b [_] [|- _] [|- _] [_ |- M1] [_ |- M2] sn1 in
 				       let sn1' = prop4 [_] [|- _] [|- _] [_ |- M1] [_ |- N] snl sn2 in
