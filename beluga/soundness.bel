@@ -209,6 +209,43 @@ rec backwards_closed : (g: cxt) {M: [g |- tm A[]]}
 		   prop1 [_ |- _] [_ |- _] snl snr
 ;
 
+rec closure_prop2 : (g: cxt) {M: [g |- tm (arr A[] B[])]}
+			     {N: [g |- tm A[]]}
+			     Sn [g |- M] -> Sn [g |- N]
+		    -> Sn [g |- app M N] =
+    mlam M, N => fn snl => fn snr =>
+    Acc (mlam M', S => closure_prop3 [_ |- M] [_ |- N] [_ |- M'] [_ |- S] snl snr)
+
+and closure_prop3 : (g: cxt) {M: [g |- tm (arr A[] B[])]}
+			     {N: [g |- tm A[]]}
+			     {R: [g |- tm B[]]}
+			     {S: [g |- step (app M N) R]}
+			     Sn [g |- M] -> Sn [g |- N]
+		    -> Sn [g |- R] =
+    mlam M => mlam N => mlam R => mlam S => fn snl => fn snr =>
+    let sn' = prop1 [_ |- M] [_ |- N] snl snr in
+    let Acc r = sn' in r [_ |- R] [_ |- S]
+;
+
+rec snAbs : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
+		     Sn [g, x: tm A[] |- M]
+	    -> Sn [g |- abs \x. M] =
+    mlam M => fn sn =>
+    Acc (mlam M', S' => soundAbs_helper [_ |- M] [_ |- M'] [ _ |- S'] sn)
+
+and soundAbs_helper : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
+			       {M': [g |- tm (arr A[] B[])]}
+			       {S : [g |- step (abs \x. M) M']}
+			       Sn [g, x: tm A[] |- M]
+		      -> Sn [g |- M'] =
+    mlam M, M', S => fn sn =>
+    let [_ |- abs \x. M''] = [_ |- M'] in
+    let [_ |- rabs (\y. S')] = [_ |- S] in
+    let Acc r = sn in
+    let sn' = r [_ |- M''] [_ |- S'] in
+    snAbs [_ |- M''] sn'
+;
+
 % Lemma 3.10: Soundness of SN with respect to sn
 rec soundSN : (g: cxt) {M: [g |- tm A[]]}
 		       SN [g |- M]
@@ -216,7 +253,7 @@ rec soundSN : (g: cxt) {M: [g |- tm A[]]}
     mlam M => fn sn =>
     case sn of
     | SNeu sne => soundSNe [_ |- _] sne
-    | SAbs sn' => let sn'' = soundSN [_ |- _] sn' in ?
+    | SAbs sn' => let sn'' = soundSN [_ |- _] sn' in snAbs [_ |- _] sn''
     | SRed r sn' => let sn'' = soundSN [_ |- _] sn' in
 		    let r' = soundSNRed [_ |- _] [_ |- _] r in
 		    backwards_closed [_ |- _] [_ |- _] r' sn''
@@ -227,7 +264,8 @@ and soundSNe : (g: cxt) {M: [g |- tm A[]]}
     mlam M => fn sne =>
     case sne of
      | SApp sne' sn' => let snl = soundSNe [_ |- _] sne' in
-			let snr = soundSN [_ |- _] sn' in ?
+			let snr = soundSN [_ |- _] sn' in
+			closure_prop2 [_ |- _] [_ |- _] snl snr
 
 and soundSNRed : (g: cxt) {M : [g |- tm A[]]}
 			  {M': [g |- tm A[]]}
