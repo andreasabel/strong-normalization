@@ -227,25 +227,6 @@ and closure_prop3 : (g: cxt) {M: [g |- tm (arr A[] B[])]}
     let Acc r = sn' in r [_ |- R] [_ |- S]
 ;
 
-rec snAbs : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
-		     Sn [g, x: tm A[] |- M]
-	    -> Sn [g |- abs \x. M] =
-    mlam M => fn sn =>
-    Acc (mlam M', S' => soundAbs_helper [_ |- M] [_ |- M'] [ _ |- S'] sn)
-
-and soundAbs_helper : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
-			       {M': [g |- tm (arr A[] B[])]}
-			       {S : [g |- step (abs \x. M) M']}
-			       Sn [g, x: tm A[] |- M]
-		      -> Sn [g |- M'] =
-    mlam M, M', S => fn sn =>
-    let [_ |- abs \x. M''] = [_ |- M'] in
-    let [_ |- rabs (\y. S')] = [_ |- S] in
-    let Acc r = sn in
-    let sn' = r [_ |- M''] [_ |- S'] in
-    snAbs [_ |- M''] sn'
-;
-
 % Lemma 3.10: Soundness of SN with respect to sn
 rec soundSN : (g: cxt) {M: [g |- tm A[]]}
 		       SN [g |- M]
@@ -253,7 +234,7 @@ rec soundSN : (g: cxt) {M: [g |- tm A[]]}
     mlam M => fn sn =>
     case sn of
     | SNeu sne => soundSNe [_ |- _] sne
-    | SAbs sn' => let sn'' = soundSN [_ |- _] sn' in snAbs [_ |- _] sn''
+    | SAbs sn' => let sn'' = soundSN [_ |- _] sn' in prop3 [_ |- _] sn''
     | SRed r sn' => let sn'' = soundSN [_ |- _] sn' in
 		    let r' = soundSNRed [_ |- _] [_ |- _] r in
 		    backwards_closed [_ |- _] [_ |- _] r' sn''
