@@ -7,19 +7,19 @@
 % \newenvironment{exercise}{\begin{@exercise}\rm}{\end{@exercise}}
 \newenvironment{ADDITIONAL}[1]{#1}{}
 \newenvironment{SOLUTION}[1]{\paragraph*{Solution}\begin{it}#1}{\end{it}}
-     
+
 %\oddsidemargin 0pt
 %\evensidemargin \oddsidemargin
 %\marginparwidth 0.5in
-     
 
-     
-% \setlength{\topmargin}{15mm}    
-\setlength{\topmargin}{5mm}    
 
-%\setlength{\textwidth}{155mm}    
-\setlength{\textwidth}{155mm}    
-%\setlength{\textwidth}{165mm}    
+
+% \setlength{\topmargin}{15mm}
+\setlength{\topmargin}{5mm}
+
+%\setlength{\textwidth}{155mm}
+\setlength{\textwidth}{155mm}
+%\setlength{\textwidth}{165mm}
 \setlength{\textheight}{200mm}
 %\setlength{\textheight}{195mm}
 
@@ -89,7 +89,7 @@
 \usepackage{lstextract}
 
 % \includeonly{intro,assign,unif,memo,index,memo-implement,proving}
-% \includeonly{index} 
+% \includeonly{index}
 
 \newcommand{\B}{\mathcal{B}}
 \newcommand{\C}{\mathcal{C}}
@@ -153,9 +153,9 @@ The key question is how to prove that given a lambda-term, its
 evaluation terminates, i.e. normalizes. We concentrate here on a typed
 operational semantics following \cite{Goguen:TLCA95} and define
 a reduction strategy that transforms $\lambda$-terms into
-$\beta$ normal form. This allows us to give a concise presentation of the important issues that arise. 
+$\beta$ normal form. This allows us to give a concise presentation of the important issues that arise.
 
- We see this benchmark as a good jumping point to investigate and mechanize the meta-theory of dependently typed systems where a typed operational semantics simplifies the study of its meta-theory. The approach of typed operational semantics is however not limited to dependently typed systems, but it has been used extensively in studying subtyping,  type-preserving compilation, and shape analysis. Hence, we believe it does describe an important approach to describing reductions. 
+ We see this benchmark as a good jumping point to investigate and mechanize the meta-theory of dependently typed systems where a typed operational semantics simplifies the study of its meta-theory. The approach of typed operational semantics is however not limited to dependently typed systems, but it has been used extensively in studying subtyping,  type-preserving compilation, and shape analysis. Hence, we believe it does describe an important approach to describing reductions.
 
 
 
@@ -172,7 +172,7 @@ Recall the lambda-calculus together with its reduction rules.
 
 We consider as the main rule for reduction (or evaluation) applying a term to an abstraction, called \emph{$\beta$-reduction}.
 % together with \emph{$\eta$-expansion}. We only $\eta$-expand a term, if we do not immediately create a redex to avoid infinite alternations between $\eta$-expansion and $\beta$-reduction.
- We use the judgment $\Gamma \vdash M \red N :A$ to mean that both $M$ and $N$ have type $A$ in the context $\Gamma$ and the term $M$ reduces to the term $N$. 
+ We use the judgment $\Gamma \vdash M \red N :A$ to mean that both $M$ and $N$ have type $A$ in the context $\Gamma$ and the term $M$ reduces to the term $N$.
 
 % \[
 % \begin{array}{lcll}
@@ -182,7 +182,7 @@ We consider as the main rule for reduction (or evaluation) applying a term to an
 % \end{array}
 % \]
 
-% The $\beta$-reduction rule only applies once we have found a redex.  However, we also need congruence rules to allow evaluation of arbitrary subterms. 
+% The $\beta$-reduction rule only applies once we have found a redex.  However, we also need congruence rules to allow evaluation of arbitrary subterms.
 
 \[
 \begin{array}{c}
@@ -192,9 +192,9 @@ We consider as the main rule for reduction (or evaluation) applying a term to an
 %\infer[\eta]{\Gamma \vdash M \red \lambda x{:}A.M~x : A \arrow B}{
 % M \not= \lambda y{:}A.M'}
 \\[1em]
-\infer{\Gamma \vdash M\,N \red M'\,N : B}{\Gamma \vdash M \red M' : A \arrow B & \Gamma \vdash N : A} 
+\infer{\Gamma \vdash M\,N \red M'\,N : B}{\Gamma \vdash M \red M' : A \arrow B & \Gamma \vdash N : A}
 \qquad
-\infer{\Gamma \vdash M\,N \red M\,N' : B}{\Gamma \vdash M : A \arrow B & \Gamma \vdash N \red N' : A} 
+\infer{\Gamma \vdash M\,N \red M\,N' : B}{\Gamma \vdash M : A \arrow B & \Gamma \vdash N \red N' : A}
 \\[1em]
 \infer{\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M' : A \arrow B}{\Gamma, x{:}A \vdash M \red M' : B}
 \end{array}
@@ -220,19 +220,19 @@ The typing and typed reduction strategy satisfies weakening and strengthening.
   \item If $\Gamma, \Gamma' \vdash M : B$ Then $\Gamma, x{:}A, \Gamma' \vdash M : B$.
   \item If $\Gamma, x{:}A, \Gamma' \vdash M : B$ and $x \not\in\FV(M)$ then $\Gamma, \Gamma' \vdash M : B$.
   \item If $\Gamma, \Gamma' \vdash M \red N : B$ then $\Gamma, x{:}A, \Gamma' \vdash M \red N : B$.
-  \item If $\Gamma, x{:}A, \Gamma' \vdash M \red N : B$ and $x \not\in \FV(M)$ then 
+  \item If $\Gamma, x{:}A, \Gamma' \vdash M \red N : B$ and $x \not\in \FV(M)$ then
         $x \not\in \FV N$ and $\Gamma, \Gamma' \vdash M \red N : B$.
-  \end{itemize}  
+  \end{itemize}
 \end{lemma*}
 \begin{proof}
-By induction on the first derivation.  
+By induction on the first derivation.
 \end{proof}
 
 
 \subsection*{When is a term in normal form?}
 
-We define here briefly when a term is in $\beta$-normal form. 
-% The presence of $\eta$ again requires our definition to be type directed. 
+We define here briefly when a term is in $\beta$-normal form.
+% The presence of $\eta$ again requires our definition to be type directed.
 We define the grammar of normal terms as given below
 
 \[
@@ -242,9 +242,9 @@ We define the grammar of normal terms as given below
   \end{array}
 \]
 
-This grammar does not enforce $\eta$-long. 
+This grammar does not enforce $\eta$-long.
 % For example, $\lambda x{:}A \arrow A. x$ is not in $\eta$-long form.
-% To ensure we only characterize $\eta$-long forms, we must ensure that we allow to switch between normal and neutral types at base type.  % On the other hand, $\lambda x{:}A \arrow A. \lambda y{:}A.x~y$ is in $\beta$-short and $\eta$-long form. 
+% To ensure we only characterize $\eta$-long forms, we must ensure that we allow to switch between normal and neutral types at base type.  % On the other hand, $\lambda x{:}A \arrow A. \lambda y{:}A.x~y$ is in $\beta$-short and $\eta$-long form.
 
 % \[
 %   \begin{array}{c}
@@ -270,14 +270,14 @@ This grammar does not enforce $\eta$-long.
 \subsection*{Proving normalization}
 The question then is, how do we know that we can normalizing a well-typed lambda-term into its $\beta$ normal form? - This is equivalent to asking whether after some reduction steps we will end up in a normal form where there are no further reductions possible. Since a normal lambda-term characterizes normal proofs, normalizing a lambda-term corresponds to normalizing proofs and demonstrates that every proof in the natural deduction system indeed has a normal proof. %
 
-Proving that reduction must terminate is not a simple syntactic argument based on terms, since the $\beta$-reduction rule may yield a term which is bigger than the term we started with. % Further, $\eta$-expansion might make the term bigger. 
+Proving that reduction must terminate is not a simple syntactic argument based on terms, since the $\beta$-reduction rule may yield a term which is bigger than the term we started with. % Further, $\eta$-expansion might make the term bigger.
 
 As syntactic arguments are not sufficient to argue that we can always compute a $\beta$ normal form, we hence need to find a different inductive argument. For the simply-typed lambda-calculus, we could prove that while the expression itself does not get smaller,  the type of an expression does\footnote{This is the essential idea of hereditary substitutions \cite{Watkins02tr}}.  This is a syntactic argument; it however does not scale to polymorphic lambda-calculus or full dependent type theories. We will here instead discuss a \emph{semantic} proof method where we define the meaning of well-typed terms using the abstract notion of \emph{reducibility candidates}.
 
 Throughout this tutorial, we stick to the simply typed lambda-calculus and its extension. This allows us to give a concise presentation of the important issues that arise.  However the most important benefits of typed operational semantics and our approach are demonstrated in systems with dependent types  where our development of the metatheoretic simpler than the existing techniques. We see this benchmark hence as a good jumping point to investigate and mechanize the meta-theory of dependently typed systems.
 
 
-% Unlike all the previous proofs which were syntactic and direct based on the structure of the derivation or terms, semantic proofs 
+% Unlike all the previous proofs which were syntactic and direct based on the structure of the derivation or terms, semantic proofs
 
 \section{Semantic Interpretation}
 Working with well-typed terms means we need to be more careful to
@@ -296,7 +296,7 @@ we must consider all extensions of $\Gamma$ (described by $\Gamma'
 % Weakening holds for the semantic interpretations.
 
 % \begin{lemma}[Semantic Weakening]\ref{lm:sweak}
-% If $\Gamma \models M : A$ then $\Gamma, x{:}C \models M : A$.  
+% If $\Gamma \models M : A$ then $\Gamma, x{:}C \models M : A$.
 % \end{lemma}
 
 % We sometimes write these definitions more compactly as follows
@@ -314,11 +314,11 @@ we must consider all extensions of $\Gamma$ (described by $\Gamma'
 We prove that if a term is well-typed, then it is strongly normalizing in  two steps:
 
 \begin{description}
-\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A$ and $M$ is strongly normalizing. 
+\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A$ and $M$ is strongly normalizing.
 \item[Step 2] If $\Gamma \vdash M : A$ and $\inden{\Gamma'}{\sigma}{\Gamma}$ then $\inden{\Gamma'}{[\sigma]M}{A}$.
 \end{description}
 
-Therefore, we can conclude that if a term $M$ has type $A$ then $M$ is strongly normalizing and its reduction is finite, choosing $\sigma$ to be the identity substitution. 
+Therefore, we can conclude that if a term $M$ has type $A$ then $M$ is strongly normalizing and its reduction is finite, choosing $\sigma$ to be the identity substitution.
 % \\[1em]
 % We remark first, that all variables are in the semantic type $A$ and variables are strongly normalizing, i.e. they are already in normal form.
 
@@ -327,7 +327,7 @@ Therefore, we can conclude that if a term $M$ has type $A$ then $M$ is strongly 
 %   \item If $\Gamma \vdash x : A$ then $\Gamma \models x : A$
 %   \item If $\Gamma \vdash x : A$ then $(\Gamma \vdash x) \in \SN$.
 %   \end{itemize}
-  
+
 % \end{lemma}
 
 % These are of course statements we need to prove.
@@ -350,17 +350,17 @@ The usual definition of strong normalization via accessibility does not only con
 To check strong normalizability of a term $M$ it is sufficient to consider every one-step
 reduct of $M$ instead of all possible (potentially infinite) reduction sequences. In particular, we can show that it enjoys the expected closure and substitution properties, namely:
 \begin{itemize}
-\item $\Gamma \vdash M : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
-    iff $\Gamma \vdash M~N : B \in \csn$;
+\item $\Gamma \vdash R : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
+    iff $\Gamma \vdash R~N : B \in \csn$;
   \item $\Gamma, x{:}A \vdash M : B \in \csn$ iff $\Gamma \vdash  \lambda x{:}A.M : A \arrow B \in \csn$;
   \item Let  $\Gamma \vdash N : A \in
-   \csn$. Then $\Gamma, x{:}A \vdash M : B \in \csn$ iff $\Gamma \vdash [N/x]M : B \in \csn$.
+   \csn$. Then $\Gamma, x{:}A \vdash M : B \in \csn$ if $\Gamma \vdash [N/x]M : B \in \csn$.
 \end{itemize}
 
 We first show that our definition of $\csn$ satisfies weakening.
 
 \begin{lemma}[Weakening of strongly normalizing terms]
-If $\Gamma \vdash M : B \in \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$.  
+If $\Gamma \vdash M : B \in \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$.
 \end{lemma}
 \begin{proof}
 By induction on $\Gamma \vdash M : B \in \csn$.
@@ -382,61 +382,61 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $M'$ was arbitrary
 
 \begin{lemma}[Properties of strongly normalizing terms]\label{lem:psn}$\;$
   \begin{enumerate}
-  \item\label{pp2} If $\Gamma \vdash M : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
-    then $\Gamma \vdash M~N : B \in \csn$.
+  \item\label{pp2} If $\Gamma \vdash R : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
+    then $\Gamma \vdash R~N : B \in \csn$.
   \item\label{pp3} If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A \in
     \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$.
   \item\label{pp4} If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B \in \csn$
-  \item\label{pp5} If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash N : A \in
-   \csn$ then $\Gamma \vdash [N/x]M : B \in \csn$.  
-  \item\label{pp6} If $\Gamma \vdash M~N : B \in \csn$ then 
+  \item\label{pp5} If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
+   \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.
+  \item\label{pp6} If $\Gamma \vdash M~N : B \in \csn$ then
      $\Gamma \vdash M : A \arrow B \in \csn$ and $\Gamma \vdash N : A\in \csn$.
-  \item\label{pp7} If $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ 
+  \item\label{pp7} If $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$
      then $\Gamma, x{:}A \vdash M : B \in \csn$.
 
 %   \item\label{pp2} If $\Gamma \vdash M \in \csn$
 %                  and $\Gamma \vdash N \in \csn$ where $M$ is not a $\lambda$
 %                 then $\Gamma \vdash M\;N \in \csn$. (we also have $\Gamma
 %                 \vdash M\;N \red M'\;N$ and $\Gamma \vdash M'\;N \in \csn$ as i.h.)
-  \end{enumerate} 
+  \end{enumerate}
 \end{lemma}
 \begin{proof}
-Properties \ref{pp6}, \ref{pp7}, and \ref{pp4} are proven by induction on the first derivation. We prove the Properties \ref{pp2}, \ref{pp3}, and \ref{pp5} mutually. 
+Properties \ref{pp6}, \ref{pp7}, and \ref{pp4} are proven by induction on the first derivation. We prove the Properties \ref{pp2}, \ref{pp3}, and \ref{pp5} mutually.
 \\[1em]
 In all the proofs below we silently exploit type uniqueness and do not track explicitly the reasoning about well-typed terms below.
 \\[1em]
-\fbox{\ref{pp2}. If $\Gamma \vdash M : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
-    then $\Gamma \vdash M~N : B \in \csn$. }
+\fbox{\ref{pp2}. If $\Gamma \vdash R : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
+    then $\Gamma \vdash R~N : B \in \csn$. }
 \\[1em]
-By simultaneous induction on $\Gamma \vdash M : A \arrow B \in \csn$,~ 
-$\Gamma \vdash N : A \in \csn$,~ and $B$. \\[1em]
-Assume $\Gamma \vdash M~N \red Q : B$
+By simultaneous induction on $\Gamma \vdash R : A \arrow B \in \csn$,~
+$\Gamma \vdash N : A \in \csn$. \\[1em]
+Assume $\Gamma \vdash R~N \red Q : B$
 \paragraph{Sub-case:} $\D = \ibnc
- {\Gamma \vdash M \red M' : A \arrow B}{\Gamma \vdash N : A}
- {\Gamma \vdash M\,N \red M'\,N : B}{}$ and $Q = M'~N$
+ {\Gamma \vdash R \red R' : A \arrow B}{\Gamma \vdash N : A}
+ {\Gamma \vdash R\,N \red R'\,N : B}{}$ and $Q = R'~N$
 \\[1em]
-$\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by using assumption $\Gamma \vdash M : A \arrow B \in \csn$ \\
-$\Gamma \vdash M'~N : B \in \csn$ \hfill by IH \\
-$\Gamma \vdash Q : B \in \csn$ \hfill since $Q = M'~N$
-% $\Gamma \vdash M~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash M~N \red Q$.
+$\Gamma \vdash R' : A \arrow B \in \csn$ \hfill by using assumption $\Gamma \vdash R : A \arrow B \in \csn$ \\
+$\Gamma \vdash R'~N : B \in \csn$ \hfill by IH \\
+$\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R'~N$
+% $\Gamma \vdash R~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash R~N \red Q$.
 
 \paragraph{Sub-case:} $\D = \ibnc
- {\Gamma \vdash N \red N' : A}{\Gamma \vdash M : A \arrow B}
- {\Gamma \vdash M\,N \red M\,N' : B}{}$ and $Q = M~N'$
+ {\Gamma \vdash N \red N' : A}{\Gamma \vdash R : A \arrow B}
+ {\Gamma \vdash R\,N \red R\,N' : B}{}$ and $Q = R~N'$
 \\[1em]
 $\Gamma \vdash N' : A \in \csn$ \hfill by using assumption $\Gamma \vdash N : A \in \csn$ \\
-$\Gamma \vdash M~N' : B\in \csn$ \hfill by IH \\
-$\Gamma \vdash Q : B \in \csn$ \hfill since $Q = M~N'$
-% $\Gamma \vdash M~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash M~N \red Q$.
+$\Gamma \vdash R~N' : B\in \csn$ \hfill by IH \\
+$\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R~N'$
+% $\Gamma \vdash R~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash R~N \red Q$.
 
-\paragraph{Sub-case:} $\D = \Gamma \vdash (\lambda x{:}A.M)\;N  \red  \Gamma \vdash [N/x]M : B$
-\\[1em]
-$\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption of $\beta$-reduction \\
-$\Gamma \vdash N : A$  \hfill by assumption of $\beta$-reduction \\
-$\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by assumption \\
-$\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
-$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill Property \ref{pp7}\\
-$\Gamma \vdash [N/x]M : B \in \csn$ \hfill by Property \ref{pp5}
+% \paragraph{Sub-case:} $\D = \Gamma \vdash (\lambda x{:}A.M)\;N  \red  \Gamma \vdash [N/x]M : B$
+% \\[1em]
+% $\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption of $\beta$-reduction \\
+% $\Gamma \vdash N : A$  \hfill by assumption of $\beta$-reduction \\
+% $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by assumption \\
+% $\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
+% $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill Property \ref{pp7}\\
+% $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by Property \ref{pp5}
 %
 % \paragraph{Sub-case:} $\D = \Gamma \vdash (M~N) \red \lambda x{:}A_1.(M~N)~x : A_1 \arrow A_2$ where $B = A_1 \arrow A_2$
 % \\[1em]
@@ -446,10 +446,12 @@ $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by Property \ref{pp5}
 % $\Gamma, x{:}A_1 \vdash (M~N)~x : A_2 \in \csn$ \hfill IH since $A_2$ is smaller than $B$
 % \\
 % $\Gamma \vdash \lambda x{:}A.(M~N)~x : A \arrow B \in \csn$ \hfill by Property \ref{pp4}
-\\[1em]
-$\Gamma \vdash M~N : B \in \csn$ \hfill since $\Gamma \vdash M~N \red Q : B$ was arbitrary.
-\\[1em]
-%
+%\\[1em]
+% $\Gamma \vdash M~N : B \in \csn$ \hfill since $\Gamma \vdash M~N \red Q : B$ was arbitrary.
+% \\[1em]
+
+\vspace{1em}
+\noindent
 \fbox{\ref{pp3}. If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A \in
     \csn$ then $\Gamma, x{:}A \vdash M : B\in \csn$.}
 \\[1em]
@@ -480,7 +482,7 @@ $\Gamma, x{:}A \vdash \lambda y{:}A'.M' : A' \arrow B \in \csn$ \hfill by Proper
 \fbox{\ref{pp4}. If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B\in \csn$}
 \\[1em]
 Induction on $\Gamma, x{:}A \vdash M : B \in \csn$\\[1em]
-Assume $\Gamma \vdash \lambda x{:}A.M \red Q : A \arrow B$ 
+Assume $\Gamma \vdash \lambda x{:}A.M \red Q : A \arrow B$
 $\Gamma, x{:}A \vdash M \red M' : B$ and $Q = \lambda x{:}A.M'$ \hfill by reduction rule for $\lambda$.\\
 $\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill by assumption $\Gamma, x{:}A \vdash M : B\in \csn$ \\
 $\Gamma \vdash \lambda x{:}A.M' : A \arrow B\in \csn$ \hfill by IH \\
@@ -489,42 +491,42 @@ $\Gamma \vdash \lambda x.M : A \arrow B \in \csn$ \hfill since $\Gamma \vdash \l
 \\[1em]
 %
 %
-\fbox{\ref{pp5}. If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash N : A \in
-   \csn$ then $\Gamma \vdash [N/x]M : B \in \csn$.  }
+\fbox{\ref{pp5}. If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
+   \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.  }
 \\[1em]
 Induction on $M$.
 % \\[1em]
 \paragraph{Sub-case:} $M = x$
 \\
-$\Gamma \vdash [N/x]x : A \in \csn$ \hfill by assumption $\Gamma \vdash N : A \in \csn$
+$\Gamma \vdash [R/x]x : A \in \csn$ \hfill by assumption $\Gamma \vdash R : A \in \csn$
 %
 \paragraph{Sub-case:} $M = y$
 \\
-$\Gamma \vdash [N/x]y : B \in \csn$ \hfill since $[N/x]y = y$ and variables do not step, trivial.
+$\Gamma \vdash [R/x]y : B \in \csn$ \hfill since $[R/x]y = y$ and variables do not step, trivial.
 %
-\paragraph{Sub-case:} $M = M_1~M_2$
+\paragraph{Sub-case:} $M = M_1~M_2$  \hfill TODO!
 \\
 $\Gamma,x{:}A \vdash M_1~M_2 : B\in \csn$ \hfill by assumption \\
 $\Gamma, x{:}A \vdash M_1 : C \arrow B \in \csn$ and $\Gamma, x{:}A \vdash M_2 : C\in \csn$ \hfill by Property \ref{pp6} \\
-$\Gamma \vdash [N/x]M_1 : C \arrow B \in \csn$ \hfill by IH \\
-$\Gamma \vdash [N/x]M_2 : C \in \csn$ \hfill by IH \\
-$\Gamma \vdash [N/x]M_1~[N/x]M_2 : B \in \csn$ \hfill by Property \ref{pp2}\\
-$\Gamma \vdash [N/x](M_1~M_2) : B \in \csn$ \hfill by subst. def.
+$\Gamma \vdash [R/x]M_1 : C \arrow B \in \csn$ \hfill by IH \\
+$\Gamma \vdash [R/x]M_2 : C \in \csn$ \hfill by IH \\
+$\Gamma \vdash [R/x]M_1~[R/x]M_2 : B \in \csn$ \hfill by Property \ref{pp2}\\
+$\Gamma \vdash [R/x](M_1~M_2) : B \in \csn$ \hfill by subst. def.
 %
 \paragraph{Sub-case:} $M = \lambda y{:}B.M'$
 \\
 $\Gamma, x{:}A \vdash \lambda y{:}B.M' : B \arrow C \in \csn$ \hfill by assumption \\
 $\Gamma, x{:}A, y{:}B \vdash M' : C \in \csn$ \hfill by Property \ref{pp7}\\
 $\Gamma, y{:}B, x{:}A \vdash M' : C \in \csn$ \hfill by exchange \\
-$\Gamma, y{:}B \vdash N : A \in \csn$ \hfill by weakening\\
-$\Gamma, y{:}B \vdash [N/x]M' : C \in \csn$ \hfill by IH \\
-$\Gamma \vdash \lambda y{:}B. [N/x]M' : B \arrow C \in \csn$ \hfill by Property \ref{pp4}\\
-$\Gamma \vdash [N/x](\lambda y{:}B.M') : B \arrow C \in \csn$ \hfill by subst. def
+$\Gamma, y{:}B \vdash R : A \in \csn$ \hfill by weakening\\
+$\Gamma, y{:}B \vdash [R/x]M' : C \in \csn$ \hfill by IH \\
+$\Gamma \vdash \lambda y{:}B. [R/x]M' : B \arrow C \in \csn$ \hfill by Property \ref{pp4}\\
+$\Gamma \vdash [R/x](\lambda y{:}B.M') : B \arrow C \in \csn$ \hfill by subst. def
 \\[1em]
-\fbox{\ref{pp6}. If $\Gamma \vdash M~N : B \in \csn$ 
+\fbox{\ref{pp6}. If $\Gamma \vdash M~N : B \in \csn$
                  then $\Gamma \vdash M : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$.}
 \\[1em]
-We prove first: If $\Gamma \vdash M~N : B\in \csn$ then $\Gamma \vdash M : A \arrow B\in \csn$. 
+We prove first: If $\Gamma \vdash M~N : B\in \csn$ then $\Gamma \vdash M : A \arrow B\in \csn$.
 Proving $\Gamma \vdash M~N : B \in \csn$ implies also $\Gamma \vdash N : A\in \csn$ is similar.
 \\
 By induction on $\Gamma \vdash M~N : B \in \csn$.
@@ -535,7 +537,7 @@ $\Gamma \vdash M'~N : B \in \csn$ \hfill by assumption $\Gamma \vdash M~N \in \c
 $\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by IH\\
 $\Gamma \vdash M  : A \arrow B \in \csn$ \hfill since $\Gamma \vdash M \red M' : A \arrow B$ was arbitrary
 \\[1em]
-\fbox{\ref{pp7}. If $\Gamma \vdash \lambda x{:}A.M : A \arrow B\in \csn$ 
+\fbox{\ref{pp7}. If $\Gamma \vdash \lambda x{:}A.M : A \arrow B\in \csn$
     then $\Gamma, x{:}A \vdash M : B \in \csn$. }
 \\[1em]
 By induction on $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$.
@@ -552,7 +554,7 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since  $\Gamma, x{:}A \vdash M \red
 \begin{corollary}\label{cor:psn}~
   \begin{enumerate}
   \item \label{pp1} If $\Gamma \vdash   [N/x]M : B \in \csn$
-                  and $\Gamma \vdash N : A \in \csn$ 
+                  and $\Gamma \vdash N : A \in \csn$
                  then $\Gamma \vdash (\lambda x.M) \;N : B\in \csn$.
   \end{enumerate}
 \end{corollary}
@@ -567,7 +569,7 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since  $\Gamma, x{:}A \vdash M \red
 % Previously, we only defined single step reductions. To talk about normalization of a term, we also need to be % able to chain single step reductions together and reason about reduction sequences.
 % Recall that a term $M$ is said to be \emph{weakly} normalising if there is a  rewrite sequence starting in $M$ that eventually ends in a normal form. A  term $M$ is said to be \emph{strongly} normalising, if \emph{all} rewrite sequences starting in $M$ end eventually in a  normal form.  We can then in fact give a rather easy definition of all weakly normalizing terms
 
-% One common approach is to define a multi-step relation on top of the single step reduction we have defined. This approach can become verbose as we extend our language with new constructs and types. 
+% One common approach is to define a multi-step relation on top of the single step reduction we have defined. This approach can become verbose as we extend our language with new constructs and types.
 
 Let us begin by contrasting weak and strong normalization. A term $M$ is said to be \emph{weakly} normalising if there is a  rewrite sequence starting in M that eventually ends in a  normal form. A  term $M$ is said to be \emph{strongly} normalising if all rewrite sequences starting in M end eventually in a  normal form.
 
@@ -577,13 +579,13 @@ To compactly state closure properties, we rely on evaluation contexts which we d
 
 \[
 \begin{array}{lcl}
-\mbox{Evaluation Context}~C & \bnfas & {\_} ~\mid C~M  
+\mbox{Evaluation Context}~C & \bnfas & {\_} ~\mid C~M
 \end{array}
 \]
 
-An evaluation context is a term with a hole, written as an underscore. 
+An evaluation context is a term with a hole, written as an underscore.
 
-Using evaluation contexts, we can describe the term $x~M_1 \ldots M_n$ using the evaluation context $C = \_~M_1 \ldots M_n$ and simply instantiate the hole with $x$ writing $C[x]$ for $x~M_1 \ldots M_n$. We can also represent the term $x~M_1 \ldots M_n$ choosing the evaluation context $C' = \_~M_1 \ldots M_{n-1}$ writing $C'[x]~M_n = C[x]$. 
+Using evaluation contexts, we can describe the term $x~M_1 \ldots M_n$ using the evaluation context $C = \_~M_1 \ldots M_n$ and simply instantiate the hole with $x$ writing $C[x]$ for $x~M_1 \ldots M_n$. We can also represent the term $x~M_1 \ldots M_n$ choosing the evaluation context $C' = \_~M_1 \ldots M_{n-1}$ writing $C'[x]~M_n = C[x]$.
 
 Similarly, choosing $C = \_ ~N_1 \ldots N_k$ and instantiating the hole with $\lambda x{:}A.M$ we describe a term $C[\lambda x{:}A.M] = (\lambda x{:}A.M)~N_1 \ldots N_k$ which has a redex. Moreover, when choosing the evaluation context $C' = \_~N_2 \ldots N_k$ we have $C'[(\lambda x{:}A.M)~N_1] = C[\lambda x{:}A.M]$.
 
@@ -597,12 +599,12 @@ Similarly, choosing $C = \_ ~N_1 \ldots N_k$ and instantiating the hole with $\l
 %   \end{array}
 % \]
 
-% where $M$ is the sub-term that we reduce. 
+% where $M$ is the sub-term that we reduce.
 
-Evaluation contexts are inductively defined -- they are either a hole or built by $C~M$ where $C$ is a smaller evaluation context containing a hole. 
+Evaluation contexts are inductively defined -- they are either a hole or built by $C~M$ where $C$ is a smaller evaluation context containing a hole.
 
 \begin{metanote}
-  We may want to explain the notation $C[x]$, as the induction 
+  We may want to explain the notation $C[x]$, as the induction
   structure is not crystal clear to me. Also confused why weak head
   reduction suffices -am
 \end{metanote}
@@ -613,7 +615,7 @@ If $\Gamma \vdash C[x]~N \red R : B$ then there exists an
 \begin{proof}
 By induction on the structure of evaluation contexts $C$.
 
-\paragraph{Case}  $C = \_$ 
+\paragraph{Case}  $C = \_$
 \\[1em]
 $\Gamma \vdash x~N \red R : B$ \hfill by assumption since $C[x] = x$\\
 Impossible since $x~N$ does not step.
@@ -627,19 +629,19 @@ Therefore there exists an evaluation context $C'[x] = C_1[x]~N$
 \\[1em]
 \textbf{Sub-case} $\ianc{\Gamma \vdash (C_0[x]~M) : A \arrow B \qquad \Gamma \vdash N \red N' : A}{\Gamma \vdash (C_0[x]~M)\,N \red (C_0[x]~M)\,N' : B}{}$
 \\[1em]
-Hence there exists an evaluation context $C'$ s.t. $C'[x] = (C_0[x]~M)\,N'$. 
+Hence there exists an evaluation context $C'$ s.t. $C'[x] = (C_0[x]~M)\,N'$.
 
 \end{proof}
 
 % Closure of SN under WH Expansion
 % 1.
 % If $\Gamma \vdash N \in \csn$
-% and $\Gamma \vdash C[M[N/x]] \in \csn$ 
+% and $\Gamma \vdash C[M[N/x]] \in \csn$
 % then $\Gamma \vdash C[ (lam x.M)~N] \in \csn$.
 % 2.
 % If $\Gamma \vdash C[ (lam x.M)~N ] \red R$
 % then $\Gamma \vdash C[ M[N/x] } \red R$
-% 
+%
 % 3.
 
 Using evaluation contexts we can now state elegantly that strongly normalizing terms are closed under expansion.
@@ -651,16 +653,16 @@ Using evaluation contexts we can now state elegantly that strongly normalizing t
 %   \Vdash N \in \csn$ then $\Gamma
 %    \vdash M \in \csn$.
   \item\label{cp2} For all variables $x:A \in \Gamma$, $\Gamma \vdash x : A \in \csn$.
-  \item\label{cp3} If $\Gamma \vdash C[x] : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$ 
+  \item\label{cp3} If $\Gamma \vdash C[x] : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
      then $\Gamma \vdash C[x]\,N : B \in \csn$.
   \item\label{cp3b} If $\Gamma \vdash C[x]~M \red R : B$ and $\Gamma \vdash C[x] : A \arrow B \in
-\csn$ and $\Gamma \vdash M : A \in \csn$ then $\Gamma \vdash R : B\in \csn$. 
+\csn$ and $\Gamma \vdash M : A \in \csn$ then $\Gamma \vdash R : B\in \csn$.
    % \item\label{cp4} If $\Gamma,x{:}A \vdash M \in \csn$ then $\Gamma \vdash \lambda x.M \in \csn$.
    \item\label{cp5} {$\csn$-backward closure:} If $\Gamma \vdash M \redsn M' : A$ and $\Gamma \vdash M' : A \in \csn$ then
      $\Gamma \vdash M : A \in \csn$ where
 \[
 \begin{array}{l}
-\infer{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{\Gamma, x{:}A \vdash M : B \quad \Gamma \vdash N : A \in \csn } 
+\infer{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{\Gamma, x{:}A \vdash M : B \quad \Gamma \vdash N : A \in \csn }
 \qquad
 \infer{\Gamma \vdash M\;N \redsn M'\;N : B}{\Gamma \vdash M \redsn M' : A \arrow B \quad \Gamma \vdash N : A} %  M\,\text{is not a}\;\lambda %  %& s \in \csn
   \\[1em]
@@ -679,10 +681,10 @@ $\Gamma \vdash x : A \in \csn$
 \\[1em]
 \fbox{
 %  \begin{tabular}{lp{11cm}}
-\ref{cp3}.  If $\Gamma \vdash C[x] : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$ 
+\ref{cp3}.  If $\Gamma \vdash C[x] : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
      then $\Gamma \vdash C[x]\,N : B \in \csn$.\\
 % \ref{cp3b}. & If $\Gamma \vdash C[x]~M \red R$ and $\Gamma \in C[x] \in
-% \csn$ and $\Gamma \vdash M \in \csn$ then $\Gamma \vdash R \in \csn$.    
+% \csn$ and $\Gamma \vdash M \in \csn$ then $\Gamma \vdash R \in \csn$.
 %  \end{tabular}
  }
 \\[1em]
@@ -690,15 +692,15 @@ Assume $\Gamma \vdash C[x]\;N \red R : B$ \\
 $\Gamma \vdash C[x] : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
 $\Gamma \vdash R : B \in \csn$ \hfill direct consequence of (\ref{cp3b})\\
 $\Gamma \vdash C[x]\,N : B \in \csn$ \hfill since $\Gamma \vdash C[x]\;N \red R : B$  was arbitrary
-% \paragraph{Case}$\D = 
+% \paragraph{Case}$\D =
 % \ianc{\forall M'.~\Gamma \vdash C[x] \red M' : A \arrow B \imply \Gamma \vdash M' : A \arrow B \in \csn}
 %      {\Gamma \vdash C[x] : A \arrow B \in \csn}{}$
 % \\[1em]
-% \textbf{Sub-case}: $C[x] = x$ 
+% \textbf{Sub-case}: $C[x] = x$
 % \\
 % impossible
 % \\[1em]
-% \textbf{Sub-case}: $C[x] = C_0[x]~M$ 
+% \textbf{Sub-case}: $C[x] = C_0[x]~M$
 % \\[1em]
 % Assume $\Gamma \vdash (C_0[x]~M)~N \red Q$\\
 % $\Gamma \vdash N \in \csn$ \hfill by assumption \\
@@ -711,9 +713,9 @@ $\Gamma \vdash C[x]\,N : B \in \csn$ \hfill since $\Gamma \vdash C[x]\;N \red R 
 % $\Gamma \vdash C[x]\,N \in \csn$ \hfill by def. $\csn$
 \\[1em]
 \noindent
-\fbox{\ref{cp3b}. 
-If $\Gamma \vdash C[x]~M \red R : B $ and $\Gamma \vdash C[x] : A \arrow B \in \csn$ 
-and $\Gamma \vdash M : A \in \csn$ 
+\fbox{\ref{cp3b}.
+If $\Gamma \vdash C[x]~M \red R : B $ and $\Gamma \vdash C[x] : A \arrow B \in \csn$
+and $\Gamma \vdash M : A \in \csn$
 then $\Gamma \vdash R : B \in \csn$. }
 \\[1em]
 Proof by simultaneous induction on $\Gamma \vdash C[x] : A \arrow B \in \csn$ and
@@ -748,7 +750,7 @@ $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption \\
 $\Gamma \vdash (\lambda x.M)\;N : B\in \csn$ \hfill by Corollary \ref{cor:psn}(\ref{pp1})
 
 
-\paragraph{Case} $\D = 
+\paragraph{Case} $\D =
 \ianc {\Gamma \vdash M \redsn M' : B} % \qquad M\,\text{is not a}\;\lambda
       {\Gamma \vdash M\;N \redsn M'\;N : B}{}$
 \\
@@ -775,9 +777,9 @@ $\Gamma \vdash M~N : B \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp
 
 
 
-%Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.% \ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
+%Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.% \ednote{I don't have a good structural def of subterm, so not an easy exercise --am}.
 
-% Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}. 
+% Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}.
 
 % \begin{theorem}[Subterm property of strong normalization]
 % % Any subterm of a strongly normalizing term is strongly normalizing itself.za
@@ -794,12 +796,12 @@ Following \cite{Raamsdonk_onnormalisation} and \cite{Joachimski2003} we define i
 \begin{tabular}{ll}
 $\Gamma \vdash M : A \in \SN$  & $M$ is in the set of normal terms of  type $A$\\
 $\Gamma \vdash M : A \in \SNe$ & $M$ is in the set of neutral terms of type $A$
-\end{tabular}  
+\end{tabular}
 \end{center}
 
 Our inductive definition given in Fig.~\ref{fig:sn} tracks typing information, as before. This will allow us to easily extend our framework with the unit type.
 As \cite{Raamsdonk_onnormalisation} observed, many proofs, not only normalization proofs, become simpler using the inductive definition, since it allows us  to prove properties by structural induction. This is in contrast to the accessibility notion of strong normalization where we often have to reason about reduction sequences and about positions of terms. As \cite{Joachimski2003}  put it: ``the reduct analysis becomes increasingly annoying in normalization proofs for more and more complex systems.'' Using the inductive definition of normal and neutral terms, we reduce the task of checking all one-step reducts to analysing no more than one standard reduct
-and some subterms.  The proof of equivalence between the inductive notion of normalization and the accessibility notion given earlier is in fact the only place where reduct analysis has to be carried out. 
+and some subterms.  The proof of equivalence between the inductive notion of normalization and the accessibility notion given earlier is in fact the only place where reduct analysis has to be carried out.
 Hence this approach seems particularly amendable to mechanizing proofs.
 
 % introducing strictly positive inductive definitions of the underlying con-
@@ -808,17 +810,17 @@ Hence this approach seems particularly amendable to mechanizing proofs.
 
 
 \begin{figure}
-  \centering  
+  \centering
 \[
 \begin{array}{c}
 \multicolumn{1}{l}{\mbox{Neutral terms}} \\[1em]
-\ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{} \qquad  
-\ibnc{\Gamma \vdash R : A \arrow B \in \SNe}{\Gamma \vdash M : A \in \SN}{\Gamma \vdash R\,M : B \in \SNe}{} 
+\ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{} \qquad
+\ibnc{\Gamma \vdash R : A \arrow B \in \SNe}{\Gamma \vdash M : A \in \SN}{\Gamma \vdash R\,M : B \in \SNe}{}
 \\[1em]
 \multicolumn{1}{l}{\mbox{Normal terms}} \\[1em]
-\ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{} \qquad 
+\ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{} \qquad
 \ianc{\Gamma, x{:}A \vdash M : A \arrow B \in \SN}{\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \SN}{} \qquad
-\ibnc{\Gamma \vdash M \redSN M' : A}{\Gamma \vdash M' : A \in \SN}{\Gamma \vdash M : A \in \SN}{} 
+\ibnc{\Gamma \vdash M \redSN M' : A}{\Gamma \vdash M' : A \in \SN}{\Gamma \vdash M : A \in \SN}{}
 \\[1em]
 \multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
 \ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{} \qquad
@@ -830,15 +832,15 @@ Hence this approach seems particularly amendable to mechanizing proofs.
 \end{figure}
 
 
-\begin{lemma}[$\SN$ and $\SNe$ characterize well-typed terms]\quad 
+\begin{lemma}[$\SN$ and $\SNe$ characterize well-typed terms]\quad
   \begin{enumerate}
   \item If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A$.
   \item If $\Gamma \vdash M : A \in \SNe$ then $\Gamma \vdash M : A$.
   \item If $\Gamma \vdash M \redSN M' : A$ then $\Gamma \vdash M : A$ and $\Gamma \vdash M' : A$.
-  \end{enumerate}  
+  \end{enumerate}
 \end{lemma}
 \begin{proof}
-By induction on the definition of $\SN$, $\SNe$, and $\redSN$.  
+By induction on the definition of $\SN$, $\SNe$, and $\redSN$.
 \end{proof}
 
 % \begin{lemma}[Variables are in $\SN$]
@@ -846,13 +848,13 @@ By induction on the definition of $\SN$, $\SNe$, and $\redSN$.
 % \end{lemma}
 \begin{lemma}[Renaming]~\label{lm:renameSN}
   \begin{enumerate}
-  \item If $\Gamma \vdash M : A \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M : A \in \SN$  
-  \item If $\Gamma \vdash M : A \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M : A \in \SNe$  
+  \item If $\Gamma \vdash M : A \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M : A \in \SN$
+  \item If $\Gamma \vdash M : A \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M : A \in \SNe$
   \item If $\Gamma \vdash M \redSN N : A$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M \redSN [\rho]N : A$.
   \end{enumerate}
 \end{lemma}
 \begin{proof}
-By induction on the first derivation. 
+By induction on the first derivation.
 
 \paragraph{Case:} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{} $
 \\[1em]
@@ -867,7 +869,7 @@ $\Gamma' \vdash \lambda x{:}A.[\rho, x/x]M : A \arrow B \in \SN$ \hfill by def. 
 $\Gamma' \vdash [\rho](\lambda x{:}A.M) : A \arrow B \in \SN$ \hfill by subst. def.
 
 
-% We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
+% We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}.
 
 \paragraph{Case:} $\D = \ibnc{\Gamma \vdash M \redSN M' : A}{\Gamma \vdash M' : A \in \SN}{\Gamma \vdash M : A \in \SN}{} $
 \\[1em]
@@ -909,31 +911,31 @@ $\Gamma \vdash [\rho](R~M) \redSN [\rho](R'~M) : B$ \hfill by def. of subst.
 
 \begin{lemma}[Anti-Renaming]~\label{lm:anti-renameSN}
   \begin{enumerate}
-  \item If $\Gamma' \vdash [\rho]M : A \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M : A \in \SN$  
-  \item If $\Gamma' \vdash [\rho]M : A \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M : A \in \SNe$  
+  \item If $\Gamma' \vdash [\rho]M : A \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M : A \in \SN$
+  \item If $\Gamma' \vdash [\rho]M : A \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M : A \in \SNe$
   \item If $\Gamma' \vdash [\rho]M \redSN [\rho]N : A$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M \redSN N : A$.
   \end{enumerate}
 \end{lemma}
 \begin{proof}
-By induction on the first derivation. [to check]  
+By induction on the first derivation. [to check]
 \end{proof}
 
 
 \begin{lemma}[Stable under Substitution]\label{lem:SNsubst}\quad
   \begin{enumerate}
-  \item If $\Gamma, x{:}A \vdash M : B \in \SN$ and $\Gamma \vdash N : A \in \SN$ 
+  \item If $\Gamma, x{:}A \vdash M : B \in \SN$ and $\Gamma \vdash N : A \in \SN$
     then $\Gamma \vdash [N/x]M : B \in \SN$.
-  \item If $\Gamma, x{:}A \vdash R : B \in \SNe$ and $\Gamma \vdash N : A \in \SN$ 
+  \item If $\Gamma, x{:}A \vdash R : B \in \SNe$ and $\Gamma \vdash N : A \in \SN$
     then $\Gamma \vdash [N/x]R : B \in \SN$.
-  \item If $\Gamma, x{:}A \vdash M \redSN M' : B$ and $\Gamma \vdash N : A \in \SN$ then 
-    $\Gamma \vdash [N/x]M \redSN [N/x]M' : B$. 
+  \item If $\Gamma, x{:}A \vdash M \redSN M' : B$ and $\Gamma \vdash N : A \in \SN$ then
+    $\Gamma \vdash [N/x]M \redSN [N/x]M' : B$.
   \end{enumerate}
 \end{lemma}
 \begin{proof}
-Simultaneous induction on $\Gamma, x{:}A \vdash M \in \SN$. 
+Simultaneous induction on $\Gamma, x{:}A \vdash M \in \SN$.
 % We only show a few cases.
 
-% \paragraph{Case}  
+% \paragraph{Case}
 %  $\D = \ianc{\Gamma, x{:}A \vdash M' \in \SN}
 %             {\Gamma, x{:}A \vdash (\lambda y{:}B.M)~M' \redSN [M'/y]M}{}$
 % \\[1em]
@@ -946,13 +948,13 @@ Simultaneous induction on $\Gamma, x{:}A \vdash M \in \SN$.
 \end{proof}
 
 \begin{lemma}[$\SN$ is closed under application]\label{lm:pSN0}
-If $\Gamma \vdash M : A \arrow B \in \SN$ and $\Gamma \vdash N : A \in \SN$ then $\Gamma \vdash M~N : B \in \SN$.    
+If $\Gamma \vdash M : A \arrow B \in \SN$ and $\Gamma \vdash N : A \in \SN$ then $\Gamma \vdash M~N : B \in \SN$.
 \end{lemma}
 \begin{proof}
 By induction on $\SN$.
 
 \paragraph{Case:} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{}$
-\\[1em]  
+\\[1em]
 $\Gamma \vdash R~N : B\in \SNe$ \hfill by def. of $\SNe$\\
 $\Gamma \vdash R~N : B \in \SN$ \hfill by def. of $\SN$
 
@@ -974,7 +976,7 @@ $\Gamma \vdash M~N : B \in \SN$ \hfil by def. of $\SN$.
 \end{proof}
 
 \begin{lemma}[$\SN$ is closed under application to variables]\label{lm:pSN1}
-If $\Gamma \vdash M : A \arrow B \in \SN$ and $x{:}A \in \Gamma$ then \mbox{$\Gamma \vdash M~x : B \in \SN$}.  
+If $\Gamma \vdash M : A \arrow B \in \SN$ and $x{:}A \in \Gamma$ then \mbox{$\Gamma \vdash M~x : B \in \SN$}.
 \end{lemma}
 \begin{proof}
 Follows from the previous lemma \ref{lm:pSN0}\footnote{For proving the $\CR$ properties this lemma suffices and our mechanization in Beluga proves this lemma inductively; we need the more general lemma to show completeness of $\SN$ with respect to $\csn$.}.
@@ -1003,20 +1005,20 @@ Follows from the previous lemma \ref{lm:pSN0}\footnote{For proving the $\CR$ pro
 %   Does this work for $M$ as well? If it does, then extensionality follows -am
 % \end{metanote}
 % \begin{lemma}[Subterm Property of $\SN$]\label{lm:pSN2}
-% If $\Gamma \vdash M~N : B \in \SN$ then $\Gamma \vdash N \in \SN$.  
+% If $\Gamma \vdash M~N : B \in \SN$ then $\Gamma \vdash N \in \SN$.
 % \end{lemma}
 % \begin{proof}
 % By Induction on $\SN$.
-% \paragraph{Case:} $\D =  \ianc{\Gamma \vdash R~N \in \SNe}{\Gamma \vdash R~N \in \SN}{}$  
+% \paragraph{Case:} $\D =  \ianc{\Gamma \vdash R~N \in \SNe}{\Gamma \vdash R~N \in \SN}{}$
 % \\[1em]
 % $\Gamma \vdash N \in \SN$ \hfill by def. of $\SNe$
 
 % \paragraph{Case:} $\D = \ibnc{\Gamma \vdash M~N \redSN Q}{\Gamma \vdash Q \in \SN}{\Gamma \vdash M~N \in \SN}{} $
 % \\[1em]
 % \textbf{Sub-Case:} $\D = \ianc{\Gamma \vdash N \in \SN}{\Gamma \vdash (\lambda x.M')\;N \redSN [N/x]M'}{}$ where $M = \lambda x.M'$\\[1em]
-% $\Gamma \vdash N \in \SN$ \hfill by assumption  
+% $\Gamma \vdash N \in \SN$ \hfill by assumption
 % \\[1em]
-% \textbf{Sub-Case:} $\D = \ianc{\Gamma \vdash R \redSN R'}{\Gamma \vdash R\,M \redSN R'\,M}{}$ 
+% \textbf{Sub-Case:} $\D = \ianc{\Gamma \vdash R \redSN R'}{\Gamma \vdash R\,M \redSN R'\,M}{}$
 % \\[1em]
 % $\Gamma \vdash R'\;M \in \SN$ \hfill by assumption since $Q = R'~M$\\
 % $\Gamma \vdash M \in \SN$ \hfill by IH
@@ -1052,9 +1054,9 @@ By induction on $\SN$
 % To Show: \Gamma \vdash M \in \SN$
 \end{proof}
 
-%We will sketch here that the inductive definition of $\SN$ and $\SNe$ is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}). 
+%We will sketch here that the inductive definition of $\SN$ and $\SNe$ is sound and complete with respect to our informal understanding of strongly normalizing reductions (Def. \ref{def:norm}).
 
-% We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}. 
+% We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}.
 
 
 
@@ -1070,7 +1072,7 @@ For proving normalization, soundness of the inductive definition of $\SN$ suffic
   \item If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.
   \item If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
   \item If $\Gamma \vdash M \redSN M' : A$ then $\Gamma \vdash M \redsn M' : A$.
-  \end{enumerate} 
+  \end{enumerate}
 \end{theorem}
 \begin{proof}
 By mutual structural induction on the given derivations using the
@@ -1078,7 +1080,7 @@ closure properties. \\[1em]
 \noindent
 1. If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.
 
-\paragraph{Case} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{}$ 
+\paragraph{Case} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{}$
 \\[1em]
 $R = C[x] $ \hfill since $\Gamma \vdash R : A \in \SNe$ \\
 $\Gamma \vdash R : A \in \csn$ \hfill by IH(1)
@@ -1136,16 +1138,16 @@ ${\Gamma \vdash R\,M \redsn R'\,M : B}$ \hfill by def. or $\redsn$
 \begin{theorem}[Completeness of $\SN$]\mbox{}
 \begin{enumerate}
 \item\label{csn1} If $\Gamma \vdash C[x] : A \in \csn$ then $\Gamma \vdash C[x] : A \in \SNe$.
-\item\label{csn2} If $\Gamma \vdash C[(\lambda x.M)~N] : A \in \csn$ 
-      then $\Gamma \vdash  C[(\lambda x.M)~N] \redSN  C[[N/x]M] : A$ 
-      and $\Gamma \vdash C[[N/x]M] : A \in \SN$. 
+\item\label{csn2} If $\Gamma \vdash C[(\lambda x.M)~N] : A \in \csn$
+      then $\Gamma \vdash  C[(\lambda x.M)~N] \redSN  C[[N/x]M] : A$
+      and $\Gamma \vdash C[[N/x]M] : A \in \SN$.
 % \item If $\Gamma \vdash M \in \csn$ and $\Gamma \vdash M \redSN M'$
 %  then $\Gamma \vdash M' \in \SN$.
  \item If $\Gamma \vdash M : A \in \csn$ then $\Gamma \vdash M : A \in \SN$.
 %  \item If $R = x\,\vec N \in \csn$ then $x\,\vec N\in \SNe$.
 %  \item If $R = (\lambda x.M)\,N\,\vec N \in \csn$ then $R \redSN [N/x]M\,\vec  N$.
 %  \item If $R \in \csn$ then $R \in \SN$.
-  \end{enumerate}  
+  \end{enumerate}
 \end{theorem}
 \begin{proof}
 
@@ -1169,7 +1171,7 @@ $\Gamma \vdash C'[x] : A \arrow B \in \SNe$ \hfill by IH(1) \\
 $\Gamma \vdash M : A \in \SN$ \hfill by IH (3) \\
 $\Gamma \vdash C'[x]~M : B \in \SNe $ \hfill by def. of $\SNe$
 \\[1em]
-\fbox{\ref{csn2}. If $\Gamma \vdash C[(\lambda x{:}A.M)~N] : B \in \csn$ 
+\fbox{\ref{csn2}. If $\Gamma \vdash C[(\lambda x{:}A.M)~N] : B \in \csn$
       then $\Gamma \vdash  C[(\lambda x{:}A.M)~N] \redSN  C[[N/x]M] : B$ and $\Gamma \vdash C[[N/x]M] : B \in \SN$. }
 \\[0.5em]
 By structural induction on $C[(\lambda x.M)~N]$. We again leave some of the reasoning about well-typed terms implicit.
@@ -1209,8 +1211,8 @@ $\Gamma \vdash x : A \in \SN$ \hfill by def. of $\SN$.
 \\[1em]
 $\Gamma \vdash \lambda x{:}A.M' : A \arrow B \in \csn$ \hfill by assumption\\
 $\Gamma, x{:}A \vdash M' : B\in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp7})\\
-$\Gamma, x{:}A \vdash M' : B \in \SN$ \hfill by IH \\ 
-$\Gamma \vdash \lambda x{:}A.M' : A \arrow B \in \SN$ \hfill  by def. of $\SN$ 
+$\Gamma, x{:}A \vdash M' : B \in \SN$ \hfill by IH \\
+$\Gamma \vdash \lambda x{:}A.M' : A \arrow B \in \SN$ \hfill  by def. of $\SN$
 
 \paragraph{Case} $M = M_1~M_2$
 \\[1em]
@@ -1244,7 +1246,7 @@ to satisfy. If a semantic type satisfies these key properties, then our proof of
 %   \item $\CR 1:$ If $\Gamma \vdash M \in \den{A}$ then $M \in \SN$. % , i.e. $\den{A} \subseteq \SN$.% \\[0.5em]
 %   \item $\CR 2:$ If $\Gamma \vdash M \in \SNe$ then $\Gamma \vdash M \in \den{A}$. % , i.e. $\SNe \subseteq \den{A}$. % \\[0.5em]
 %   \item $\CR 3:$ If $\Gamma \vdash M \redSN M'$ and $\Gamma \vdash M' \in \den{A}$ then $\Gamma \vdash M \in \den{A}$, i.e . $\den{A}$ is closed under reduction.
-%   \end{itemize}  
+%   \end{itemize}
 % \end{definition}
 
 % The last property is often also referred to as \emph{backward closed}. We show that that all semantic types $\den{A}$ satisfy the conditions above.
@@ -1257,14 +1259,14 @@ to satisfy. If a semantic type satisfies these key properties, then our proof of
   \item\label{cr1} \CR 1: If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$. % , i.e. $\den{A} \subseteq \SN$.% \\[0.5em]
   \item\label{cr2} \CR 2: If $\Gamma \vdash M : A \in \SNe$ then $\inden{\Gamma}{M}{A}$. % , i.e. $\SNe \subseteq \den{A}$. % \\[0.5em]
   \item\label{cr3} \CR 3: If $\Gamma \vdash M \redSN M' : A$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.
-  \end{enumerate} 
+  \end{enumerate}
 \end{theorem}
 \begin{proof}
 We prove these three properties simultaneously.
 \\[1em]
 \fbox{\CR \ref{cr1}.  If $\inden{\Gamma}{M}{C}$ then $\Gamma \vdash M : A \in \SN$.}
 \\[0.5em]
-By induction on the structure of $C$. 
+By induction on the structure of $C$.
 
 \paragraph{Case: $C =\base$}.\\
 $\inden{\Gamma}{M}{\base}$ \hfill by assumption \\
@@ -1284,13 +1286,13 @@ $\Gamma \vdash M : A \arrow B\in \SN$ \hfill by Anti-renaming Lemma \ref{lm:anti
 \\[1em]
 \fbox{\CR \ref{cr2}. If $\Gamma \vdash M : C\in \SNe$ then $\inden{\Gamma}{M}{C}$.}
 \\[0.5em]
-By induction on $\Gamma \vdash M : C \in \SNe$. 
+By induction on $\Gamma \vdash M : C \in \SNe$.
 
 \paragraph{Case: $C=\base$}.\\
 $\Gamma \vdash M : C \in \SNe$ \hfill by assumption \\
 $\Gamma \vdash M : C \in \SN$ \hfill by def. of $\SN$\\
 % $\Gamma \vdash M \hastype \base$ \hfill by assumption \\
-$\inden{\Gamma}{M}{\base}$ \hfill by def. of semantic typing 
+$\inden{\Gamma}{M}{\base}$ \hfill by def. of semantic typing
 
 \paragraph{Case: $C = A \arrow B$}.\\
 Assume $\Gamma' \ext{\rho} \Gamma$ and $\inden{\Gamma'}{N}{A}$ \\
@@ -1307,7 +1309,7 @@ By induction on $C$.
 \paragraph{Case: $C = \base$}.\\[0.5em]
 $\Gamma \vdash M' : \base \in \SN$  \hfill since $\inden{\Gamma}{M'}{\base}$\\
 $\Gamma \vdash M : \base \in \SN$ \hfill by closure rule for $\SN$\\
-$\inden{\Gamma}{M}{\base}$ \hfill by definition of semantic typing 
+$\inden{\Gamma}{M}{\base}$ \hfill by definition of semantic typing
 
 \paragraph{Case: $C = A \arrow B$}.
 \\[0.5em]
@@ -1322,21 +1324,21 @@ $\inden{\Gamma}{M}{A \arrow B}$ \hfill since $\inden{\Gamma'}{N}{A}$ was arbitra
 \end{proof}
 
 
-\section{Proving strong normalization} 
+\section{Proving strong normalization}
 As mentioned before, we prove that if a term is well-typed, then it is strongly normalizing in  two steps:
 
 \begin{description}
-\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$. 
+\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$.
 \item[Step 2] If $\Gamma \vdash M : A$ and $\inden{\Gamma'}{\sigma}{\Gamma}$ then $\inden{\Gamma'}{[\sigma] M}{A}$.
 \end{description}
 
 The first part described in Step 1, is satisfied by the fact that $\inden{\Gamma}{M}{A}$ must be a reducibility candidate (Theorem \ref{thm:redcand}) and  by \CR \ref{cr1})  all terms in $\denot{A}$ are strongly normalizing. We now prove the second step, which is often referred to as the \emph{Fundamental Lemma}.
-It states that if $M$ has type $A$ and we can provide ``good'' instantiation $\sigma$, which provides terms which are themselves normalizing for all the free variables in $M$, then $\inden{\Gamma}{[\sigma]M}{A}$. 
+It states that if $M$ has type $A$ and we can provide ``good'' instantiation $\sigma$, which provides terms which are themselves normalizing for all the free variables in $M$, then $\inden{\Gamma}{[\sigma]M}{A}$.
 
 
 \begin{lemma}[Fundamental lemma]
 If $\Gamma \vdash M : A$ and $\inden{\Gamma'}{\sigma}{\Gamma}$
-then $\inden{\Gamma'}{[\sigma]M}{A}$.  
+then $\inden{\Gamma'}{[\sigma]M}{A}$.
 \end{lemma}
 \begin{proof}
 By induction on $\Gamma \vdash M : A$.
@@ -1355,7 +1357,7 @@ $\inden{\Gamma'}{[\sigma]M\;[\sigma]N}{B}$ \hfill by $\inden{\Gamma'}{[\sigma]M}
 $\inden{\Gamma'}{[\sigma](M\;N)}{B}$ \hfill by subst. definition \\
 
 
-\paragraph{Case} $\D = \ianc{\Gamma, x:A \vdash M:B}{\Gamma \vdash \lambda x.M : A \rightarrow B}{}$ 
+\paragraph{Case} $\D = \ianc{\Gamma, x:A \vdash M:B}{\Gamma \vdash \lambda x.M : A \rightarrow B}{}$
 \\
 $\inden{\Gamma'}{\sigma}{\Gamma}$ \hfill by assumption \\
 Assume $\Gamma'' \ext{\rho} \Gamma'$ and $\Gamma'' \vdash N : A$  \\
@@ -1371,7 +1373,7 @@ $\inden{\Gamma'}{[\sigma](\lambda x.M)}{A \arrow B}$ \hfill since $\Gamma'' \ext
 
 
 \begin{corollary}
-If $\Gamma \vdash M : A$ then $\Gamma \vdash M : A \in \SN$.  
+If $\Gamma \vdash M : A$ then $\Gamma \vdash M : A \in \SN$.
 \end{corollary}
 
 \begin{proof}
@@ -1403,33 +1405,33 @@ We extend our definition of $\SN$ and $\redSN$ as follows:
 
 \[
   \begin{array}{c}
-\ianc{}{\Gamma \vdash () : \one \in \SN}    {} \qquad 
+\ianc{}{\Gamma \vdash () : \one \in \SN}    {} \qquad
 \ianc{\Gamma \vdash M : \one}{\Gamma \vdash M \redSN () : \one}{}
   \end{array}
 \]
 
-We omit here the extensions in the proofs about $\SN$, in particular the renaming, anti-renaming and substitution lemmas. 
+We omit here the extensions in the proofs about $\SN$, in particular the renaming, anti-renaming and substitution lemmas.
 
 As $\one$ is simply a new base type, we simply say
 
 \begin{center}
 \begin{tabular}{lcl}
-$\inden{\Gamma}{M}{\one}$ & iff & $\Gamma \vdash M : \one \in \SN$ 
-\end{tabular}  
+$\inden{\Gamma}{M}{\one}$ & iff & $\Gamma \vdash M : \one \in \SN$
+\end{tabular}
 \end{center}
 
 We revisit our previous theorem \ref{thm:redcand} and highlight the cases for unit.
 
 \begin{theorem*}
-\CR 1: If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$. % , i.e. $\den{A} \subseteq \SN$.%  
+\CR 1: If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$. % , i.e. $\den{A} \subseteq \SN$.%
 \end{theorem*}
 
 \begin{proof}
 Induction on type $A$.
 
-\paragraph{Case} $A = \one$. 
+\paragraph{Case} $A = \one$.
 \\[1em]
-$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\inden{\Gamma}{M}{A}$ 
+$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\inden{\Gamma}{M}{A}$
 
 \end{proof}
 
@@ -1443,22 +1445,22 @@ Induction on $A$.
 \\[1em]
 $\Gamma \vdash M : \one \in \SNe$ \hfill by assumption \\
 $\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\SN$\\
-$\inden \Gamma M \one$ \hfill by def. of semantic interpretation of $\one$  
+$\inden \Gamma M \one$ \hfill by def. of semantic interpretation of $\one$
 
 \end{proof}
 
 
 \begin{theorem*}
- \CR 3: If $\Gamma \vdash M \redSN M' : A$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.  
+ \CR 3: If $\Gamma \vdash M \redSN M' : A$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.
 \end{theorem*}
 \begin{proof}
 Induction on $A$.
 
-\paragraph{Case} $A = \one$ 
+\paragraph{Case} $A = \one$
 \\[1em]
 $\Gamma \vdash M' : \one \in \SN$ \hfill by assumption $\inden{\Gamma}{M'}{\one}$ \\
-$\Gamma \vdash M \redSN M' : \one$ \hfill by assumption 
-$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\SN$ 
+$\Gamma \vdash M \redSN M' : \one$ \hfill by assumption
+$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\SN$
 
 \end{proof}
 
@@ -1466,7 +1468,7 @@ We can now revisit the fundamental lemma.
 
  \begin{lemma}[Fundamental lemma]
  If $\Gamma \vdash M : C$ and $\inden{\Gamma'}{\sigma}{\Gamma}$
- then $\inden{\Gamma'}{[\sigma]M}{C}$.  
+ then $\inden{\Gamma'}{[\sigma]M}{C}$.
  \end{lemma}
  \begin{proof}
  By induction on $\Gamma \vdash M : C$.
@@ -1500,7 +1502,7 @@ Let us first extend our definition of $\SN$ and $\SNe$ (see Fig.~\ref{fig:sncase
 
 \begin{figure}
  \centering
- 
+
 \[
 \begin{array}{c}
 \multicolumn{1}{l}{\mbox{Neutral terms}} \\% [0.5em]
@@ -1553,11 +1555,11 @@ Our definition of $\denot{A + B}$ is not closed under the reduction relation $\r
 \end{array}
 \]
 
-and we define 
+and we define
 
 \[
 \begin{array}{lcl}
-\inden{\Gamma}{M}{A + B} & \text{iff} & \Gamma \vdash M \in \clos{ \{\inl M' \mid \inden{\Gamma}{M'}{A} \} \cup \{\inr M' \mid \inden{\Gamma}{M'}{B} \}  }  
+\inden{\Gamma}{M}{A + B} & \text{iff} & \Gamma \vdash M \in \clos{ \{\inl M' \mid \inden{\Gamma}{M'}{A} \} \cup \{\inr M' \mid \inden{\Gamma}{M'}{B} \}  }
 \end{array}
 \]
 
@@ -1570,13 +1572,13 @@ For all types $C$, $\denot{C}  \in \CR$.
 \begin{proof}
 By induction on the structure of $C$. We highlight the case for disjoint sums.
 
-\paragraph{Case $C = A + B$.} 
+\paragraph{Case $C = A + B$.}
 
   \begin{enumerate}
   \item \textit{Show} $\CR1$. Assume that $\inden{\Gamma}{M}{A + B}$. We consider different subcases and prove by an induction on the closure defining $\denot{A + B}$ that $\Gamma \vdash M : A + B \in \SN$.
 
 \paragraph{Subcase:} $\Gamma \vdash M \in \{\inl N \mid \inden{\Gamma}{N}{A}\}$. Therefore $M = \inl N$. Since $\inden{\Gamma}{N}{A}$ and by i.h. ($\CR1$), $\Gamma \vdash N : A \in \SN$. By definition of $\SN$, we have that $\Gamma \vdash \inl N : A + B \in \SN$.
-  
+
 \paragraph{Subcase:} $\Gamma \vdash M \in \{\inr N \mid \inden{\Gamma}{N}{B}\}$. Therefore $M = \inr N$. Since $\inden{\Gamma}{N}{B}$ and by i.h. ($\CR1$), $\Gamma \vdash N : B \in \SN$. By definition of $\SN$, we have that $\Gamma \vdash \inr N : A + B \in \SN$.
 
 \paragraph{Subcase:} $\Gamma \vdash M : A + B \in \SNe$. By definition of $\SN$, we conclude that $\Gamma \vdash M : A + B \in \SN$.
@@ -1606,7 +1608,7 @@ $\inden{\Gamma}{M}{A+B}$.
 
  \begin{lemma}[Fundamental lemma]
  If $\Gamma \vdash M : C$ and $\inden{\Gamma'}{\sigma}{\Gamma}$
- then $\inden{\Gamma'}{[\sigma]M}{C}$.  
+ then $\inden{\Gamma'}{[\sigma]M}{C}$.
  \end{lemma}
  \begin{proof}
  By induction on $\Gamma \vdash M : C$.
@@ -1634,7 +1636,7 @@ $\inden{\Gamma}{M}{A+B}$.
 $[\sigma]M = \inl N$ for some $\inden{\Gamma'}{N}{A}$ \hfill by assumption \\
 $\Gamma' \vdash N : A \in \SN$ \hfill by $\CR1$ \\
 $\Gamma' \vdash \inl N : A + B \in \SN$ \hfill by definition \\
-% $x \in \den{A}$, 
+% $x \in \den{A}$,
 $\inden{\Gamma'}{\sigma}{\Gamma}$ \hfill by assumption \\
 $\inden{\Gamma'}{[\sigma, N/x]}{\Gamma, x:A}$ \hfill by definition \\
 $\inden{\Gamma'}{[\sigma, N/x]M_1}{C}$ \hfill by outer i.h \\
@@ -1701,11 +1703,11 @@ To clarify, we give the typing rules for the additional constructs.
 
 \[
 \begin{array}{c}
-\infer{\Gamma \vdash \zero : \nat}{} \qquad 
-\infer{\Gamma \vdash \suc M : \nat}{\Gamma \vdash M : \nat}  
+\infer{\Gamma \vdash \zero : \nat}{} \qquad
+\infer{\Gamma \vdash \suc M : \nat}{\Gamma \vdash M : \nat}
 \\[1em]
 \infer{\Gamma \vdash \recnat M {M_z} {M_s} : C}{
-\Gamma \vdash M : \nat & \Gamma \vdash M_z : C & 
+\Gamma \vdash M : \nat & \Gamma \vdash M_z : C &
 \Gamma, n:\nat,\;f\,n:C \vdash M_s : C}
 \end{array}
 \]
@@ -1824,7 +1826,7 @@ $\Gamma \vdash N : \nat \in \SN$. By definition of $\SN$, $\Gamma \vdash \suc N 
  $\Gamma', n \hastype \nat, f~n \hastype C \vdash [\sigma, n/n, f~n/f~n]M_s : C \in \SN$ \hfill by $\CR1$ \\
  $\inden{\Gamma'}{[\sigma]M_z}{C}$ \hfill by outer i.h. \\
  $\Gamma' \vdash \recnat \zero {[\sigma]M_z} {[\sigma, n/n,f~n/f~n]M_s} \redSN [\sigma]M_z : C$
- \hfill by $\redSN$ \\ 
+ \hfill by $\redSN$ \\
  $\recnat \zero {[\sigma]M_z} {[\sigma, n/n,f~n/f~n]M_s}$ \\
  $\qquad = [\sigma](\recnat{M}
  {M_z} {M_s})$ \hfill by subst. def. and $[\sigma]M = \zero$\\
@@ -1877,8 +1879,8 @@ $\Gamma \vdash N : \nat \in \SN$. By definition of $\SN$, $\Gamma \vdash \suc N 
 % % \begin{exercise}
 %  The Def. \ref{def:norm}, defines strong normalization informally. We can replace this definition with a more formal definition.
 
-%  \begin{definition}[Inductive definition of strongly normalizing terms] A term $M$ is strongly normalizing, if all its reducts are strongly normalizing, i.e. 
-%  $M \csn$ if for all $M'$, if $M \red M'$ then $M' \in \csn$.  
+%  \begin{definition}[Inductive definition of strongly normalizing terms] A term $M$ is strongly normalizing, if all its reducts are strongly normalizing, i.e.
+%  $M \csn$ if for all $M'$, if $M \red M'$ then $M' \in \csn$.
 %  \end{definition}
 
 %  This definition gives rise to an induction principle to reason about strongly normalizing terms. To prove $\forall M \csn. P(M)$, we can assume the property holds for $P(M')$ for any $M'$ s.t. $M \red M'$. Using this induction principle, we can now prove  constructively that any subterm of a strongly normalizing term is itself normalizing.
@@ -1900,21 +1902,21 @@ $\Gamma \vdash N : \nat \in \SN$. By definition of $\SN$, $\Gamma \vdash \suc N 
 % \begin{theorem}
 % Any subterm of a strongly normalizing term is strongly normalizing itself, i.e. if $M \csn$ and $N$ is a subterm of $M$, i.e. $M = C[N]$ then $N \in \csn$.
 % \end{theorem}
-% \end{exercise}  
+% \end{exercise}
 % \end{problem}
 
 
 
 % \begin{problem}
 %   \begin{exercise}
-% Extend the semantic strong normalization proof to treat $A \times B$. 
+% Extend the semantic strong normalization proof to treat $A \times B$.
 % \begin{itemize}
 % \item Extend our definition of normal and neutral terms (i.e. $\SN$ and $\SNe$). You might also need to extend our definition of strong head reduction (i.e. $\redSN$).
 % \item Define an appropriate denotation of $\den{A \times B}$.
 % % \den{A * B} := {M | \fst(M) \in \den{A} or \snd{M} \in \den{B}}
 % \item Show that $\den{A \times B}$ is a reducibility candidate.
 % \item Show the additional cases in the fundamental lemma.
-% \end{itemize}    
+% \end{itemize}
 %   \end{exercise}
 % \end{problem}
 
@@ -1928,10 +1930,10 @@ $\Gamma \vdash N : \nat \in \SN$. By definition of $\SN$, $\Gamma \vdash \suc N 
 \bibliography{bibi-extract}
 
 \end{document}
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "sn-proof"
-%%% End: 
+%%% End:
 
 %  LocalWords:  Girard Tait llcl lcl redex subterms iff reducts IH
 %  LocalWords:  subst subterm todo Girard's instantiation inl inr
