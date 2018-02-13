@@ -382,7 +382,7 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $M'$ was arbitrary
 
 \begin{lemma}[Properties of strongly normalizing terms]\label{lem:psn}$\;$
   \begin{enumerate}
-  \item\label{pp2} If $\Gamma \vdash R : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
+  \item\label{pp2} If $\Gamma \vdash R : A \arrow B \in \csn$ where $R$ is not a lambda-abstraction and $\Gamma \vdash N : A \in \csn$
     then $\Gamma \vdash R~N : B \in \csn$.
   \item\label{pp3} If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A \in
     \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$.
@@ -558,7 +558,7 @@ If $\Gamma \vdash   [N/x]M : B \in \csn$
 \end{corollary}
 \begin{proof}
 Follows directly from Lemma
-  \ref{lem:psn}(\ref{pp3}), Lemma
+ {\color{red}{\ref{lem:psn}(\ref{pp3})}}, Lemma
   \ref{lem:psn}(\ref{pp4}) and  {\color{red}{Lemma
       \ref{lem:psn}(\ref{pp2}) -- cannot be used, since $\lambda x.M$
       is not neutral}}.
@@ -753,13 +753,13 @@ $\Gamma \vdash C[x]~N' : B\in \csn$ \hfill by IH(\ref{cp3})
  \paragraph{Case} $\D =
  \ianc {\Gamma \vdash M \redsn M' : B} % \qquad M\,\text{is not a}\;\lambda
        {\Gamma \vdash M\;N \redsn M'\;N : B}{}$
- \\
+ \\[1em]
+$M$ is not a lambda-abstraction \hfill by assumption\\
  $\Gamma \vdash M'\;N : B\in \csn$ \hfill by assumption \\
  $\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
  $\Gamma \vdash M  : A \arrow B \in \csn$ \hfill by IH\\
  $\Gamma \vdash N  : A \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
- {\color{red}{$\Gamma \vdash M~N : B \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp2}) -- $M$ is not neutral}}
-
+ $\Gamma \vdash M~N : B \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp2}), since $M$ is not a lambda-abstraction
 % IH If $\Gamma \vdash M' \csn then $\Gamma \vdash M \csn$
 %  H \Gamma \vdash M'\;N \in \csn
 % --------------------------------------
@@ -1071,7 +1071,8 @@ For proving normalization, soundness of the inductive definition of $\SN$ suffic
   \begin{enumerate}
   \item If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.
   \item If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
-  \item If $\Gamma \vdash M \redSN M' : A$ then $\Gamma \vdash M \redsn M' : A$.
+  \item If $\Gamma \vdash M \redSN M' : A$ then
+           $\Gamma \vdash M \redsn M' : A$.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
@@ -1089,7 +1090,7 @@ $\Gamma \vdash R : A \in \csn$ \hfill by IH(1)
                            {\Gamma  \vdash \lambda x{:}A.M  : A \arrow B \in \SN}{}$
 \\[1em]
 $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by IH(1) \\
-$\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{lm:closn}(\ref{pp3})
+$\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{lem:psn}(\ref{pp4})
 
 \paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M' : A}{
                              \Gamma \vdash M' : A \in \SN}
@@ -1097,7 +1098,7 @@ $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{l
 \\[1em]
 $\Gamma \vdash M' : A \in \csn$ \hfill by IH(1)\\
 $\Gamma \vdash M \redsn M' : A$ \hfill by IH(3)\\
-$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5})
+{\color{red}{$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5}) -- should be proven differently without using $\redsn$}}
 \\[1em]
 \noindent
 2. If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
@@ -1118,7 +1119,8 @@ $\Gamma \vdash C'[x]\;M : B \in \csn$ \hfill by Closure Property \ref{lm:closn}(
 $\Gamma \vdash C[x] : A \arrow B \in \csn$ \hfill since $C[x] = C'[x]~M$
 \\[1em]
 \noindent
-3.  If $\Gamma \vdash M \redSN M' : A$ then $\Gamma \vdash M \redsn M' : A$.
+3.  If $\Gamma \vdash M \redSN M' : A$
+    then $\Gamma \vdash M \redsn M' : A$.
 
 \paragraph{Case} $\D = \ianc{\Gamma \vdash N : A \in \SN \qquad \Gamma, x{:}A \vdash M : B}
                             {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
