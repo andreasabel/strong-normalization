@@ -641,6 +641,19 @@ Hence there exists an evaluation context $C'$ s.t. $C'[x] = (C_0[x]~M)\,N'$.
 
 Using evaluation contexts we can now state elegantly that strongly normalizing terms are closed under expansion.
 
+\begin{metanote}
+	Properties (\ref{cp3}) and (\ref{cp3b}) follow from Lemma
+        \ref{lem:psn} (\ref{pp2}) as $C[x]$ corresponds to the terms
+        that \ref{lem:psn} (\ref{pp2}) applies to, and (\ref{cp2}) is
+        never actually referenced, but instead the same one-step proof
+        is repeated whenever we need to establish that a variable is
+        $\csn$. Do we really need these three properties? -ah
+\\[0.5em]
+I think we can remove them, but we currently still refer to Property
+\ref{cp3} in the soundenss proof, but one can change the case where we
+currently refer to it. -bp
+\end{metanote}
+
 
 \begin{lemma}[Closure properties of strongly normalizing terms]\label{lm:closn}$\;$
   \begin{enumerate}
@@ -1020,7 +1033,7 @@ Follows from the previous lemma \ref{lm:pSN0}\footnote{For proving the $\CR$ pro
 
 We will use the extensionality of $\SN$ for function types in the proof of \CR1:
 
-\begin{lemma}[Extentionality of $\SN$]\label{lm:pSN}
+\begin{lemma}[Extensionality of $\SN$]\label{lm:pSN}
 If  $x{:}A \in \Gamma$ and $\Gamma \vdash M~x : B \in \SN$ then $\Gamma \vdash M : A \arrow B \in \SN$.
 \end{lemma}
 \begin{proof}
