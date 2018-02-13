@@ -1078,7 +1078,8 @@ $\Gamma \vdash M_1 : A \in \csn$ and $\Gamma \vdash M \red M_2$
 then $\Gamma \vdash M_2 : A \in \csn$.  
 \end{lemma}
 \begin{proof}
-Proof by case analysis and induction on evaluation context ?.
+Proof by case analysis and induction; we may need to generalize the
+statement to use evaluation context.
 
 \paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
                        {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$ 
@@ -1094,6 +1095,8 @@ $\Gamma \vdash [N/x]M:B \in \csn$ \hfill by assumption (and $M_1 = M_2$)
                        {\Gamma \vdash (\lambda x.M)~N \red (\lambda x.M')~N : B}{}$
 \\[1em]
 $\Gamma, x:A \vdash M \red M' : B$ \hfill by inversion on $\red$\\
+$\Gamma \vdash [N/x]M : B \in \SN$ \hfill by assumption \\
+$\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption \\
 {\color{red}{TO SHOW: $\Gamma \vdash (\lambda x.M')~N : B \in \csn$}}
 
 \paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
@@ -1101,15 +1104,21 @@ $\Gamma, x:A \vdash M \red M' : B$ \hfill by inversion on $\red$\\
 \qquad and \qquad$\ianc{\Gamma \vdash \lambda x.M : A \arrow B \quad \Gamma \vdash N \red N' : A}
                        {\Gamma \vdash (\lambda x.M)~N \red (\lambda x.M)~N' : B}{}$
 \\[1em]
+$\Gamma \vdash [N/x]M : B \in \SN$ \hfill by assumption \\
+$\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption \\
 {\color{red}{TO SHOW: $\Gamma \vdash (\lambda x.M)~N' : B \in \csn$}}
 %
-\paragraph{Case} $\ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash R\,N \redSN R'\,N}{}$
-\quad and \quad  $\ianc{\Gamma \vdash R \red R'' : A \arrow B \quad \Gamma \vdash N : A}
-                      {\Gamma \vdash R~N \red R''~N: B}{}$\\[0.5em] where $R$ is not a $\lambda$-abstraction
+\paragraph{Case} $\ianc{\Gamma \vdash R \redSN M' : A \arrow B \quad
+  \Gamma \vdash N : A}{\Gamma \vdash R\,N \redSN M'\,N : B}{}$
+\quad and \quad  $\ianc{\Gamma \vdash R \red M'' : A \arrow B \quad \Gamma \vdash N : A}
+                      {\Gamma \vdash R~N \red M''~N: B}{}$\\[0.5em]
+                      where $R$ is not a $\lambda$-abstraction
 \\[1em]
-{\color{red}{TO SHOW: $\Gamma \vdash R''~N:B \in \csn$}}
+$\Gamma \vdash M'~N : B \in \SN$ \hfill by assumption \\
+$\Gamma \vdash M'~N : B \in \csn$ \hfill by assumption \\
+{\color{red}{TO SHOW: $\Gamma \vdash M''~N:B \in \csn$}}
 
-\paragraph{Case} $\ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash R\,N \redSN R'\,N}{}$
+\paragraph{Case} $\ianc{\Gamma \vdash R \redSN M' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash R\,N \redSN M'\,N}{}$
 \quad and \quad $\ianc{\Gamma \vdash N \red N' : A \arrow B \quad \Gamma \vdash R : A \arrow B}
                       {\Gamma \vdash R~N \red R~N' : B}{}$ 
 \\[0.5em] where $R$ is not a $\lambda$-abstraction
