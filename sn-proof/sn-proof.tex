@@ -468,7 +468,7 @@ $\Gamma \vdash [N/x]M_1 : C \arrow B \in \csn$ and $\Gamma \vdash [N/x]M_2 : C\i
 %$\Gamma \vdash [N/x]M_2 \in \csn$ \hfill by Property \ref{pp6} \\
 $\Gamma, x{:}A \vdash M_1  : C \arrow B \in \csn$ \hfill by IH \\
 $\Gamma, x{:}A \vdash M_2  : C \in \csn$ \hfill by IH \\
-$\Gamma, x{:}A \vdash M_1~M_2 : B \in \csn$ \hfill by Property \ref{pp2}
+{\color{red}{$\Gamma, x{:}A \vdash M_1~M_2 : B \in \csn$ \hfill by Property \ref{pp2} -- $M_1$ is not neutral}}
 %
 
 \paragraph{Sub-case:} $M = \lambda y{:}A'.M'$ \\
@@ -492,7 +492,7 @@ $\Gamma \vdash \lambda x.M : A \arrow B \in \csn$ \hfill since $\Gamma \vdash \l
 %
 %
 \fbox{\ref{pp5}. If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
-   \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.  }
+   \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.  }{\color{red}{~~not used -- can be removed -bp}}
 \\[1em]
 Induction on $M$.
 % \\[1em]
@@ -510,7 +510,7 @@ $\Gamma,x{:}A \vdash M_1~M_2 : B\in \csn$ \hfill by assumption \\
 $\Gamma, x{:}A \vdash M_1 : C \arrow B \in \csn$ and $\Gamma, x{:}A \vdash M_2 : C\in \csn$ \hfill by Property \ref{pp6} \\
 $\Gamma \vdash [R/x]M_1 : C \arrow B \in \csn$ \hfill by IH \\
 $\Gamma \vdash [R/x]M_2 : C \in \csn$ \hfill by IH \\
-$\Gamma \vdash [R/x]M_1~[R/x]M_2 : B \in \csn$ \hfill by Property \ref{pp2}\\
+{\color{red}{$\Gamma \vdash [R/x]M_1~[R/x]M_2 : B \in \csn$ \hfill by Property \ref{pp2} -- $[R/x]M_1$ is not neutral}}\\
 $\Gamma \vdash [R/x](M_1~M_2) : B \in \csn$ \hfill by subst. def.
 %
 \paragraph{Sub-case:} $M = \lambda y{:}B.M'$
@@ -552,16 +552,16 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since  $\Gamma, x{:}A \vdash M \red
 
 
 \begin{corollary}\label{cor:psn}~
-  \begin{enumerate}
-  \item \label{pp1} If $\Gamma \vdash   [N/x]M : B \in \csn$
+If $\Gamma \vdash   [N/x]M : B \in \csn$
                   and $\Gamma \vdash N : A \in \csn$
                  then $\Gamma \vdash (\lambda x.M) \;N : B\in \csn$.
-  \end{enumerate}
 \end{corollary}
 \begin{proof}
-  Property \ref{pp1} follows directly from Lemma
+Follows directly from Lemma
   \ref{lem:psn}(\ref{pp3}), Lemma
-  \ref{lem:psn}(\ref{pp4}) and  \ref{lem:psn}(\ref{pp2}).
+  \ref{lem:psn}(\ref{pp4}) and  {\color{red}{Lemma
+      \ref{lem:psn}(\ref{pp2}) -- cannot be used, since $\lambda x.M$
+      is not neutral}}.
 \end{proof}
 
 
@@ -741,24 +741,24 @@ $\Gamma \vdash C[x]~N' : B\in \csn$ \hfill by IH(\ref{cp3})
 \fbox{\ref{cp5}. If $\Gamma \vdash M\redsn M' : B$ and $\Gamma \vdash M' : B\in \csn$ then
      $\Gamma \vdash M : B \in \csn$. }
 \\[1em]
-Proof by induction on the first derivation.
-\\
-\paragraph{Case}$\D = \ianc{\Gamma \vdash N : A \in \csn \quad \Gamma, x{:} A \vdash M : B}
-                          {\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{}$
-\\
-$\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption \\
-$\Gamma \vdash (\lambda x.M)\;N : B\in \csn$ \hfill by Corollary \ref{cor:psn}(\ref{pp1})
+ Proof by induction on the first derivation.
+ \\
+ \paragraph{Case}$\D = \ianc{\Gamma \vdash N : A \in \csn \quad \Gamma, x{:} A \vdash M : B}
+                           {\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{}$
+ \\
+ $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption \\
+ {\color{red}{$\Gamma \vdash (\lambda x.M)\;N : B\in \csn$ \hfill by Corollary \ref{cor:psn}}}
 
 
-\paragraph{Case} $\D =
-\ianc {\Gamma \vdash M \redsn M' : B} % \qquad M\,\text{is not a}\;\lambda
-      {\Gamma \vdash M\;N \redsn M'\;N : B}{}$
-\\
-$\Gamma \vdash M'\;N : B\in \csn$ \hfill by assumption \\
-$\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
-$\Gamma \vdash M  : A \arrow B \in \csn$ \hfill by IH\\
-$\Gamma \vdash N  : A \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
-$\Gamma \vdash M~N : B \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp2})
+ \paragraph{Case} $\D =
+ \ianc {\Gamma \vdash M \redsn M' : B} % \qquad M\,\text{is not a}\;\lambda
+       {\Gamma \vdash M\;N \redsn M'\;N : B}{}$
+ \\
+ $\Gamma \vdash M'\;N : B\in \csn$ \hfill by assumption \\
+ $\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
+ $\Gamma \vdash M  : A \arrow B \in \csn$ \hfill by IH\\
+ $\Gamma \vdash N  : A \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6})\\
+ {\color{red}{$\Gamma \vdash M~N : B \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp2}) -- $M$ is not neutral}}
 
 % IH If $\Gamma \vdash M' \csn then $\Gamma \vdash M \csn$
 %  H \Gamma \vdash M'\;N \in \csn
@@ -1025,7 +1025,7 @@ Follows from the previous lemma \ref{lm:pSN0}\footnote{For proving the $\CR$ pro
 
 % \end{proof}
 
-% -- If t x ¡Ê SN then t ¡Ê SN.
+
 We will use the extensionality of $\SN$ for function types in the proof of \CR1:
 
 \begin{lemma}[Extentionality of $\SN$]\label{lm:pSN}
