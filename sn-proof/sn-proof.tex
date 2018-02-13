@@ -374,18 +374,13 @@ $\Gamma, x{:}A \vdash M' : B \in \csn$  \hfill by IH\\
 $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $M'$ was arbitrary
 
 \end{proof}
-\begin{metanote}
-  I suggest we reorganize this part in properties that can be proved
-  independently: 5,6 3 of 3.1, plus the one for variables (1 in
-  3.4). Then the mutual induction 1,2,4, the context properties to conclude with sn-backward -am
-\end{metanote}
 
 \begin{lemma}[Properties of strongly normalizing terms]\label{lem:psn}$\;$
   \begin{enumerate}
   \item\label{pp2} If $\Gamma \vdash R : A \arrow B \in \csn$ where $R$ is not a lambda-abstraction and $\Gamma \vdash N : A \in \csn$
     then $\Gamma \vdash R~N : B \in \csn$.
-  \item\label{pp3} {\color{red}{If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A \in
-    \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$.}}
+%  \item\label{pp3} {\color{red}{If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A \in
+%    \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$.}}
   \item\label{pp4} If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B \in \csn$
 %  \item\label{pp5} If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
 %   \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.
@@ -451,34 +446,34 @@ $\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R~N'$
 % \\[1em]
 
 \vspace{1em}
-\noindent
-\fbox{\ref{pp3}. If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A \in
-    \csn$ then $\Gamma, x{:}A \vdash M : B\in \csn$.}
-\\[1em]
-By induction on $M$.
-\paragraph{Sub-case:} $M = x$ \\
-$\Gamma, x{:}A \vdash x : A \in \csn$ \hfill trivial since there is no reduction $\Gamma, x{:}A \vdash x \red x : A$
+% \noindent
+% \fbox{\ref{pp3}. If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A \in
+%     \csn$ then $\Gamma, x{:}A \vdash M : B\in \csn$.}
+% \\[1em]
+% By induction on $M$.
+% \paragraph{Sub-case:} $M = x$ \\
+% $\Gamma, x{:}A \vdash x : A \in \csn$ \hfill trivial since there is no reduction $\Gamma, x{:}A \vdash x \red x : A$
 
-\paragraph{Sub-case:} $M = y$ and $\Gamma = \Gamma_1, y{:}B, \Gamma_2$\\
-$\Gamma, x{:}A \vdash y : B \in \csn$ \hfill  trivial since there is no reduction $\Gamma, x{:}A \vdash y \red y : B$
+% \paragraph{Sub-case:} $M = y$ and $\Gamma = \Gamma_1, y{:}B, \Gamma_2$\\
+% $\Gamma, x{:}A \vdash y : B \in \csn$ \hfill  trivial since there is no reduction $\Gamma, x{:}A \vdash y \red y : B$
 
-\paragraph{Sub-case:} $M = M_1~M_2$ \\
-$[N/x](M_1~M_2) = [N/x]M_1~[N/x]M_2$ \hfill by def. of subst. \\
-$\Gamma \vdash [N/x]M_1 : C \arrow B \in \csn$ and $\Gamma \vdash [N/x]M_2 : C\in \csn$ \hfill by Property \ref{pp6} \\
-%$\Gamma \vdash [N/x]M_2 \in \csn$ \hfill by Property \ref{pp6} \\
-$\Gamma, x{:}A \vdash M_1  : C \arrow B \in \csn$ \hfill by IH \\
-$\Gamma, x{:}A \vdash M_2  : C \in \csn$ \hfill by IH \\
-{\color{red}{$\Gamma, x{:}A \vdash M_1~M_2 : B \in \csn$ \hfill by Property \ref{pp2} -- $M_1$ is not neutral}}
-%
+% \paragraph{Sub-case:} $M = M_1~M_2$ \\
+% $[N/x](M_1~M_2) = [N/x]M_1~[N/x]M_2$ \hfill by def. of subst. \\
+% $\Gamma \vdash [N/x]M_1 : C \arrow B \in \csn$ and $\Gamma \vdash [N/x]M_2 : C\in \csn$ \hfill by Property \ref{pp6} \\
+% %$\Gamma \vdash [N/x]M_2 \in \csn$ \hfill by Property \ref{pp6} \\
+% $\Gamma, x{:}A \vdash M_1  : C \arrow B \in \csn$ \hfill by IH \\
+% $\Gamma, x{:}A \vdash M_2  : C \in \csn$ \hfill by IH \\
+% {\color{red}{$\Gamma, x{:}A \vdash M_1~M_2 : B \in \csn$ \hfill by Property \ref{pp2} -- $M_1$ is not neutral}}
+% %
 
-\paragraph{Sub-case:} $M = \lambda y{:}A'.M'$ \\
-$[N/x](\lambda y{:}A'. M') = (\lambda y{:}A'. [N/x]M')$ \hfill by def. subst.\ednote{Should we insist on $(\lambda y{:}A'. [N/x,y/y]M')$? .am  I think it doesn't matter here whether one uses simultaneous subst. or single subst. -bp} \\
-$\Gamma, y{:}A' \vdash [N/x]M' :B \in \csn$ \hfill by Property \ref{pp7}\\
-$\Gamma, y{:}A', x{:}A \vdash M' : B \in \csn$ \hfill by IH \\
-$\Gamma, x{:}A, y{:}A' \vdash M' : B \in \csn$ \hfill by exchange \\
-$\Gamma, x{:}A \vdash \lambda y{:}A'.M' : A' \arrow B \in \csn$ \hfill by Property \ref{pp4}
-\\[1em]
-%
+% \paragraph{Sub-case:} $M = \lambda y{:}A'.M'$ \\
+% $[N/x](\lambda y{:}A'. M') = (\lambda y{:}A'. [N/x]M')$ \hfill by def. subst.\ednote{Should we insist on $(\lambda y{:}A'. [N/x,y/y]M')$? .am  I think it doesn't matter here whether one uses simultaneous subst. or single subst. -bp} \\
+% $\Gamma, y{:}A' \vdash [N/x]M' :B \in \csn$ \hfill by Property \ref{pp7}\\
+% $\Gamma, y{:}A', x{:}A \vdash M' : B \in \csn$ \hfill by IH \\
+% $\Gamma, x{:}A, y{:}A' \vdash M' : B \in \csn$ \hfill by exchange \\
+% $\Gamma, x{:}A \vdash \lambda y{:}A'.M' : A' \arrow B \in \csn$ \hfill by Property \ref{pp4}
+% \\[1em]
+% %
 \fbox{\ref{pp4}. If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B\in \csn$}
 \\[1em]
 Induction on $\Gamma, x{:}A \vdash M : B \in \csn$\\[1em]
@@ -551,18 +546,18 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since  $\Gamma, x{:}A \vdash M \red
 \end{proof}
 
 
-\begin{corollary}\label{cor:psn}~
-If $\Gamma \vdash   [N/x]M : B \in \csn$
-                  and $\Gamma \vdash N : A \in \csn$
-                 then $\Gamma \vdash (\lambda x.M) \;N : B\in \csn$.
-\end{corollary}
-\begin{proof}
-Follows directly from Lemma
- {\color{red}{\ref{lem:psn}(\ref{pp3})}}, Lemma
-  \ref{lem:psn}(\ref{pp4}) and  {\color{red}{Lemma
-      \ref{lem:psn}(\ref{pp2}) -- cannot be used, since $\lambda x.M$
-      is not neutral}}.
-\end{proof}
+% \begin{corollary}\label{cor:psn}~
+% If $\Gamma \vdash   [N/x]M : B \in \csn$
+%                   and $\Gamma \vdash N : A \in \csn$
+%                  then $\Gamma \vdash (\lambda x.M) \;N : B\in \csn$.
+% \end{corollary}
+% \begin{proof}
+% Follows directly from Lemma
+%  {\color{red}{\ref{lem:psn}(\ref{pp3})}}, Lemma
+%   \ref{lem:psn}(\ref{pp4}) and  {\color{red}{Lemma
+%       \ref{lem:psn}(\ref{pp2}) -- cannot be used, since $\lambda x.M$
+%       is not neutral}}.
+% \end{proof}
 
 
 \subsection*{Closure properties of strongly normalizating terms}
@@ -1063,6 +1058,61 @@ We can now prove that the two definitions of strongly normalizing terms coincide
 For proving normalization, soundness of the inductive definition of $\SN$ suffices.
 % and we omit the completeness direction here.
 
+
+\begin{lemma}\label{lem:SNsn}
+If   $\Gamma \vdash M \redSN M_1 : A$ and $\Gamma \vdash M_1 : A \in \SN$ and 
+$\Gamma \vdash M_1 : A \in \csn$ and $\Gamma \vdash M \red M_2$
+then $\Gamma \vdash M_2 : A \in \csn$.  
+\end{lemma}
+\begin{proof}
+Proof by case analysis and induction on evaluation context ?.
+
+\paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
+                       {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$ 
+            \qquad and \qquad$\ianc{\Gamma \vdash \lambda x{:}A.M : A \arrow B \quad \Gamma \vdash  N : A}
+                       {\Gamma \vdash (\lambda x.M)\;N \red [N/x]M : B}{}$
+\\[1em]
+$\Gamma \vdash [N/x]M:B \in \csn$ \hfill by assumption (and $M_1 = M_2$)
+
+\paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
+                       {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
+\qquad and \qquad$\ibnc{\Gamma \vdash \lambda x.M \red \lambda x.M' : A \arrow B}
+                        {\Gamma \vdash N : A}
+                       {\Gamma \vdash (\lambda x.M)~N \red (\lambda x.M')~N : B}{}$
+\\[1em]
+$\Gamma, x:A \vdash M \red M' : B$ \hfill by inversion on $\red$\\
+{\color{red}{TO SHOW: $\Gamma \vdash (\lambda x.M')~N : B \in \csn$}}
+
+\paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
+                       {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
+\qquad and \qquad$\ianc{\Gamma \vdash \lambda x.M : A \arrow B \quad \Gamma \vdash N \red N' : A}
+                       {\Gamma \vdash (\lambda x.M)~N \red (\lambda x.M)~N' : B}{}$
+\\[1em]
+{\color{red}{TO SHOW: $\Gamma \vdash (\lambda x.M)~N' : B \in \csn$}}
+%
+\paragraph{Case} $\ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash R\,N \redSN R'\,N}{}$
+\quad and \quad  $\ianc{\Gamma \vdash R \red R'' : A \arrow B \quad \Gamma \vdash N : A}
+                      {\Gamma \vdash R~N \red R''~N: B}{}$\\[0.5em] where $R$ is not a $\lambda$-abstraction
+\\[1em]
+{\color{red}{TO SHOW: $\Gamma \vdash R''~N:B \in \csn$}}
+
+\paragraph{Case} $\ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash R\,N \redSN R'\,N}{}$
+\quad and \quad $\ianc{\Gamma \vdash N \red N' : A \arrow B \quad \Gamma \vdash R : A \arrow B}
+                      {\Gamma \vdash R~N \red R~N' : B}{}$ 
+\\[0.5em] where $R$ is not a $\lambda$-abstraction
+\\[1em]
+{\color{red}{TO SHOW: $\Gamma \vdash R~N':B \in \csn$}}
+\end{proof}
+
+\begin{corollary}
+If   $\Gamma \vdash M \redSN M' : A$ and $\Gamma \vdash M' : A \in \SN$ and 
+$\Gamma \vdash M' : A \in \csn$
+then $\Gamma \vdash M : A \in \csn$.
+\end{corollary}
+\begin{proof}
+Direct by previous lemma \ref{lem:SNsn}
+\end{proof}
+
 \begin{theorem}[Soundness of $\SN$]
 \mbox{}
   \begin{enumerate}
@@ -1094,7 +1144,7 @@ $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{l
                             {\Gamma \vdash M  : A \in \SN}{} $
 \\[1em]
 $\Gamma \vdash M' : A \in \csn$ \hfill by IH(1)\\
-{\color{red}{???}}
+{\color{red}{$\Gamma \vdash M : A \in \csn$ \hfill by Lemma \ref{lem:SNsn}}}
 % $\Gamma \vdash M \redsn M' : A$ \hfill by IH(3)\\
 % {\color{red}{$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5}) -- should be proven differently without using $\redsn$}}
 \\[1em]
