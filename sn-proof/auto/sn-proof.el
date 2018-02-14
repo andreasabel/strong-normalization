@@ -68,7 +68,6 @@
     "lem:redsubst"
     "def:norm"
     "lem:psn"
-    "pp2"
     "pp3"
     "pp4"
     "pp6"

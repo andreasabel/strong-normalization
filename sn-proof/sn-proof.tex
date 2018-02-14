@@ -388,8 +388,8 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $M'$ was arbitrary
 
 \begin{lemma}[Properties of strongly normalizing terms]\label{lem:psn}$\;$
   \begin{enumerate}
-  \item\label{pp2} If $\Gamma \vdash R : A \arrow B \in \csn$ where $R$ is not a lambda-abstraction and $\Gamma \vdash N : A \in \csn$
-    then $\Gamma \vdash R~N : B \in \csn$.
+%  \item\label{pp2} If $\Gamma \vdash R : A \arrow B \in \csn$ where $R$ is not a lambda-abstraction and $\Gamma \vdash N : A \in \csn$
+%    then $\Gamma \vdash R~N : B \in \csn$.
   \item\label{pp3} If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A$ then $\Gamma, x{:}A \vdash M : B \in \csn$.
   \item\label{pp4} If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B \in \csn$
 %  \item\label{pp5} If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
@@ -406,55 +406,56 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $M'$ was arbitrary
   \end{enumerate}
 \end{lemma}
 \begin{proof}
-Property \ref{pp2} is proven by mutual induction on the derivations; properties \ref{pp6}, \ref{pp7}, and \ref{pp4} are proven by induction on the first derivation. 
+% Property \ref{pp2} is proven by mutual induction on the derivations; 
+Properties \ref{pp6}, \ref{pp7}, and \ref{pp4} are proven by induction on the first derivation. 
 \\[1em]
 In all the proofs below we silently exploit type uniqueness and do not track explicitly the reasoning about well-typed terms below.
 \\[1em]
-\fbox{\ref{pp2}. If $\Gamma \vdash R : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
-    then $\Gamma \vdash R~N : B \in \csn$. } where $R$ is not a lambda-abstraction.
-\\[1em]
-By simultaneous induction on $\Gamma \vdash R : A \arrow B \in \csn$,~
-$\Gamma \vdash N : A \in \csn$. \\[1em]
-Assume $\Gamma \vdash R~N \red Q : B$
-\paragraph{Sub-case:} $\D = \ibnc
- {\Gamma \vdash R \red R' : A \arrow B}{\Gamma \vdash N : A}
- {\Gamma \vdash R\,N \red R'\,N : B}{}$ and $Q = R'~N$
-\\[1em]
-$\Gamma \vdash R' : A \arrow B \in \csn$ \hfill by using assumption $\Gamma \vdash R : A \arrow B \in \csn$ \\
-$\Gamma \vdash R'~N : B \in \csn$ \hfill by IH \\
-$\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R'~N$
-% $\Gamma \vdash R~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash R~N \red Q$.
+ % \fbox{\ref{pp2}. If $\Gamma \vdash R : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
+ %     then $\Gamma \vdash R~N : B \in \csn$. } where $R$ is not a lambda-abstraction.
+ % \\[1em]
+ % By simultaneous induction on $\Gamma \vdash R : A \arrow B \in \csn$,~
+ % $\Gamma \vdash N : A \in \csn$. \\[1em]
+ % Assume $\Gamma \vdash R~N \red Q : B$
+ % \paragraph{Sub-case:} $\D = \ibnc
+ %  {\Gamma \vdash R \red R' : A \arrow B}{\Gamma \vdash N : A}
+ %  {\Gamma \vdash R\,N \red R'\,N : B}{}$ and $Q = R'~N$
+ % \\[1em]
+ % $\Gamma \vdash R' : A \arrow B \in \csn$ \hfill by using assumption $\Gamma \vdash R : A \arrow B \in \csn$ \\
+ % $\Gamma \vdash R'~N : B \in \csn$ \hfill by IH \\
+ % $\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R'~N$
+ % % $\Gamma \vdash R~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash R~N \red Q$.
 
-\paragraph{Sub-case:} $\D = \ibnc
- {\Gamma \vdash N \red N' : A}{\Gamma \vdash R : A \arrow B}
- {\Gamma \vdash R\,N \red R\,N' : B}{}$ and $Q = R~N'$
-\\[1em]
-$\Gamma \vdash N' : A \in \csn$ \hfill by using assumption $\Gamma \vdash N : A \in \csn$ \\
-$\Gamma \vdash R~N' : B\in \csn$ \hfill by IH \\
-$\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R~N'$
-% $\Gamma \vdash R~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash R~N \red Q$.
+ % \paragraph{Sub-case:} $\D = \ibnc
+ %  {\Gamma \vdash N \red N' : A}{\Gamma \vdash R : A \arrow B}
+ %  {\Gamma \vdash R\,N \red R\,N' : B}{}$ and $Q = R~N'$
+ % \\[1em]
+ % $\Gamma \vdash N' : A \in \csn$ \hfill by using assumption $\Gamma \vdash N : A \in \csn$ \\
+ % $\Gamma \vdash R~N' : B\in \csn$ \hfill by IH \\
+ % $\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R~N'$
+ % % $\Gamma \vdash R~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash R~N \red Q$.
 
-% \paragraph{Sub-case:} $\D = \Gamma \vdash (\lambda x{:}A.M)\;N  \red  \Gamma \vdash [N/x]M : B$
-% \\[1em]
-% $\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption of $\beta$-reduction \\
-% $\Gamma \vdash N : A$  \hfill by assumption of $\beta$-reduction \\
-% $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by assumption \\
-% $\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
-% $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill Property \ref{pp7}\\
-% $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by Property \ref{pp5}
+% % \paragraph{Sub-case:} $\D = \Gamma \vdash (\lambda x{:}A.M)\;N  \red  \Gamma \vdash [N/x]M : B$
+% % \\[1em]
+% % $\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption of $\beta$-reduction \\
+% % $\Gamma \vdash N : A$  \hfill by assumption of $\beta$-reduction \\
+% % $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by assumption \\
+% % $\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
+% % $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill Property \ref{pp7}\\
+% % $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by Property \ref{pp5}
+% %
+% % \paragraph{Sub-case:} $\D = \Gamma \vdash (M~N) \red \lambda x{:}A_1.(M~N)~x : A_1 \arrow A_2$ where $B = A_1 \arrow A_2$
+% % \\[1em]
+% % $\Gamma \vdash M~N : A_1 \arrow A_2 \in \csn$ \hfill by assumption \\
+% % $\Gamma, x{:}A_1 \vdash M~N : A_1 \arrow A_2 \in \csn$ \hfill by weakening \\
+% % $\Gamma, x{:}A_1 \vdash x : A_1 \in \csn$ \hfill by since variables do not step \\
+% % $\Gamma, x{:}A_1 \vdash (M~N)~x : A_2 \in \csn$ \hfill IH since $A_2$ is smaller than $B$
+% % \\
+% % $\Gamma \vdash \lambda x{:}A.(M~N)~x : A \arrow B \in \csn$ \hfill by Property \ref{pp4}
+% %\\[1em]
+% % $\Gamma \vdash M~N : B \in \csn$ \hfill since $\Gamma \vdash M~N \red Q : B$ was arbitrary.
+% % \\[1em]
 %
-% \paragraph{Sub-case:} $\D = \Gamma \vdash (M~N) \red \lambda x{:}A_1.(M~N)~x : A_1 \arrow A_2$ where $B = A_1 \arrow A_2$
-% \\[1em]
-% $\Gamma \vdash M~N : A_1 \arrow A_2 \in \csn$ \hfill by assumption \\
-% $\Gamma, x{:}A_1 \vdash M~N : A_1 \arrow A_2 \in \csn$ \hfill by weakening \\
-% $\Gamma, x{:}A_1 \vdash x : A_1 \in \csn$ \hfill by since variables do not step \\
-% $\Gamma, x{:}A_1 \vdash (M~N)~x : A_2 \in \csn$ \hfill IH since $A_2$ is smaller than $B$
-% \\
-% $\Gamma \vdash \lambda x{:}A.(M~N)~x : A \arrow B \in \csn$ \hfill by Property \ref{pp4}
-%\\[1em]
-% $\Gamma \vdash M~N : B \in \csn$ \hfill since $\Gamma \vdash M~N \red Q : B$ was arbitrary.
-% \\[1em]
-
 \vspace{1em}
 % \noindent
  \fbox{\ref{pp3}. If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A$ then $\Gamma, x{:}A \vdash M : B\in \csn$.}
@@ -673,8 +674,7 @@ I think we should restate \ref{lem:psn}(\ref{pp2}) as Property
 \begin{lemma}[Closure properties of strongly normalizing terms]\label{lm:closn}$\;$
   \begin{enumerate}
 %   \item\label{cp1} If $\Gamma \vdash [N/x]M \in \csn$ and $\Gamma
-%   \Vdash N \in \csn$ then $\Gamma
-%    \vdash M \in \csn$.
+%   \Vdash N \in \csn$ then $\Gamma, x{:}A  \vdash M \in \csn$.
   \item\label{cp2} For all variables $x:A \in \Gamma$, $\Gamma \vdash x : A \in \csn$.
   \item\label{cp3} If $\Gamma \vdash C[x] : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
      then $\Gamma \vdash C[x]\,N : B \in \csn$.
@@ -708,29 +708,26 @@ $\Gamma \vdash x : A \in \csn$
      then $\Gamma \vdash C[x]\,N : B \in \csn$.\\
  }
 \\[1em]
-Assume $\Gamma \vdash C[x]\;N \red R : B$ \\
-$\Gamma \vdash C[x] : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
-$\Gamma \vdash R : B \in \csn$ \hfill by Lemma \ref{lem:psn}(\ref{pp2}) since $C[x]$ is not a lambda-abstraction\\
-$\Gamma \vdash C[x]\,N : B \in \csn$ \hfill since $\Gamma \vdash C[x]\;N \red R : B$  was arbitrary
-% \paragraph{Case}$\D =
-% \ianc{\forall M'.~\Gamma \vdash C[x] \red M' : A \arrow B \imply \Gamma \vdash M' : A \arrow B \in \csn}
-%      {\Gamma \vdash C[x] : A \arrow B \in \csn}{}$
-% \\[1em]
-% \textbf{Sub-case}: $C[x] = x$
-% \\
-% impossible
-% \\[1em]
-% \textbf{Sub-case}: $C[x] = C_0[x]~M$
-% \\[1em]
-% Assume $\Gamma \vdash (C_0[x]~M)~N \red Q$\\
-% $\Gamma \vdash N \in \csn$ \hfill by assumption \\
-% $\Gamma \vdash C_0[x]~M \in \csn$ \hfill by assumption \\
-% %
-% %$C[x]  \red R$ and $R = C_1[x]$ \hfill by Lemma \ref{lm:ecxt} \\
-% %$\Gamma \vdash C_1[x] \in \csn$ \hfill by previous lines \\
-% %$\Gamma \vdash C_1[x]~N \in \csn$ \hfill by IH(\ref{cp3}) \\
-% $\Gamma \vdash Q \in \csn$ \hfill by IH(\ref{cp3b})\\
-% $\Gamma \vdash C[x]\,N \in \csn$ \hfill by def. $\csn$
+ By simultaneous induction on $\Gamma \vdash C[x] : A \arrow B \in \csn$,~
+ $\Gamma \vdash N : A \in \csn$. \\[1em]
+ Assume $\Gamma \vdash C[x]~N \red Q : B$
+ \paragraph{Sub-case:} $\D = \ibnc
+  {\Gamma \vdash C[x] \red R' : A \arrow B}{\Gamma \vdash N : A}
+  {\Gamma \vdash C[x]\,N \red R'\,N : B}{}$ and $Q = R'~N$
+ \\[1em]
+ $R' = C'[x]$ \hfill by Lemma \ref{lm:ecxt}\\
+ $\Gamma \vdash C'[x] : A \arrow B \in \csn$ \hfill by using assumption $\Gamma \vdash C[x] : A \arrow B \in \csn$ \\
+ $\Gamma \vdash C'[x]~N : B \in \csn$ \hfill by IH \\
+ $\Gamma \vdash Q : B \in \csn$ \hfill since $Q = C'[x]~N = R'~N$
+ % $\Gamma \vdash R~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash R~N \red Q$.
+
+ \paragraph{Sub-case:} $\D = \ibnc
+  {\Gamma \vdash N \red N' : A}{\Gamma \vdash C[x] : A \arrow B}
+  {\Gamma \vdash C[x]\,N \red C[x]\,N' : B}{}$ and $Q = C[x]~N'$
+ \\[1em]
+ $\Gamma \vdash N' : A \in \csn$ \hfill by using assumption $\Gamma \vdash N : A \in \csn$ \\
+ $\Gamma \vdash C[x]~N' : B\in \csn$ \hfill by IH \\
+ $\Gamma \vdash Q : B \in \csn$ \hfill since $Q = C[x]~N'$
 \\[1em]
 \noindent
 \fbox{\ref{cp3b}.
