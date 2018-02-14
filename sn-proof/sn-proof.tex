@@ -228,6 +228,17 @@ The typing and typed reduction strategy satisfies weakening and strengthening.
 By induction on the first derivation.
 \end{proof}
 
+{\color{red}{
+\begin{lemma*}[Substitution Property of Typed Reductions]\label{lem:redsubst}\quad
+If $\Gamma, x{:}A \vdash M \red M' : B$ and $\Gamma \vdash N : A$ then 
+$\Gamma \vdash [N/x]M \red [N/x]M' : B$.
+\end{lemma*}
+\begin{proof}
+By induction on the first derivation. 
+\end{proof}
+}}
+
+
 
 \subsection*{When is a term in normal form?}
 
@@ -379,8 +390,7 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $M'$ was arbitrary
   \begin{enumerate}
   \item\label{pp2} If $\Gamma \vdash R : A \arrow B \in \csn$ where $R$ is not a lambda-abstraction and $\Gamma \vdash N : A \in \csn$
     then $\Gamma \vdash R~N : B \in \csn$.
-%  \item\label{pp3} {\color{red}{If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A \in
-%    \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$.}}
+  \item\label{pp3} If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A$ then $\Gamma, x{:}A \vdash M : B \in \csn$.
   \item\label{pp4} If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B \in \csn$
 %  \item\label{pp5} If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
 %   \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.
@@ -447,16 +457,21 @@ $\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R~N'$
 
 \vspace{1em}
 % \noindent
-% \fbox{\ref{pp3}. If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A \in
-%     \csn$ then $\Gamma, x{:}A \vdash M : B\in \csn$.}
-% \\[1em]
+ \fbox{\ref{pp3}. If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A$ then $\Gamma, x{:}A \vdash M : B\in \csn$.}
+ \\[1em]
+Assume $\Gamma, x{:}A \vdash M \red M' : B$\\
+$\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Lemma \ref{lem:redsubst}\\
+$\Gamma \vdash [N/x]M' : B \in \csn$ \hfill by using  $\Gamma \vdash [N/x]M : B \in \csn$ \\
+$\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill by IH\\
+$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $\Gamma, x{:}A \vdash M \red M' : B$ was arbitrary.
+
 % By induction on $M$.
 % \paragraph{Sub-case:} $M = x$ \\
 % $\Gamma, x{:}A \vdash x : A \in \csn$ \hfill trivial since there is no reduction $\Gamma, x{:}A \vdash x \red x : A$
-
+%
 % \paragraph{Sub-case:} $M = y$ and $\Gamma = \Gamma_1, y{:}B, \Gamma_2$\\
 % $\Gamma, x{:}A \vdash y : B \in \csn$ \hfill  trivial since there is no reduction $\Gamma, x{:}A \vdash y \red y : B$
-
+%
 % \paragraph{Sub-case:} $M = M_1~M_2$ \\
 % $[N/x](M_1~M_2) = [N/x]M_1~[N/x]M_2$ \hfill by def. of subst. \\
 % $\Gamma \vdash [N/x]M_1 : C \arrow B \in \csn$ and $\Gamma \vdash [N/x]M_2 : C\in \csn$ \hfill by Property \ref{pp6} \\
@@ -1098,13 +1113,104 @@ For proving normalization, soundness of the inductive definition of $\SN$ suffic
 
 % \end{proof}
 
-\begin{lemma}\label{lem:SNsn}
-If   $\Gamma \vdash M \redSN M_1 : A$ and $\Gamma \vdash C[M_1] : A_0 \in \SN$ and 
-$\Gamma \vdash C[M_1] : A_0 \in \csn$ and $\Gamma \vdash C[M] \red Q$
-then $\Gamma \vdash Q : A_0 \in \csn$.  
+% \begin{lemma}
+% \label{lem:SNsn}
+% If   $\Gamma \vdash M \redSN M_1 : A$ and $\Gamma \vdash C[M_1] : A_0 \in \SN$ and 
+% $\Gamma \vdash C[M_1] : A_0 \in \csn$ and $\Gamma \vdash C[M] \red Q$
+% then $\Gamma \vdash Q : A_0 \in \csn$.  
+% \end{lemma}
+% \begin{proof}
+% Proof by case analysis and induction. 
+% \end{proof}
+
+% \begin{corollary}
+% If   $\Gamma \vdash M \redSN M' : A$ and $\Gamma \vdash M' : A \in \SN$ and 
+% $\Gamma \vdash M' : A \in \csn$
+% then $\Gamma \vdash M : A \in \csn$.
+% \end{corollary}
+% \begin{proof}
+% Direct by previous lemma \ref{lem:SNsn}
+% \end{proof}
+{\color{red}{
+\begin{lemma}\label{lem:appsnclosure}
+If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash N : A \in \csn$
+and $\Gamma \vdash [N/x]M : B \in SN$ 
+and $\Gamma, x{:}A \vdash C[x] : B' \in \csn$
+then $\Gamma \vdash C[\,(\lambda x.M)~N\,] : B' \in \csn$
 \end{lemma}
 \begin{proof}
-Proof by case analysis and induction. Recall that $C[M_1] = \underline{M_1}~N_1 \ldots N_n$ where $C = \_~N_1 \ldots N_n$.
+TODO  
+\end{proof}
+}}
+
+\begin{theorem}[Soundness of $\SN$]
+\mbox{}
+  \begin{enumerate}
+  \item If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.
+  \item If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
+  \item \label{lem:SNsn}
+        If   $\Gamma \vdash M \redSN M_1 : A$ and $\Gamma \vdash C[M_1] : A_0 \in \SN$ and 
+        $\Gamma \vdash C[M_1] : A_0 \in \csn$ and $\Gamma \vdash C[M] \red Q$
+        then $\Gamma \vdash Q : A_0 \in \csn$.  
+%   \item If $\Gamma \vdash M \redSN M' : A$ then
+%           $\Gamma \vdash M \redsn M' : A$.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+By mutual structural induction on the given derivations using the
+closure properties. \\[1em]
+\noindent
+\fbox{1. If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.}
+
+\paragraph{Case} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{}$
+\\[1em]
+$R = C[x] $ \hfill since $\Gamma \vdash R : A \in \SNe$ \\
+$\Gamma \vdash R : A \in \csn$ \hfill by IH(1)
+
+\paragraph{Case} $\D = \ianc{\Gamma, x{:}A \vdash M : B \in \SN}
+                           {\Gamma  \vdash \lambda x{:}A.M  : A \arrow B \in \SN}{}$
+\\[1em]
+$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by IH(1) \\
+$\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{lem:psn}(\ref{pp4})
+
+\paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M' : A}{
+                             \Gamma \vdash M' : A \in \SN}
+                            {\Gamma \vdash M  : A \in \SN}{} $
+\\[1em]
+$\Gamma \vdash M' : A \in \csn$ \hfill by IH(1)\\
+$\Gamma \vdash M : A \in \csn$ \hfill by IH (3) using the empty evaluation context
+% $\Gamma \vdash M \redsn M' : A$ \hfill by IH(3)\\
+% {\color{red}{$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5}) -- should be proven differently without using $\redsn$}}
+\\[1em]
+\noindent
+\fbox{2. If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.}
+
+\paragraph{Case} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{}$
+\\[1em]
+$C = \_ $ \hfill since $C[x] = x$\\
+$\forall M'.~\Gamma \vdash x \red M' : A \imply \Gamma \vdash M' : A \in \csn$ \hfill since $\Gamma \vdash x \red M' : A$ is impossible
+\\
+$\Gamma \vdash x \in \csn$
+
+\paragraph{Case}$\D = \ibnc{\Gamma \vdash R : A \arrow B \in \SNe}{\Gamma \vdash M : A \in \SN}{\Gamma \vdash R\,M : B \in \SNe}{}$
+\\
+$C'[x] = R$ \hfill since $C[x] = R\;M$\\
+$\Gamma \vdash C'[x] : A \arrow B\in \csn$ \hfill by IH(2) \\
+$\Gamma \vdash M : A \in \csn$ \hfill by IH(1)\\
+$\Gamma \vdash C'[x]\;M : B \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp3})\\
+$\Gamma \vdash C[x] : A \arrow B \in \csn$ \hfill since $C[x] = C'[x]~M$
+\\[1em]
+\noindent
+\fbox{
+  \begin{tabular}{p{15cm}}
+3. If   $\Gamma \vdash M \redSN M_1 : A$ and $\Gamma \vdash C[M_1] : A_0 \in \SN$ and 
+        $\Gamma \vdash C[M_1] : A_0 \in \csn$ and $\Gamma \vdash C[M] \red Q$\\
+        \quad then $\Gamma \vdash Q : A_0 \in \csn$.      
+  \end{tabular}
+}
+\\[1em]
+\noindent
+Recall that $C[M_1] = \underline{M_1}~N_1 \ldots N_n$ where $C = \_~N_1 \ldots N_n$.
 Moreover, we have 
 
 \[
@@ -1121,7 +1227,7 @@ Moreover, we have
                  {\Gamma \vdash C[\,(\lambda x.M)\;N\,] \red C[\,[N/x]M\,] : B'}{}
                 $
 \\[1em]
-$\Gamma \vdash C[\,[N/x]M\,]:B \in \csn$ \hfill by assumption (and $M_1 = M_2$)
+$\Gamma \vdash C[\,[N/x]M\,]:B' \in \csn$ \hfill by assumption (and $M_1 = M_2$)
 
 \paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
                        {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
@@ -1136,7 +1242,12 @@ $\Gamma \vdash C[\,[N/x]M\,]:B \in \csn$ \hfill by assumption (and $M_1 = M_2$)
 $\Gamma, x:A \vdash M \red M' : B$ \hfill by inversion on $\red$\\
 $\Gamma \vdash C[\,[N/x]M\,] : B' \in \SN$ \hfill by assumption \\
 $\Gamma \vdash C[\,[N/x]M\,] : B' \in \csn$ \hfill by assumption \\
-{\color{red}{TO SHOW: $\Gamma \vdash C[(\lambda x.M')~N] : B' \in \csn$}}
+$\Gamma \vdash [N/x]M : B \in \csn$ \hfill by Lemma \ref{lem:psn}(\ref{pp6}) (iterated)\\
+$\Gamma \vdash N : A$ \hfill by assumption \\
+$\Gamma,x{:}A \vdash M : B \in \csn$ \hfill by Lemma \ref{lem:psn}(\ref{pp3}) \\
+$\Gamma \vdash N : A \in \csn$ \hfill by IH (1) using $\Gamma \vdash N : A \in \SN$\\
+{\color{red}{ $\Gamma, x{:}A \vdash C[x] : B' \in \csn$ \hfill ?}}\\
+$\Gamma \vdash C[(\lambda x.M')~N] : B' \in \csn$ \hfill by Lemma \ref{lem:appsnclosure}
 
 \paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
                        {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
@@ -1149,6 +1260,12 @@ $
 \\[1em]
 $\Gamma \vdash C[\,[N/x]M\,] : B' \in \SN$ \hfill by assumption \\
 $\Gamma \vdash C[\,[N/x]M\,] : B' \in \csn$ \hfill by assumption \\
+$\Gamma \vdash N : A \in \csn$ \hfill by IH(1) using $\Gamma \vdash N : A \in \SN$\\
+$\Gamma \vdash N' : A \in \csn$ \hfill using previous line and $\Gamma \vdash N \red N' : A$\\
+$\Gamma \vdash C[\,[N/x]M\,] : B' \in \csn$ \hfill by  Lemma \ref{lem:psn}(\ref{pp6}) (iterated)\\
+$\Gamma \vdash N : A$ \hfill by assumption \\
+$\Gamma,x{:}A \vdash M : B \in \csn$ \hfill by Lemma \ref{lem:psn}(\ref{pp3}) \\ 
+?\\
 {\color{red}{TO SHOW: $\Gamma \vdash C[\,(\lambda x.M)~N'\,] : B' \in \csn$}}
 %
 \paragraph{Case} $\ianc{\Gamma \vdash R \redSN M' : A \arrow B \quad
@@ -1195,84 +1312,7 @@ $\Gamma \vdash C'[R] \red C[R~N']: B'$ \hfill by assumption $C'[R] = C[\,R~N\,]$
 $\Gamma \vdash R \redSN M' : A \arrow B $ \hfill by assumption \\
 $\Gamma \vdash C[\,R~N'\,]:B \in \csn$ \hfill by IH
 
-\end{proof}
 
-\begin{corollary}
-If   $\Gamma \vdash M \redSN M' : A$ and $\Gamma \vdash M' : A \in \SN$ and 
-$\Gamma \vdash M' : A \in \csn$
-then $\Gamma \vdash M : A \in \csn$.
-\end{corollary}
-\begin{proof}
-Direct by previous lemma \ref{lem:SNsn}
-\end{proof}
-
-\begin{theorem}[Soundness of $\SN$]
-\mbox{}
-  \begin{enumerate}
-  \item If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.
-  \item If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
-%   \item If $\Gamma \vdash M \redSN M' : A$ then
-%           $\Gamma \vdash M \redsn M' : A$.
-  \end{enumerate}
-\end{theorem}
-\begin{proof}
-By mutual structural induction on the given derivations using the
-closure properties. \\[1em]
-\noindent
-1. If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.
-
-\paragraph{Case} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{}$
-\\[1em]
-$R = C[x] $ \hfill since $\Gamma \vdash R : A \in \SNe$ \\
-$\Gamma \vdash R : A \in \csn$ \hfill by IH(1)
-
-\paragraph{Case} $\D = \ianc{\Gamma, x{:}A \vdash M : B \in \SN}
-                           {\Gamma  \vdash \lambda x{:}A.M  : A \arrow B \in \SN}{}$
-\\[1em]
-$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by IH(1) \\
-$\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{lem:psn}(\ref{pp4})
-
-\paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M' : A}{
-                             \Gamma \vdash M' : A \in \SN}
-                            {\Gamma \vdash M  : A \in \SN}{} $
-\\[1em]
-$\Gamma \vdash M' : A \in \csn$ \hfill by IH(1)\\
-{\color{red}{$\Gamma \vdash M : A \in \csn$ \hfill by Lemma \ref{lem:SNsn}}}
-% $\Gamma \vdash M \redsn M' : A$ \hfill by IH(3)\\
-% {\color{red}{$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5}) -- should be proven differently without using $\redsn$}}
-\\[1em]
-\noindent
-2. If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
-
-\paragraph{Case} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{}$
-\\[1em]
-$C = \_ $ \hfill since $C[x] = x$\\
-$\forall M'.~\Gamma \vdash x \red M' : A \imply \Gamma \vdash M' : A \in \csn$ \hfill since $\Gamma \vdash x \red M' : A$ is impossible
-\\
-$\Gamma \vdash x \in \csn$
-
-\paragraph{Case}$\D = \ibnc{\Gamma \vdash R : A \arrow B \in \SNe}{\Gamma \vdash M : A \in \SN}{\Gamma \vdash R\,M : B \in \SNe}{}$
-\\
-$C'[x] = R$ \hfill since $C[x] = R\;M$\\
-$\Gamma \vdash C'[x] : A \arrow B\in \csn$ \hfill by IH(2) \\
-$\Gamma \vdash M : A \in \csn$ \hfill by IH(1)\\
-$\Gamma \vdash C'[x]\;M : B \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp3})\\
-$\Gamma \vdash C[x] : A \arrow B \in \csn$ \hfill since $C[x] = C'[x]~M$
-%\\[1em]
-%\noindent
-% 3.  If $\Gamma \vdash M \redSN M' : A$
-%     then $\Gamma \vdash M \redsn M' : A$.
-
-% \paragraph{Case} $\D = \ianc{\Gamma \vdash N : A \in \SN \qquad \Gamma, x{:}A \vdash M : B}
-%                             {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
-% \\[1em]
-% $\Gamma \vdash N : A \in \csn$ \hfill by IH(1) \\
-% $\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B$ \hfill by def. of $\redsn$
-
-% \paragraph{Case} $\D = \ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash M : A}{\Gamma \vdash R\,M \redSN R'\,M : B}{}$
-% \\[1em]
-% $\Gamma \vdash R \redsn R' : A \arrow B$ \hfill by IH(3) \\
-% ${\Gamma \vdash R\,M \redsn R'\,M : B}$ \hfill by def. or $\redsn$
 \end{proof}
 
 

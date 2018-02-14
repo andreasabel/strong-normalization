@@ -65,9 +65,11 @@
     "ednote")
    (LaTeX-add-labels
     "lem:redprop"
+    "lem:redsubst"
     "def:norm"
     "lem:psn"
     "pp2"
+    "pp3"
     "pp4"
     "pp6"
     "pp7"
@@ -83,6 +85,7 @@
     "lm:pSN0"
     "lm:pSN1"
     "lm:pSN"
+    "lem:appsnclosure"
     "lem:SNsn"
     "csn1"
     "csn2"
