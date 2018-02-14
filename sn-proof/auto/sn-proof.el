@@ -85,6 +85,7 @@
     "lm:pSN0"
     "lm:pSN1"
     "lm:pSN"
+    "lem:appsnclosureaux"
     "lem:appsnclosure"
     "lem:SNsn"
     "csn1"

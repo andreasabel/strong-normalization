@@ -1132,16 +1132,29 @@ For proving normalization, soundness of the inductive definition of $\SN$ suffic
 % Direct by previous lemma \ref{lem:SNsn}
 % \end{proof}
 {\color{red}{
-\begin{lemma}\label{lem:appsnclosure}
+\begin{lemma}\label{lem:appsnclosureaux}
 If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash N : A \in \csn$
 and $\Gamma \vdash [N/x]M : B \in SN$ 
 and $\Gamma, x{:}A \vdash C[x] : B' \in \csn$
-then $\Gamma \vdash C[\,(\lambda x.M)~N\,] : B' \in \csn$
+and $\Gamma \vdash C[\, (\lambda x.M)~N\,] \red Q : B'$
+then $\Gamma \vdash Q : B' \in \csn$
 \end{lemma}
 \begin{proof}
 TODO  
 \end{proof}
 }}
+
+
+\begin{corollary}\label{lem:appsnclosure}
+If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash N : A \in \csn$
+and $\Gamma \vdash [N/x]M : B \in SN$ 
+and $\Gamma, x{:}A \vdash C[x] : B' \in \csn$
+then $\Gamma \vdash C[\,(\lambda x.M)~N\,] : B' \in \csn$
+\end{corollary}
+\begin{proof}
+Direct using the Lemma \ref{lem:appsnclosureaux}.
+\end{proof}
+
 
 \begin{theorem}[Soundness of $\SN$]
 \mbox{}
