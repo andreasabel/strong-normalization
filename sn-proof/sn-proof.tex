@@ -1071,6 +1071,32 @@ We can now prove that the two definitions of strongly normalizing terms coincide
 For proving normalization, soundness of the inductive definition of $\SN$ suffices.
 % and we omit the completeness direction here.
 
+\begin{lemma}[Inversion Lemma about $\SN$]\label{lem:SNApp}
+If $\Gamma \vdash M~N : B \in \SN$ then 
+$\Gamma \vdash M : A \arrow B \in \SN$ and 
+$\Gamma \vdash N : A \in \SN$  
+\end{lemma}
+\begin{proof}
+By induction on the first derivation\footnote{This proof also relies on uniqueness of typing; we omit
+  this argument here as we track typing properties implicitely.}.
+
+\paragraph{Case} $\ianc{\Gamma \vdash M~N : B \in SNe}
+                       {\Gamma \vdash M~N : B \in \SN}{}$
+\\
+$\Gamma \vdash M : A \arrow B \in \SNe$ and 
+$\Gamma \vdash N : A \in \SN$  \hfill by inversion \\
+$\Gamma \vdash M : A \arrow B \in \SN$ \hfill by conversion rule
+
+\paragraph{Case} $\ibnc{\Gamma \vdash M~N \redSN M'~N : B}
+                       {\Gamma \vdash M'~N : B \in \SN}
+                       {\Gamma \vdash M~N : B \in \SN}{}$
+and $M$ is not a $\lambda$-expression
+\\
+$\Gamma \vdash M \redSN M' : A \arrow B$ \hfill by inversion on $\redSN$\\
+$\Gamma \vdash M' : A \arrow B \in \SN$ and $\Gamma \vdash N \in \SN$ \hfill by IH \\
+$\Gamma \vdash M : A \arrow B \in \SN$ \hfill by $\SN$ rule
+
+\end{proof}
 
 \begin{lemma}\label{lem:SNsn}
 If   $\Gamma \vdash M \redSN M_1 : A$ and $\Gamma \vdash M_1 : A \in \SN$ and 
@@ -1114,9 +1140,9 @@ $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption \\
                       {\Gamma \vdash R~N \red M''~N: B}{}$\\[0.5em]
                       where $R$ is not a $\lambda$-abstraction
 \\[1em]
-{\color{red}{TO SHOW: $\Gamma \vdash M''~N:B \in \csn$}} \\
+% {\color{red}{TO SHOW: $\Gamma \vdash M''~N:B \in \csn$}} \\
 $\Gamma \vdash M'\,N : B \in \SN$ \hfill by assumption \\
-$\Gamma \vdash M' : A \rightarrow B \in \SN$ \hfill {\color{red}{TO SHOW}} \\
+$\Gamma \vdash M' : A \rightarrow B \in \SN$ \hfill by Lemma \ref{lem:SNApp} \\
 $\Gamma \vdash M'\,N : B \in \csn$ \hfill by assumption \\
 $\Gamma \vdash M' : A \rightarrow B \in \csn$ \hfill by Property \ref{lem:psn}(\ref{pp6}) \\
 $\Gamma \vdash R \redSN M' : A \rightarrow B$ and $\Gamma \vdash R \red M'' : A \rightarrow B$ \hfill by assumption \\

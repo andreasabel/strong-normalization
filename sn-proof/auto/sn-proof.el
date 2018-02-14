@@ -83,6 +83,7 @@
     "lm:pSN0"
     "lm:pSN1"
     "lm:pSN"
+    "lem:SNApp"
     "lem:SNsn"
     "csn1"
     "csn2"
