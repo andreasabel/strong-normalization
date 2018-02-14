@@ -500,10 +500,11 @@ $\Gamma \vdash Q : A \arrow B \in \csn$ \hfill since $Q = \lambda x{:}A.M'$\\
 $\Gamma \vdash \lambda x.M : A \arrow B \in \csn$ \hfill since $\Gamma \vdash \lambda x.M \red Q : A \arrow B$ was arbitrary
 \\[1em]
 %
-%
+
 % \fbox{\ref{pp5}. If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
 %    \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.  }{\color{red}{~~not used -- can be removed -bp}}
 % \\[1em]
+%
 % Induction on $M$.
 % % \\[1em]
 % \paragraph{Sub-case:} $M = x$
@@ -664,9 +665,8 @@ Using evaluation contexts we can now state elegantly that strongly normalizing t
         is repeated whenever we need to establish that a variable is
         $\csn$. Do we really need these three properties? -ah
 \\[0.5em]
-I think we can remove them, but we currently still refer to Property
-\ref{cp3} in the soundenss proof, but one can change the case where we
-currently refer to it. -bp
+I think we should restate \ref{lem:psn}(\ref{pp2}) as Property
+\ref{cp3} and rather remove \ref{lem:psn}(\ref{pp2}. -bp
 \end{metanote}
 
 
@@ -1131,23 +1131,24 @@ For proving normalization, soundness of the inductive definition of $\SN$ suffic
 % \begin{proof}
 % Direct by previous lemma \ref{lem:SNsn}
 % \end{proof}
+
 {\color{red}{
 \begin{lemma}\label{lem:appsnclosureaux}
 If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash N : A \in \csn$
-and $\Gamma \vdash [N/x]M : B \in SN$ 
+and $\Gamma \vdash [N/x]M : B \in \csn$ 
 and $\Gamma, x{:}A \vdash C[x] : B' \in \csn$
-and $\Gamma \vdash C[\, (\lambda x.M)~N\,] \red Q : B'$
+and $\Gamma \vdash C[(\lambda x.M)~N] \red Q : B'$
 then $\Gamma \vdash Q : B' \in \csn$
 \end{lemma}
 \begin{proof}
-TODO  
+TODO
 \end{proof}
 }}
 
 
 \begin{corollary}\label{lem:appsnclosure}
 If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash N : A \in \csn$
-and $\Gamma \vdash [N/x]M : B \in SN$ 
+and $\Gamma \vdash [N/x]M : B \in \csn$ 
 and $\Gamma, x{:}A \vdash C[x] : B' \in \csn$
 then $\Gamma \vdash C[\,(\lambda x.M)~N\,] : B' \in \csn$
 \end{corollary}
