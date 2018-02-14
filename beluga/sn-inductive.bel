@@ -111,7 +111,6 @@ mlam #R, M => fn s => case s of
 
 %{
 Lemma 3.9: Extensionality of SN
-% Appeal to IH does not pass the totality checker -bp
 }%
 
 rec ext_SN : {M: [g |- tm (arr A[] B[])]}{#p: [g |- tm A[]]} SN [g |- app M #p] -> SN [g |- M] =
