@@ -1071,91 +1071,130 @@ We can now prove that the two definitions of strongly normalizing terms coincide
 For proving normalization, soundness of the inductive definition of $\SN$ suffices.
 % and we omit the completeness direction here.
 
-\begin{lemma}[Inversion Lemma about $\SN$]\label{lem:SNApp}
-If $\Gamma \vdash M~N : B \in \SN$ then 
-$\Gamma \vdash M : A \arrow B \in \SN$ and 
-$\Gamma \vdash N : A \in \SN$  
-\end{lemma}
-\begin{proof}
-By induction on the first derivation\footnote{This proof also relies on uniqueness of typing; we omit
-  this argument here as we track typing properties implicitely.}.
+% \begin{lemma}[Inversion Lemma about $\SN$]\label{lem:SNApp}
+% If $\Gamma \vdash M~N : B \in \SN$ then 
+% $\Gamma \vdash M : A \arrow B \in \SN$ and 
+% $\Gamma \vdash N : A \in \SN$  
+% \end{lemma}
+% \begin{proof}
+% By induction on the first derivation\footnote{This proof also relies on uniqueness of typing; we omit
+%   this argument here as we track typing properties implicitely.}.
 
-\paragraph{Case} $\ianc{\Gamma \vdash M~N : B \in SNe}
-                       {\Gamma \vdash M~N : B \in \SN}{}$
-\\
-$\Gamma \vdash M : A \arrow B \in \SNe$ and 
-$\Gamma \vdash N : A \in \SN$  \hfill by inversion \\
-$\Gamma \vdash M : A \arrow B \in \SN$ \hfill by conversion rule
+% \paragraph{Case} $\ianc{\Gamma \vdash M~N : B \in SNe}
+%                        {\Gamma \vdash M~N : B \in \SN}{}$
+% \\
+% $\Gamma \vdash M : A \arrow B \in \SNe$ and 
+% $\Gamma \vdash N : A \in \SN$  \hfill by inversion \\
+% $\Gamma \vdash M : A \arrow B \in \SN$ \hfill by conversion rule
 
-\paragraph{Case} $\ibnc{\Gamma \vdash M~N \redSN M'~N : B}
-                       {\Gamma \vdash M'~N : B \in \SN}
-                       {\Gamma \vdash M~N : B \in \SN}{}$
-and $M$ is not a $\lambda$-expression
-\\
-$\Gamma \vdash M \redSN M' : A \arrow B$ \hfill by inversion on $\redSN$\\
-$\Gamma \vdash M' : A \arrow B \in \SN$ and $\Gamma \vdash N \in \SN$ \hfill by IH \\
-$\Gamma \vdash M : A \arrow B \in \SN$ \hfill by $\SN$ rule
+% \paragraph{Case} $\ibnc{\Gamma \vdash M~N \redSN M'~N : B}
+%                        {\Gamma \vdash M'~N : B \in \SN}
+%                        {\Gamma \vdash M~N : B \in \SN}{}$
+% and $M$ is not a $\lambda$-expression
+% \\
+% $\Gamma \vdash M \redSN M' : A \arrow B$ \hfill by inversion on $\redSN$\\
+% $\Gamma \vdash M' : A \arrow B \in \SN$ and $\Gamma \vdash N \in \SN$ \hfill by IH \\
+% $\Gamma \vdash M : A \arrow B \in \SN$ \hfill by $\SN$ rule
 
-\end{proof}
+% \end{proof}
 
 \begin{lemma}\label{lem:SNsn}
-If   $\Gamma \vdash M \redSN M_1 : A$ and $\Gamma \vdash M_1 : A \in \SN$ and 
-$\Gamma \vdash M_1 : A \in \csn$ and $\Gamma \vdash M \red M_2$
-then $\Gamma \vdash M_2 : A \in \csn$.  
+If   $\Gamma \vdash M \redSN M_1 : A$ and $\Gamma \vdash C[M_1] : A_0 \in \SN$ and 
+$\Gamma \vdash C[M_1] : A_0 \in \csn$ and $\Gamma \vdash C[M] \red Q$
+then $\Gamma \vdash Q : A_0 \in \csn$.  
 \end{lemma}
 \begin{proof}
-Proof by case analysis and induction; we may need to generalize the
-statement to use evaluation context.
+Proof by case analysis and induction. Recall that $C[M_1] = \underline{M_1}~N_1 \ldots N_n$ where $C = \_~N_1 \ldots N_n$.
+Moreover, we have 
+
+\[
+\ianc{\Gamma \vdash M \red M' : A}{\Gamma \vdash C[M] \red C[M'] : A'}{}
+\]
+
 
 \paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
                        {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$ 
-            \qquad and \qquad$\ianc{\Gamma \vdash \lambda x{:}A.M : A \arrow B \quad \Gamma \vdash  N : A}
-                       {\Gamma \vdash (\lambda x.M)\;N \red [N/x]M : B}{}$
+            \qquad and \qquad$
+            \ianc{
+                  \ianc{\Gamma \vdash \lambda x{:}A.M : A \arrow B \quad \Gamma \vdash  N : A}
+                       {\Gamma \vdash (\lambda x.M)\;N \red [N/x]M : B}{}}
+                 {\Gamma \vdash C[\,(\lambda x.M)\;N\,] \red C[\,[N/x]M\,] : B'}{}
+                $
 \\[1em]
-$\Gamma \vdash [N/x]M:B \in \csn$ \hfill by assumption (and $M_1 = M_2$)
+$\Gamma \vdash C[\,[N/x]M\,]:B \in \csn$ \hfill by assumption (and $M_1 = M_2$)
 
 \paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
                        {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
-\qquad and \qquad$\ibnc{\Gamma \vdash \lambda x.M \red \lambda x.M' : A \arrow B}
+\qquad and \qquad$
+             \ianc{
+                   \ibnc{\Gamma \vdash \lambda x.M \red \lambda x.M' : A \arrow B}
                         {\Gamma \vdash N : A}
-                       {\Gamma \vdash (\lambda x.M)~N \red (\lambda x.M')~N : B}{}$
+                        {\Gamma \vdash (\lambda x.M)~N \red (\lambda x.M')~N : B}{}}
+                     {\Gamma \vdash C[\,(\lambda x.M)\;N\,] \red C[\, (\lambda x.M')~N \,] : B'}{}
+                  $
 \\[1em]
 $\Gamma, x:A \vdash M \red M' : B$ \hfill by inversion on $\red$\\
-$\Gamma \vdash [N/x]M : B \in \SN$ \hfill by assumption \\
-$\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption \\
-{\color{red}{TO SHOW: $\Gamma \vdash (\lambda x.M')~N : B \in \csn$}}
+$\Gamma \vdash C[\,[N/x]M\,] : B' \in \SN$ \hfill by assumption \\
+$\Gamma \vdash C[\,[N/x]M\,] : B' \in \csn$ \hfill by assumption \\
+{\color{red}{TO SHOW: $\Gamma \vdash C[(\lambda x.M')~N] : B' \in \csn$}}
 
 \paragraph{Case} $\ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}
                        {\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
-\qquad and \qquad$\ianc{\Gamma \vdash \lambda x.M : A \arrow B \quad \Gamma \vdash N \red N' : A}
-                       {\Gamma \vdash (\lambda x.M)~N \red (\lambda x.M)~N' : B}{}$
+\qquad and \qquad$
+             \ianc{     
+                   \ianc{\Gamma \vdash \lambda x.M : A \arrow B \quad \Gamma \vdash N \red N' : A}
+                        {\Gamma \vdash (\lambda x.M)~N \red (\lambda x.M)~N' : B}{}}
+                  {\Gamma \vdash C[\,(\lambda x.M)\;N\,] \red C[\, (\lambda x.M)~N' \,] : B'}{}
+$
 \\[1em]
-$\Gamma \vdash [N/x]M : B \in \SN$ \hfill by assumption \\
-$\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption \\
-{\color{red}{TO SHOW: $\Gamma \vdash (\lambda x.M)~N' : B \in \csn$}}
+$\Gamma \vdash C[\,[N/x]M\,] : B' \in \SN$ \hfill by assumption \\
+$\Gamma \vdash C[\,[N/x]M\,] : B' \in \csn$ \hfill by assumption \\
+{\color{red}{TO SHOW: $\Gamma \vdash C[\,(\lambda x.M)~N'\,] : B' \in \csn$}}
 %
 \paragraph{Case} $\ianc{\Gamma \vdash R \redSN M' : A \arrow B \quad
   \Gamma \vdash N : A}{\Gamma \vdash R\,N \redSN M'\,N : B}{}$
-\quad and \quad  $\ianc{\Gamma \vdash R \red M'' : A \arrow B \quad \Gamma \vdash N : A}
-                      {\Gamma \vdash R~N \red M''~N: B}{}$\\[0.5em]
+\quad and \quad  $
+           \ianc{
+                 \ianc{\Gamma \vdash R \red M'' : A \arrow B \quad \Gamma \vdash N : A}
+                      {\Gamma \vdash R~N \red M''~N: B}{}}
+                {\Gamma \vdash C[\,R~N\,] \red C[\,M''~N\,] : B'}{}      
+$\\[0.5em]
                       where $R$ is not a $\lambda$-abstraction
 \\[1em]
+$C[\,R~N\,] = \underline{(R~N)}~N_1 \ldots N_n$ and $C = \underline{\quad} ~N_1 \ldots N_n$ \\
+Let $C' = \underline{\quad}~ N~N_1 \ldots N_n$ and hence $C[\,R~N\,] = C'[R]$.
+\\[0.5em]
 % {\color{red}{TO SHOW: $\Gamma \vdash M''~N:B \in \csn$}} \\
-$\Gamma \vdash M'\,N : B \in \SN$ \hfill by assumption \\
-$\Gamma \vdash M' : A \rightarrow B \in \SN$ \hfill by Lemma \ref{lem:SNApp} \\
-$\Gamma \vdash M'\,N : B \in \csn$ \hfill by assumption \\
-$\Gamma \vdash M' : A \rightarrow B \in \csn$ \hfill by Property \ref{lem:psn}(\ref{pp6}) \\
-$\Gamma \vdash R \redSN M' : A \rightarrow B$ and $\Gamma \vdash R \red M'' : A \rightarrow B$ \hfill by assumption \\
-$\Gamma \vdash M'' : A \rightarrow B \in \csn$ \hfill by IH \\
-$\Gamma \vdash N : A \in \csn$ \hfill by Property \ref{lem:psn}(\ref{pp6}) \\
-$\Gamma \vdash M''~N : B \in \csn$ \hfill by Property \ref{lem:psn}(\ref{pp2})
+$\Gamma \vdash C[\,M'\,N\,] : B' \in \SN$ \hfill by assumption \\ 
+$\Gamma \vdash C'[M'] : B' \in \SN$ \hfill using $C'[R] = C[\,R~N\,]$.\\
+% $\Gamma \vdash M' : A \rightarrow B \in \SN$ \hfill by Lemma \ref{lem:SNApp} (lifted to evalutation contexts) \\
+% $\Gamma \vdash C[\,M'\,N\,] : B \in \csn$ \hfill by assumption \\
+$\Gamma \vdash C'[M'] : B' \in \csn$ \hfill using $C'[R] = C[\,R~N\,]$.\\
+% $\Gamma \vdash M' : A \rightarrow B \in \csn$ \hfill by Property \ref{lem:psn}(\ref{pp6}) (lifted to evaluation contexts) \\
+$\Gamma \vdash R \redSN M' : A \rightarrow B$ and $\Gamma \vdash C'[R] \red C'[M''] : B'$ \hfill by assumption \\
+$\Gamma \vdash C'[M''] : B' \in \csn$ \hfill by IH \\
+$\Gamma \vdash C[M''~N] : B' \in \csn$ \hfill by using $C'[R] = C[\,R~N\,]$.
 
 \paragraph{Case} $\ianc{\Gamma \vdash R \redSN M' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash R\,N \redSN M'\,N}{}$
-\quad and \quad $\ianc{\Gamma \vdash N \red N' : A \arrow B \quad \Gamma \vdash R : A \arrow B}
-                      {\Gamma \vdash R~N \red R~N' : B}{}$ 
+\quad and \quad $
+           \ianc{
+                 \ianc{\Gamma \vdash N \red N' : A \arrow B \quad \Gamma \vdash R : A \arrow B}
+                      {\Gamma \vdash R~N \red R~N' : B}{}}
+                {\Gamma \vdash C[\,R~N\,] \red C[\,R~N'\,] : B'}{}
+$ 
 \\[0.5em] where $R$ is not a $\lambda$-abstraction
 \\[1em]
-{\color{red}{TO SHOW: $\Gamma \vdash R~N':B \in \csn$}}
+$C[\,R~N\,] = \underline{(R~N)}~N_1 \ldots N_n$ and $C = \underline{\quad} ~N_1 \ldots N_n$ \\
+Let $C' = \underline{\quad}~ N~N_1 \ldots N_n$ and hence $C[\,R~N\,] = C'[R]$.
+\\[0.5em]
+$\Gamma \vdash C[\,M'\,N\,] : B' \in \SN$ \hfill by assumption \\
+$\Gamma \vdash C'[M'] : B' \in \SN$ \hfill using $C[\,M'~N\,] = C'[M']$.\\
+$\Gamma \vdash C[\,M'\,N\,] : B \in \csn$ \hfill by assumption \\
+$\Gamma \vdash C'[M'] : B' \in \csn$ \hfill using $C[\,M'~N\,] = C'[M']$.\\
+$\Gamma \vdash C'[R] \red C[R~N']: B'$ \hfill by assumption $C'[R] = C[\,R~N\,]$\\
+$\Gamma \vdash R \redSN M' : A \arrow B $ \hfill by assumption \\
+$\Gamma \vdash C[\,R~N'\,]:B \in \csn$ \hfill by IH
+
 \end{proof}
 
 \begin{corollary}
