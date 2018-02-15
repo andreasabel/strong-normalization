@@ -1190,7 +1190,7 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by assumption \\
 $\Gamma, x{:}B \vdash C[x] : B' \in \csn$ \hfill by assumption \\
 $\Gamma \vdash C[~(\lambda x{:}A.M)~N'~] : B' \in \csn$ \hfill by IH % (since $\Gamma \vdash N' : A \in \csn$ is smaller)
 
-\paragraph{Case} $\D = \Gamma \vdash C[~(\lambda x.M)~N~] \red C'[~(\lambda x.M)~N~]$, i.e. we reduce, but not in a head position; if $C = \underline{\quad}~N_0\ldots N_n$ and there is a reduction $\Gamma \vdash N_i \red N'_i : A_i$. Furthermore $C' = \underline{\quad}~N_0\ldots N'_i \ldots N_n$.
+\paragraph{Case} $\D = \Gamma \vdash C[~(\lambda x.M)~N~] \red C'[~(\lambda x.M)~N~]$, i.e. we reduce, but not in a head position; if $C = \underline{\quad}~N_0\ldots N_n$ and there is a reduction $\Gamma \vdash N_i \red N'_i : A_i$. Furthermore $C' = \underline{\quad}~N_0\ldots N'_i \ldots N_n$\footnote{I would prefer a more structural argument based on the structure of evaluation contexts, but this works for now. -bp}
 \\[0.5em]
 $\Gamma \vdash  C[~[N/x]M~] \red  C'[~[N/x]M~] : B'$ \hfill by given assumption \\
 $\Gamma \vdash C'[~[N/x]M~] : B' \in \csn$ \hfill using  $\Gamma \vdash C[~[N/x]M~] : B \in \csn$ 
@@ -1198,16 +1198,6 @@ $\Gamma \vdash C'[~[N/x]M~] : B' \in \csn$ \hfill using  $\Gamma \vdash C[~[N/x]
 $\Gamma \vdash C'[\,(\lambda x.M)~N\,] : B' \in \csn$ \hfill by IH.
 
 
-% \paragraph{Case}
-% $\D = \ianc{C'[(\lambda x.M)~N] \red Q : B}{\Gamma \vdash C[C'[(\lambda x.M)~N]] \red C[Q] : B'}{}$ -- is this case actually necessary?
-% \\
-% $\Gamma, x{:}B \vdash C'[x] ~N_0 : B' \in \csn$ \hfill by assumption 
-% $\Gamma \vdash C'[\,(\lambda x.M)~N\,] \mred C'[~[N/x]M~] : A' \arrow B'$ \hfill \\
-% $\Gamma \vdash C'[\,(\lambda x.M)~N\,]~N_0 \mred C'[~[N/x]M~]~N_0 : B'$ \hfill \\
-% $\Gamma \vdash C'[~[N/x]M~]~N_0 : B \in \csn$ \hfill by assumption \\
-%
-% 
-% $\Gamma \vdash C'[\,(\lambda x.M)~N\,]~N_0 : B' \in \csn$ \hfill by IH
 
 \end{proof}
 
@@ -1341,7 +1331,9 @@ $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by  Lemma \ref{lem:psn}(\ref{pp6}) (i
 $\Gamma \vdash N : A$ \hfill by assumption \\
 $\Gamma,x{:}A \vdash M : B \in \csn$ \hfill by Lemma \ref{lem:psn}(\ref{pp3}) \\ 
 $\Gamma, x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
-{\color{red}{$\Gamma \vdash [N'/x]M : B \in \csn$ \hfill ??}}\\
+$\Gamma, x{:}A \vdash M : B $ \hfill by inversion on typing\\
+$\Gamma \vdash [N/x]M \mred [N'/x]M : B$ \hfill by Lemma \ref{lm:mredprop}(\ref{lm:mredsubs}) using $\Gamma \vdash N \red N' : A$\\
+$\Gamma \vdash [N'/x]M : B \in \csn$ \hfill  Lemma \ref{lm:mredsn} using $\Gamma \vdash [N/x]M : B \in \csn$\\
 $\Gamma \vdash C[\,(\lambda x.M)~N'\,] : B' \in \csn$ \hfill by Lemma \ref{lem:appsnclosure}
 
 %
