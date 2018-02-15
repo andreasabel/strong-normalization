@@ -406,7 +406,7 @@ reduct of $M$ instead of all possible (potentially infinite) reduction sequences
 We first show that our definition of $\csn$ satisfies weakening.
 
 \begin{lemma}[Weakening of strongly normalizing terms]
-If $\Gamma \vdash M : B \in \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$.
+If $\Gamma \vdash M : B \in \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$\footnote{Maybe state it with explicit weakening and context extensions. -bp}.
 \end{lemma}
 \begin{proof}
 By induction on $\Gamma \vdash M : B \in \csn$.
@@ -418,6 +418,18 @@ $\Gamma \vdash M \red M' : B$ \hfill by strengthening (Lemma \ref{lem:redprop}) 
 $\Gamma \vdash M' : B \in \csn$ \hfill by assumption $\Gamma \vdash M : B \in \csn$\\
 $\Gamma, x{:}A \vdash M' : B \in \csn$  \hfill by IH\\
 $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $M'$ was arbitrary
+
+\end{proof}
+
+\begin{lemma}[Anti-renaming (Strengthening) of strongly normalizing terms]
+If $\Gamma, x{:}A \vdash [\rho]M : B \in \csn$ and $\Gamma, x{:}A \ext{\rho} \Gamma$ then 
+$\Gamma \vdash M : B \in \csn$.  
+\end{lemma}
+\begin{proof}
+Assume $\Gamma \vdash M \red M' : B$ \\
+$\Gamma, x{:}A \vdash [\rho]M \red [\rho]M' : B$ \hfill by weakening of typed. red. \\
+$\Gamma, x{:}A \vdash [\rho]M' : B \in \csn$ \hfill using $\Gamma, x{:}A \vdash [\rho]M : B \in \csn$\\
+$\Gamma \vdash M' : B \in \csn$ \hfill by IH
 
 \end{proof}
 
@@ -832,6 +844,51 @@ $\Gamma \vdash C[x]~N' : B\in \csn$ \hfill by IH(\ref{cp3})
 %   % \end{enumerate}
 \end{proof}
 
+
+\begin{lemma}[Composition of Evaluation Contexts]\label{lm:compecxt}\quad\\
+If $\Gamma, x{:}A \vdash C[x] : B \in \csn$ 
+and $\Gamma, y{:}A' \vdash C'[y]: A \in \csn$
+then $\Gamma, y{:}A' \vdash C[C'[y]] : B \in \csn$.  
+\end{lemma}
+\begin{proof}
+Induction on the structure of evaluation context $C$.
+
+\paragraph{Case} $C = \underline{\quad}$
+\\
+$\Gamma, y{:}A' \vdash C'[y] : A \in \csn$ \hfill by assumption 
+
+\paragraph{Case} $C = C_1[x]~[\rho]M$ s.t. $\Gamma, x{:}A \vdash  C_1[x]~M : B$ where $\Gamma \vdash M : B'$ and $\Gamma, x{:}A \ext{\rho} \Gamma$.
+\\[0.5em]
+Assume $\Gamma, y{:}A' \vdash C_1[C'[y]]~[\rho']M \red Q : B$ where $\Gamma, y{:}A' \ext{\rho'} \Gamma$.
+
+\paragraph{Sub-case} $\ianc{\Gamma, y{:}A' \vdash [\rho']M \red M' : B'}
+                          {\Gamma, y{:}A' \vdash C_1[C'[y]]~[\rho']M \red C_1[C'[y]]~M' : B}{}$ and $Q = C_1[C'[y]]~M' $
+\\[0.5em]
+$\Gamma, x{:}A \vdash C_1[x] : B' \arrow B \in \csn$ and $\Gamma, x{:}A \vdash [\rho]M : B' \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6}) \\
+$\Gamma, y{:}A' \vdash C_1[~C'[y]~] : B' \arrow B \in \csn$ \hfill by IH \\
+$\Gamma \vdash M : B' \in \csn$ \hfill by Strengthening Lemma using $\Gamma, x{:}A \vdash [\rho]M : B' \in \csn$\\
+$\Gamma, y{:}A' \vdash [\rho]M : B' \in \csn$ \hfill by Weakening Lemma \\
+%
+$\Gamma, y{:}A' \vdash M' : B' \in \csn$ \hfill using $\Gamma, y{:}A' \vdash [\rho]M : B' \in \csn$ and $\Gamma, x{:}A' \vdash [\rho']M \red M' : B'$\\
+$\Gamma, y{:}A' \vdash C_1[~C'[y]~]~M' : B \in \csn$ \hfill using Lemma \ref{lm:closn} (Property \ref{cp3})\\
+$\Gamma, y{:}A' \vdash C_1[~C'[y]~]~[\rho']M$ \hfill since $\Gamma, y{:}A' \vdash C_1[C'[y]]~[\rho']M \red Q : B$ was arbitary.
+
+\paragraph{Sub-case} $\ianc{\ianc{\Gamma, y{:}A' \vdash C'[y] \red Q' : A}
+                                {\Gamma, y{:}A' \vdash C_1[C'[y]] \red C_1[Q'] : B' \arrow B}{}}
+                          {\Gamma, y{:}A' \vdash C_1[C'[y]]~[\rho']M \red C_1[Q]~[\rho']M : B}{}$
+\\[0.5em]
+$Q' = C''[y]$ where $C' = \underline{\quad}~N_1 \ldots N_i \ldots N_n$ and 
+$C'' = \underline{\quad}~N_1\ldots N'_i \ldots N_n$ where $\Gamma, y{:}A' \vdash N_i \red N'_i : B_i$
+\\
+$\Gamma, x{:}A \vdash C_1[x] : B' \arrow B \in \csn$ and $\Gamma, x{:}A \vdash [\rho]M : B' \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6}) \\
+$\Gamma \vdash M : B' \in \csn$ \hfill by Strengthening Lemma using $\Gamma, x{:}A \vdash [\rho]M : B' \in \csn$\\
+$\Gamma, y{:}A' \vdash [\rho]M : B' \in \csn$ \hfill by Weakening Lemma \\
+$\Gamma, y{:}A' \vdash C''[y] : A \in \csn$ \hfill using $\Gamma, y{:}A' \vdash C'[y] : A \in \csn$\\
+$\Gamma, y{:}A' \vdash C_1[C''[y]] : B' \arrow B \in \csn$ \hfill by IH \\
+$\Gamma, y{:}A' \vdash C_1[C''[y]] ~[\rho']M  : B \in \csn$\hfill using Lemma \ref{lm:closn} (Property \ref{cp3})\\
+$\Gamma, y{:}A' \vdash C_1[C'[y]]~[\rho']M : B \in \csn$ \hfill by since $\Gamma, y{:}A' \vdash C_1[C'[y]]~[\rho']M \red Q : B$ was arbitrary
+
+\end{proof}
 
 
 %Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.% \ednote{I don't have a good structural def of subterm, so not an easy exercise --am}.
@@ -1319,8 +1376,11 @@ $\Gamma \vdash C'[M'] : B' \in \csn$ \hfill using $C'[R] = C[\,R~N\,]$.\\
 % $\Gamma \vdash M' : A \rightarrow B \in \csn$ \hfill by Property \ref{lem:psn}(\ref{pp6}) (lifted to evaluation contexts) \\
 $\Gamma \vdash R \redSN M' : A \rightarrow B$ and $\Gamma \vdash C'[R] \red C'[M''] : B'$ \hfill by assumption \\
 $\Gamma,x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
-{\color{red}{$\Gamma, x{:}A \vdash C[x~N] : B' \in \csn$ \hfill by subst. property for $\csn$}}\\
-$\Gamma, x{:}A \vdash C'[x] : B' \in \csn$ \hfill since $C'[x] = C[x~N]$ \\
+$\Gamma, x{:}A \arrow B \vdash x : A \arrow B \in \csn$ \hfill since variables do not reduce \\
+$\Gamma, x{:}A \vdash N : A \in \csn$ \hfill using Lemma \ref{lem:psn}(Property \ref{pp6}) - iterated\\
+$\Gamma, x{:}A \arrow B \vdash x~N  : B \in \csn$ \hfill using Lemma \ref{lm:closn}(Property \ref{cp3})\\
+{$\Gamma, x{:}A \arrow B \vdash C[x~N] : B' \in \csn$ \hfill by composition of eval. cxt (Lemma \ref{lm:compecxt}) using $C_0[x] = x~N$ }\\
+$\Gamma, x{:}A \arrow B \vdash C'[x] : B' \in \csn$ \hfill since $C'[x] = C[x~N]$ \\
 $\Gamma \vdash C'[M''] : B' \in \csn$ \hfill by IH (3) \\
 $\Gamma \vdash C[M''~N] : B' \in \csn$ \hfill by using $C'[R] = C[\,R~N\,]$.
 
@@ -1343,7 +1403,9 @@ $\Gamma \vdash C'[M'] : B' \in \csn$ \hfill using $C[\,M'~N\,] = C'[M']$.\\
 $\Gamma \vdash C'[R] \red C[R~N']: B'$ \hfill by assumption $C'[R] = C[\,R~N\,]$\\
 $\Gamma \vdash R \redSN M' : A \arrow B $ \hfill by assumption \\
 $\Gamma,x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
-{\color{red}{$\Gamma, x{:}A \vdash C[x~N] : B' \in \csn$ \hfill by subst. property for $\csn$}}\\
+$\Gamma, x{:}A \vdash N : A \in \csn$ \hfill using Lemma \ref{lem:psn}(Property \ref{pp6}) - iterated\\
+$\Gamma, x{:}A \arrow B \vdash x~N  : B \in \csn$ \hfill using Lemma \ref{lm:closn}(Property \ref{cp3})\\
+$\Gamma, x{:}A \arrow B \vdash C[x~N] : B' \in \csn$ \hfill by composition of eval. cxt (Lemma \ref{lm:compecxt}) using $C_0[x] = x~N$ \\
 $\Gamma, x{:}A \vdash C'[x] : B' \in \csn$ \hfill since $C'[x] = C[x~N]$ \\
 $\Gamma \vdash C[\,R~N'\,]:B \in \csn$ \hfill by IH (3)
 

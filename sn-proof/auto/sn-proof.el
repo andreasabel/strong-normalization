@@ -86,6 +86,7 @@
     "cp2"
     "cp3"
     "cp3b"
+    "lm:compecxt"
     "fig:sn"
     "lm:renameSN"
     "lm:anti-renameSN"
