@@ -160,7 +160,7 @@ $\beta$ normal form. This allows us to give a concise presentation of the import
 
 
 
-\section*{Simply Typed Lambda Calculus with Type-directed Reduction}
+\section{Simply Typed Lambda Calculus with Type-directed Reduction}
 Recall the lambda-calculus together with its reduction rules.
 
 
@@ -214,30 +214,32 @@ On top of the single step reduction relation, we can define multi-step reduction
 
 In addition, we have that typed reductions are only defined on well-typed terms, i.e. if $M$ steps then $M$ is well-typed.
 
-\begin{lemma*}[Properties about Typed Reductions and Typing]\quad
+\begin{lemma}[Properties about Typed Reductions and Typing]\quad
   \begin{itemize}
   \item If $\Gamma \vdash M \red N : A$ then $\Gamma \vdash M : A$ and $\Gamma \vdash N : A$.
   \item If $\Gamma \vdash M : A$ then $A$ is unique.
   \end{itemize}
-\end{lemma*}
+\end{lemma}
 
 
-The typing and typed reduction strategy satisfies weakening and strengthening.
+The typing and typed reduction strategy satisfies weakening and
+strengthening\ednote{Should maybe be already formulated using context
+  extensions? -bp}.
 
-\begin{lemma*}[Weakening and Strengthening of Typing and Typed Reductions]\label{lem:redprop}\quad
+\begin{lemma}[Weakening and Strengthening of Typing and Typed Reductions]\label{lem:redprop}\quad
   \begin{itemize}
-  \item If $\Gamma, \Gamma' \vdash M : B$ Then $\Gamma, x{:}A, \Gamma' \vdash M : B$.
+  \item If $\Gamma, \Gamma' \vdash M : B$ then $\Gamma, x{:}A, \Gamma' \vdash M : B$.
   \item If $\Gamma, x{:}A, \Gamma' \vdash M : B$ and $x \not\in\FV(M)$ then $\Gamma, \Gamma' \vdash M : B$.
   \item If $\Gamma, \Gamma' \vdash M \red N : B$ then $\Gamma, x{:}A, \Gamma' \vdash M \red N : B$.
   \item If $\Gamma, x{:}A, \Gamma' \vdash M \red N : B$ and $x \not\in \FV(M)$ then
         $x \not\in \FV N$ and $\Gamma, \Gamma' \vdash M \red N : B$.
   \end{itemize}
-\end{lemma*}
+\end{lemma}
 \begin{proof}
 By induction on the first derivation.
 \end{proof}
 
-{\color{red}{
+
 \begin{lemma}[Substitution Property of Typed Reductions]\label{lem:redsubst}\quad
 If $\Gamma, x{:}A \vdash M \red M' : B$ and $\Gamma \vdash N : A$ then 
 $\Gamma \vdash [N/x]M \red [N/x]M' : B$.
@@ -245,7 +247,7 @@ $\Gamma \vdash [N/x]M \red [N/x]M' : B$.
 \begin{proof}
 By induction on the first derivation. 
 \end{proof}
-}}
+
 
 We also will rely on some standard multi-step reduction properties which are proven by induction.
 
@@ -260,6 +262,7 @@ We also will rely on some standard multi-step reduction properties which are pro
 then $\Gamma \vdash [N/x]M \mred [N'/x]M : B$.
 \end{enumerate}  
 \end{lemma}
+
 
 
 \subsection*{When is a term in normal form?}
@@ -385,21 +388,24 @@ From this definition, it easily follows:
  \begin{lemma}\label{lm:mredsn}
  If $\Gamma \vdash M \mred M' : B$ and $\Gamma \vdash M : B \in \csn$ then $\Gamma \vdash M' : B \in \csn$.
  \end{lemma}
-
+ \begin{proof}
+Induction on the first derivation.   
+ \end{proof}
 
 To check strong normalizability of a term $M$ it is sufficient to consider every one-step
 reduct of $M$ instead of all possible (potentially infinite) reduction sequences. In particular, we can show that it enjoys the expected closure and substitution properties, namely:
-\begin{itemize}
+\begin{enumerate}
 \item $\Gamma \vdash R : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
     iff $\Gamma \vdash R~N : B \in \csn$;
   \item $\Gamma, x{:}A \vdash M : B \in \csn$ iff $\Gamma \vdash  \lambda x{:}A.M : A \arrow B \in \csn$;
   \item Let  $\Gamma \vdash R : A \in
    \csn$. Then $\Gamma, x{:}A \vdash M : B \in \csn$ if $\Gamma \vdash [R/x]M : B \in \csn$.
-\end{itemize}
+\end{enumerate}
 
-We first show that our definition of $\csn$ satisfies weakening.
+Note that property 1 and property 3 are stated and only hold for neutral terms $R$. 
+Before discussing these closure properties we first show that our definition of $\csn$ satisfies weakening.
 
-\begin{lemma}[Weakening of strongly normalizing terms]
+\begin{lemma}[Weakening of strongly normalizing terms]\label{lm:wksn}
 If $\Gamma \vdash M : B \in \csn$ then $\Gamma, x{:}A \vdash M : B \in \csn$\footnote{Maybe state it with explicit weakening and context extensions. -bp}.
 \end{lemma}
 \begin{proof}
@@ -415,7 +421,7 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $M'$ was arbitrary
 
 \end{proof}
 
-\begin{lemma}[Anti-renaming (Strengthening) of strongly normalizing terms]
+\begin{lemma}[Anti-renaming (Strengthening) of strongly normalizing terms]\label{lm:strsn}
 If $\Gamma, x{:}A \vdash [\rho]M : B \in \csn$ and $\Gamma, x{:}A \ext{\rho} \Gamma$ then 
 $\Gamma \vdash M : B \in \csn$.  
 \end{lemma}
@@ -431,21 +437,12 @@ $\Gamma \vdash M' : B \in \csn$ \hfill by IH
 
 \begin{lemma}[Properties of strongly normalizing terms]\label{lem:psn}$\;$
   \begin{enumerate}
-%  \item\label{pp2} If $\Gamma \vdash R : A \arrow B \in \csn$ where $R$ is not a lambda-abstraction and $\Gamma \vdash N : A \in \csn$
-%    then $\Gamma \vdash R~N : B \in \csn$.
   \item\label{pp3} If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A$ then $\Gamma, x{:}A \vdash M : B \in \csn$.
   \item\label{pp4} If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B \in \csn$.
-%  \item\label{pp5} If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
-%   \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.
   \item\label{pp6} If $\Gamma \vdash M~N : B \in \csn$ then
      $\Gamma \vdash M : A \arrow B \in \csn$ and $\Gamma \vdash N : A\in \csn$.
   \item\label{pp7} If $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$
      then $\Gamma, x{:}A \vdash M : B \in \csn$.
-
-%   \item\label{pp2} If $\Gamma \vdash M \in \csn$
-%                  and $\Gamma \vdash N \in \csn$ where $M$ is not a $\lambda$
-%                 then $\Gamma \vdash M\;N \in \csn$. (we also have $\Gamma
-%                 \vdash M\;N \red M'\;N$ and $\Gamma \vdash M'\;N \in \csn$ as i.h.)
   \end{enumerate}
 \end{lemma}
 \begin{proof}
@@ -709,28 +706,27 @@ Hence there exists an evaluation context $C'$ s.t. $C'[x] = (C_0[x]~M)\,N'$.
 
 Using evaluation contexts we can now state elegantly that strongly normalizing terms are closed under expansion.
 
-\begin{metanote}
-	Properties (\ref{cp3}) and (\ref{cp3b}) follow from Lemma
-        \ref{lem:psn} (\ref{pp2}) as $C[x]$ corresponds to the terms
-        that \ref{lem:psn} (\ref{pp2}) applies to, and (\ref{cp2}) is
-        never actually referenced, but instead the same one-step proof
-        is repeated whenever we need to establish that a variable is
-        $\csn$. Do we really need these three properties? -ah
-\\[0.5em]
-I think we should restate \ref{lem:psn}(\ref{pp2}) as Property
-\ref{cp3} and rather remove \ref{lem:psn}(\ref{pp2}. -bp
-\end{metanote}
+% \begin{metanote}
+% 	Properties (\ref{cp3}) and (\ref{cp3b}) follow from Lemma
+%         \ref{lem:psn} (\ref{pp2}) as $C[x]$ corresponds to the terms
+%         that \ref{lem:psn} (\ref{pp2}) applies to, and (\ref{cp2}) is
+%         never actually referenced, but instead the same one-step proof
+%         is repeated whenever we need to establish that a variable is
+%         $\csn$. Do we really need these three properties? -ah
+% \\[0.5em]
+% I think we should restate \ref{lem:psn}(\ref{pp2}) as Property
+% \ref{cp3} and rather remove \ref{lem:psn}(\ref{pp2}. -bp
+% \end{metanote}
 
 
-\begin{lemma}[Closure properties of strongly normalizing terms]\label{lm:closn}$\;$
+\begin{lemma}[Closure properties of neutral terms]\label{lm:closn}$\;$
   \begin{enumerate}
-%   \item\label{cp1} If $\Gamma \vdash [N/x]M \in \csn$ and $\Gamma
-%   \Vdash N \in \csn$ then $\Gamma, x{:}A  \vdash M \in \csn$.
   \item\label{cp2} For all variables $x:A \in \Gamma$, $\Gamma \vdash x : A \in \csn$.
   \item\label{cp3} If $\Gamma \vdash C[x] : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
      then $\Gamma \vdash C[x]\,N : B \in \csn$.
-  \item\label{cp3b} If $\Gamma \vdash C[x]~M \red R : B$ and $\Gamma \vdash C[x] : A \arrow B \in
-\csn$ and $\Gamma \vdash M : A \in \csn$ then $\Gamma \vdash R : B\in \csn$.
+% -- no used -bp
+%  \item\label{cp3b} If $\Gamma \vdash C[x]~M \red R : B$ and $\Gamma \vdash C[x] : A \arrow B \in
+%\csn$ and $\Gamma \vdash M : A \in \csn$ then $\Gamma \vdash R : B\in \csn$.
    % \item\label{cp4} If $\Gamma,x{:}A \vdash M \in \csn$ then $\Gamma \vdash \lambda x.M \in \csn$.
 %   \item\label{cp5} {$\csn$-backward closure:} If $\Gamma \vdash M \redsn M' : A$ and $\Gamma \vdash M' : A \in \csn$ then
 %     $\Gamma \vdash M : A \in \csn$ where
@@ -781,31 +777,31 @@ $\Gamma \vdash x : A \in \csn$
  $\Gamma \vdash Q : B \in \csn$ \hfill since $Q = C[x]~N'$
 \\[1em]
 \noindent
-\fbox{\ref{cp3b}.
-If $\Gamma \vdash C[x]~M \red R : B $ and $\Gamma \vdash C[x] : A \arrow B \in \csn$
-and $\Gamma \vdash M : A \in \csn$
-then $\Gamma \vdash R : B \in \csn$. }
-\\[1em]
-Proof by simultaneous induction on $\Gamma \vdash C[x] : A \arrow B \in \csn$ and
-$\Gamma \vdash M : A \in \csn$.
-\\[0.5em]
-\textbf{Sub-case} $\ianc{\Gamma \vdash C[x] \red M' : A \arrow B \quad \Gamma \vdash N : A}
-                        {\Gamma \vdash C[x]\,N \red M'\,N : B}{}$
-\\[1em]
-$\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by assumption $\Gamma \vdash C[x] : A \arrow B \in \csn$ \\
-$M'~N = C_0[x]$ \hfill by lemma \ref{lm:ecxt} \\
-$M' = C_1[x]$ and hence $\Gamma \vdash C_1[x] : A \arrow B \in \csn$ \hfill by def. evaluation contexts \\
-$\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
-$\Gamma \vdash C_1[x]~N : B \in \csn$ \hfill by IH(\ref{cp3}) since
-$\Gamma \vdash C_1[x] : A \arrow B \in \csn$ is smaller than $\Gamma \vdash C[x] \in \csn$
+% \fbox{\ref{cp3b}.
+% If $\Gamma \vdash C[x]~M \red R : B $ and $\Gamma \vdash C[x] : A \arrow B \in \csn$
+% and $\Gamma \vdash M : A \in \csn$
+% then $\Gamma \vdash R : B \in \csn$. }
 % \\[1em]
-\\[1em]
-\textbf{Sub-case} $\ianc{\Gamma \vdash C[x] : A \arrow B \quad \Gamma \vdash N\red N' : A}{\Gamma \vdash C[x]\,N \red C[x]\,N' : B}{}$
-\\[1em]
-$\Gamma \vdash N' : A \in \csn$ \hfill by assumption $\Gamma \vdash N : A \in
-\csn$ \\
-$\Gamma \vdash C[x]~N' : B\in \csn$ \hfill by IH(\ref{cp3})
-\\[1em]
+% Proof by simultaneous induction on $\Gamma \vdash C[x] : A \arrow B \in \csn$ and
+% $\Gamma \vdash M : A \in \csn$.
+% \\[0.5em]
+% \textbf{Sub-case} $\ianc{\Gamma \vdash C[x] \red M' : A \arrow B \quad \Gamma \vdash N : A}
+%                         {\Gamma \vdash C[x]\,N \red M'\,N : B}{}$
+% \\[1em]
+% $\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by assumption $\Gamma \vdash C[x] : A \arrow B \in \csn$ \\
+% $M'~N = C_0[x]$ \hfill by Lemma \ref{lm:ecxt} \\
+% $M' = C_1[x]$ and hence $\Gamma \vdash C_1[x] : A \arrow B \in \csn$ \hfill by def. evaluation contexts \\
+% $\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
+% $\Gamma \vdash C_1[x]~N : B \in \csn$ \hfill by IH(\ref{cp3}) since
+% $\Gamma \vdash C_1[x] : A \arrow B \in \csn$ is smaller than $\Gamma \vdash C[x] \in \csn$
+% % \\[1em]
+% \\[1em]
+% \textbf{Sub-case} $\ianc{\Gamma \vdash C[x] : A \arrow B \quad \Gamma \vdash N\red N' : A}{\Gamma \vdash C[x]\,N \red C[x]\,N' : B}{}$
+% \\[1em]
+% $\Gamma \vdash N' : A \in \csn$ \hfill by assumption $\Gamma \vdash N : A \in
+% \csn$ \\
+% $\Gamma \vdash C[x]~N' : B\in \csn$ \hfill by IH(\ref{cp3})
+% \\[1em]
 % \fbox{\ref{cp5}. If $\Gamma \vdash M\redsn M' : B$ and $\Gamma \vdash M' : B\in \csn$ then
 %      $\Gamma \vdash M : B \in \csn$. }
 % \\[1em]
@@ -865,8 +861,9 @@ Assume $\Gamma, y{:}A' \vdash C_1[C'[y]]~[\rho']M \red Q : B$ where $\Gamma, y{:
 \\[0.5em]
 $\Gamma, x{:}A \vdash C_1[x] : B' \arrow B \in \csn$ and $\Gamma, x{:}A \vdash [\rho]M : B' \in \csn$ \hfill by Lemma \ref{lem:psn} (Property \ref{pp6}) \\
 $\Gamma, y{:}A' \vdash C_1[~C'[y]~] : B' \arrow B \in \csn$ \hfill by IH \\
-$\Gamma \vdash M : B' \in \csn$ \hfill by Strengthening Lemma using $\Gamma, x{:}A \vdash [\rho]M : B' \in \csn$\\
-$\Gamma, y{:}A' \vdash [\rho]M : B' \in \csn$ \hfill by Weakening Lemma \\
+$\Gamma \vdash M : B' \in \csn$ \hfill by Strengthening Lemma using
+$\Gamma, x{:}A \vdash [\rho]M : B' \in \csn$ (Lemma \ref{lm:strsn})\\
+$\Gamma, y{:}A' \vdash [\rho]M : B' \in \csn$ \hfill by Weakening Lemma for $\csn$ (Lemma \ref{lm:wksn})\\
 %
 $\Gamma, y{:}A' \vdash M' : B' \in \csn$ \hfill using $\Gamma, y{:}A' \vdash [\rho]M : B' \in \csn$ and $\Gamma, x{:}A' \vdash [\rho']M \red M' : B'$\\
 $\Gamma, y{:}A' \vdash C_1[~C'[y]~]~M' : B \in \csn$ \hfill using Lemma \ref{lm:closn} (Property \ref{cp3})\\
@@ -890,16 +887,71 @@ $\Gamma, y{:}A' \vdash C_1[C'[y]]~[\rho']M : B \in \csn$ \hfill by since $\Gamma
 \end{proof}
 
 
-%Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.% \ednote{I don't have a good structural def of subterm, so not an easy exercise --am}.
+\begin{lemma}\label{lem:appsnclosure}
+If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash N : A \in \csn$
+and $\Gamma \vdash C[~[N/x]M~] : B \in \csn$ 
+and $\Gamma, x{:}B \vdash C[x] : B' \in \csn$
+then $\Gamma \vdash C[\,(\lambda x.M)~N\,] : B' \in \csn$
+\end{lemma}
+\begin{proof}
+Proof by induction -- either $\Gamma, x{:}A \vdash M : B \in \csn$ is getting smaller,  
+$\Gamma \vdash N : A \in \csn$ is getting smaller, or 
+$\Gamma \vdash C[~[N/x]M~] : B \in \SN$  is getting smaller\ednote{In the Agda implementation, this lemma uses $\Gamma \vdash C[~[N/x]M~] : B \in \SN$ which means it cannot be proven independently; this does not make sense to me. Otherwise the proof follows the same main ideas. -bp}.
+\\[1em]
+\noindent
+Assume  $\Gamma \vdash C[(\lambda x.M)~N] \red P : B'$.
 
-% Moreover, we have that if a given term $M$ is strongly normalizing, then any subterm must be strongly normalizing as well. We omit the proof for now and return to it later.\ednote{I don't have a good structural def of subterm, so not an easy exercise --am}.
+\paragraph{Case} $\ianc{\above{\D}{\Gamma \vdash (\lambda x.M)~N \red Q}}{\Gamma \vdash C[(\lambda x.M)~N] \red C[Q] : B'}{}$. i.e. we reduce in the head position.
+\\[0.5em]
 
-% \begin{theorem}[Subterm property of strong normalization]
-% % Any subterm of a strongly normalizing term is strongly normalizing itself.za
-% If $(\Gamma \vdash M) \in \csn$ and $\Gamma \vdash C[N] = M$ then $(\Gamma \vdash N) \in \csn$.
-% % or more formally:
-% %if $t \in \csn$ and $C[s] = t$ then $s \in \csn$.
-% \end{theorem}
+% \paragraph{Case} $\ianc{\Gamma \vdash (\lambda x.M)~N \red Q}{\Gamma \vdash C[(\lambda x.M)~N] \red C[Q] : B'}{}$.
+
+ \paragraph{Sub-Case} 
+  $\D = \ianc {\Gamma \vdash \lambda x{:}A.M : A \arrow B 
+         \quad \Gamma \vdash  N : A}
+              {\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }{}$ and $ Q = [N/x]M$
+ \\
+$\Gamma \vdash C[~[N/x]M ~] \in \csn$ \hfill by assumption
+
+\paragraph{Sub-Case}
+ $\D = \ianc {\ianc{\Gamma, x{:}A \vdash M \red M' : B}
+                   {\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M' : A \arrow B }{}
+        \quad \Gamma \vdash N : A}
+             {\Gamma \vdash (\lambda x{:}A.M)~N \red (\lambda x{:}A.M')~N : B}{}$ 
+ and $Q = (\lambda x{:}A.M')~N$
+\\[0.5em]
+$\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill using $\Gamma, x{:}A \vdash M : B \in \csn$\\
+$\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
+$\Gamma, x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
+$\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Subst. Lemma for Typed Red\\
+$\Gamma \vdash C[~[N/x]M~] \red C[~[N/x]M'] : B'$ \hfill by congruence \\
+$\Gamma \vdash C[~[N/x]M'] : B' \in \csn$ \hfill by using $\Gamma \vdash C[~[N/x]M~] : B' \in \csn$ \\
+$\Gamma \vdash C[\, (\lambda x{:}A.M')~N\;] : B'$ \hfill by IH
+
+\paragraph{Sub-Case}
+ $\D = \ianc {\Gamma \vdash \lambda x{:}A.M : A \arrow B 
+        \quad \Gamma \vdash N \red N' : A}
+             {\Gamma \vdash (\lambda x{:}A.M)~N \red (\lambda x{:}A.M)~N' : B}{}$
+\\[0.5em]
+$\Gamma \vdash N' : A \in \csn$ \hfill using $\Gamma \vdash N : A \in \csn$\\
+$\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption \\
+$\Gamma, x{:}A \vdash M : B $ \hfill by inversion on typing\\
+$\Gamma \vdash [N/x]M \mred [N'/x]M : B$ \hfill by Lemma \ref{lm:mredprop}(\ref{lm:mredsubs}) using $\Gamma \vdash N \red N' : A$\\
+$\Gamma \vdash C[~[N/x]M~] \mred C[~[N'/x]M~] : B'$ \hfill by Multi-Step Red. on Eval. Ctx. (Lemma \ref{lm:mredecxt})\\
+$\Gamma \vdash C[~[N'/x]M] : B' \in \csn$ \hfill Lemma \ref{lm:mredsn} using $\Gamma \vdash C[~[N/x]M~] : B' \in \csn$\\
+$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by assumption \\
+$\Gamma, x{:}B \vdash C[x] : B' \in \csn$ \hfill by assumption \\
+$\Gamma \vdash C[~(\lambda x{:}A.M)~N'~] : B' \in \csn$ \hfill by IH % (since $\Gamma \vdash N' : A \in \csn$ is smaller)
+
+\paragraph{Case} $\D = \Gamma \vdash C[~(\lambda x.M)~N~] \red C'[~(\lambda x.M)~N~]$, i.e. we reduce, but not in a head position; if $C = \underline{\quad}~N_0\ldots N_n$ and there is a reduction $\Gamma \vdash N_i \red N'_i : A_i$. Furthermore $C' = \underline{\quad}~N_0\ldots N'_i \ldots N_n$\footnote{I would prefer a more structural argument based on the structure of evaluation contexts, but this works for now. -bp}
+\\[0.5em]
+$\Gamma \vdash  C[~[N/x]M~] \red  C'[~[N/x]M~] : B'$ \hfill by given assumption \\
+$\Gamma \vdash C'[~[N/x]M~] : B' \in \csn$ \hfill using  $\Gamma \vdash C[~[N/x]M~] : B \in \csn$ 
+\\
+$\Gamma \vdash C'[\,(\lambda x.M)~N\,] : B' \in \csn$ \hfill by IH.
+
+\end{proof}
+
 
 \subsection{Inductive Definition of Strongly Normalizing Terms}
 Following \cite{Raamsdonk_onnormalisation} and \cite{Joachimski2003} we define inductively the set of normal terms, $\SN$, and the set of neutral terms, $\SNe$, using the following judgments:
@@ -956,9 +1008,6 @@ Hence this approach seems particularly amendable to mechanizing proofs.
 By induction on the definition of $\SN$, $\SNe$, and $\redSN$.
 \end{proof}
 
-% \begin{lemma}[Variables are in $\SN$]
-% If $x{:}A \in \Gamma$ then $\Gamma \vdash x \in SN$
-% \end{lemma}
 \begin{lemma}[Renaming]~\label{lm:renameSN}
   \begin{enumerate}
   \item If $\Gamma \vdash M : A \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M : A \in \SN$
@@ -1030,7 +1079,8 @@ $\Gamma \vdash [\rho](R~M) \redSN [\rho](R'~M) : B$ \hfill by def. of subst.
   \end{enumerate}
 \end{lemma}
 \begin{proof}
-By induction on the first derivation. [to check]
+By induction on the first derivation\ednote{Should the proof be
+  expanded. -bp}.
 \end{proof}
 
 
@@ -1070,7 +1120,7 @@ By induction on the first derivation. [to check]
 
 % \end{proof}
 
-\begin{lemma}[$\SNe$ is closed under application]\label{lm:pSN0}
+\begin{lemma}[$\SNe$ is closed under application\ednote{Not used  anymore? -bp}]\label{lm:pSN0}
 If $\Gamma \vdash M : A \arrow B \in \SNe$ and $\Gamma \vdash N : A \in \SN$ then $\Gamma \vdash M~N : B \in \SN$.
 \end{lemma}
 \begin{proof}
@@ -1149,74 +1199,6 @@ We can now prove that the two definitions of strongly normalizing terms coincide
 For proving normalization, soundness of the inductive definition of $\SN$ suffices.
 
 
-\begin{lemma}\label{lem:appsnclosure}
-If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash N : A \in \csn$
-and $\Gamma \vdash C[~[N/x]M~] : B \in \csn$ 
-and $\Gamma, x{:}B \vdash C[x] : B' \in \csn$
-then $\Gamma \vdash C[\,(\lambda x.M)~N\,] : B' \in \csn$
-\end{lemma}
-\begin{proof}
-% Direct using the Lemma \ref{lem:appsnclosureaux}.
-Proof by induction -- either $\Gamma, x{:}A \vdash M : B \in \csn$ is getting smaller,  
-$\Gamma \vdash N : A \in \csn$ is getting smaller, or 
-$\Gamma \vdash C[~[N/x]M~] : B \in \csn$  is getting smaller\ednote{In the Agda implementation, this lemma uses $\Gamma \vdash C[~[N/x]M~] : B \in \csn$ which means it cannot be proven independently; this does not make sense to me. Otherwise the proof follows the same main ideas. -bp}.
-\\[1em]
-\noindent
-Assume  $\Gamma \vdash C[(\lambda x.M)~N] \red P : B'$.
-
-\paragraph{Case} $\ianc{\above{\D}{\Gamma \vdash (\lambda x.M)~N \red Q}}{\Gamma \vdash C[(\lambda x.M)~N] \red C[Q] : B'}{}$. i.e. we reduce in the head position.
-\\[0.5em]
-
-% \paragraph{Case} $\ianc{\Gamma \vdash (\lambda x.M)~N \red Q}{\Gamma \vdash C[(\lambda x.M)~N] \red C[Q] : B'}{}$.
-
- \paragraph{Sub-Case} 
-  $\D = \ianc {\Gamma \vdash \lambda x{:}A.M : A \arrow B 
-         \quad \Gamma \vdash  N : A}
-              {\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }{}$ and $ Q = [N/x]M$
- \\
-$\Gamma \vdash C[~[N/x]M ~] \in \csn$ \hfill by assumption
-
-\paragraph{Sub-Case}
- $\D = \ianc {\ianc{\Gamma, x{:}A \vdash M \red M' : B}
-                   {\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M' : A \arrow B }{}
-        \quad \Gamma \vdash N : A}
-             {\Gamma \vdash (\lambda x{:}A.M)~N \red (\lambda x{:}A.M')~N : B}{}$ 
- and $Q = (\lambda x{:}A.M')~N$
-\\[0.5em]
-$\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill using $\Gamma, x{:}A \vdash M : B \in \csn$\\
-$\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
-$\Gamma, x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
-$\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Subst. Lemma for Typed Red\\
-$\Gamma \vdash C[~[N/x]M~] \red C[~[N/x]M'] : B'$ \hfill by congruence \\
-$\Gamma \vdash C[~[N/x]M'] : B' \in \csn$ \hfill by using $\Gamma \vdash C[~[N/x]M~] : B' \in \csn$ \\
-$\Gamma \vdash C[\, (\lambda x{:}A.M')~N\;] : B'$ \hfill by IH
-
-\paragraph{Sub-Case}
- $\D = \ianc {\Gamma \vdash \lambda x{:}A.M : A \arrow B 
-        \quad \Gamma \vdash N \red N' : A}
-             {\Gamma \vdash (\lambda x{:}A.M)~N \red (\lambda x{:}A.M)~N' : B}{}$
-\\[0.5em]
-$\Gamma \vdash N' : A \in \csn$ \hfill using $\Gamma \vdash N : A \in \csn$\\
-$\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption \\
-$\Gamma, x{:}A \vdash M : B $ \hfill by inversion on typing\\
-$\Gamma \vdash [N/x]M \mred [N'/x]M : B$ \hfill by Lemma \ref{lm:mredprop}(\ref{lm:mredsubs}) using $\Gamma \vdash N \red N' : A$\\
-$\Gamma \vdash C[~[N/x]M~] \mred C[~[N'/x]M~] : B'$ \hfill by Multi-Step Red. on Eval. Ctx. (Lemma \ref{lm:mredecxt})\\
-$\Gamma \vdash C[~[N'/x]M] : B' \in \csn$ \hfill Lemma \ref{lm:mredsn} using $\Gamma \vdash C[~[N/x]M~] : B' \in \csn$\\
-$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by assumption \\
-$\Gamma, x{:}B \vdash C[x] : B' \in \csn$ \hfill by assumption \\
-$\Gamma \vdash C[~(\lambda x{:}A.M)~N'~] : B' \in \csn$ \hfill by IH % (since $\Gamma \vdash N' : A \in \csn$ is smaller)
-
-\paragraph{Case} $\D = \Gamma \vdash C[~(\lambda x.M)~N~] \red C'[~(\lambda x.M)~N~]$, i.e. we reduce, but not in a head position; if $C = \underline{\quad}~N_0\ldots N_n$ and there is a reduction $\Gamma \vdash N_i \red N'_i : A_i$. Furthermore $C' = \underline{\quad}~N_0\ldots N'_i \ldots N_n$\footnote{I would prefer a more structural argument based on the structure of evaluation contexts, but this works for now. -bp}
-\\[0.5em]
-$\Gamma \vdash  C[~[N/x]M~] \red  C'[~[N/x]M~] : B'$ \hfill by given assumption \\
-$\Gamma \vdash C'[~[N/x]M~] : B' \in \csn$ \hfill using  $\Gamma \vdash C[~[N/x]M~] : B \in \csn$ 
-\\
-$\Gamma \vdash C'[\,(\lambda x.M)~N\,] : B' \in \csn$ \hfill by IH.
-
-
-
-\end{proof}
-
 
 \begin{theorem}[Soundness of $\SN$]
 \mbox{}
@@ -1225,7 +1207,7 @@ $\Gamma \vdash C'[\,(\lambda x.M)~N\,] : B' \in \csn$ \hfill by IH.
   \item If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
   \item \label{lem:SNsn}
         If   $\Gamma \vdash M \redSN M_1 : A$ and $\Gamma \vdash C[M_1] : A_0 \in \SN$ and 
-             $\Gamma \vdash C[M_1] : A_0 \in \csn$ and % $\Gamma \vdash C[M] \red Q$ and 
+             $\Gamma \vdash C[M_1] : A_0 \in \csn$ and $\Gamma \vdash C[M] \red Q$ and 
              $\Gamma, x{:}A \vdash C[x] : B' \in \csn$
         then $\Gamma \vdash Q : A_0 \in \csn$.  
 %   \item If $\Gamma \vdash M \redSN M' : A$ then
