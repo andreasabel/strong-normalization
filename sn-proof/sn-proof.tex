@@ -677,7 +677,9 @@ By induction on the structure of evaluation contexts $C$.
 \paragraph{Case}  $C = \_$
 \\[1em]
 $\Gamma \vdash x~N \red R : B$ \hfill by assumption since $C[x] = x$\\
-Impossible since $x~N$ does not step.
+$\Gamma \vdash x : A \arrow B$ and $\Gamma \vdash N \red N': A$ and $R = x~N'$ \hfill by inversion on the only applicable red. rule \\
+So there exists an evaluation context $C'[x] = C[x]~N'$.
+
 
 \paragraph{Case} $C  = C_0 ~M$ \\[1em]
 $\Gamma \vdash (C_0[x]~M)~N \red R : B$ \hfill by assumption since $C[x] = C_0[x]~M$\\[1em]
