@@ -256,7 +256,7 @@ We also will rely on some standard multi-step reduction properties which are pro
 \item\label{lm:mredappl} If $\Gamma \vdash M \mred M' : A \arrow B$ then $\Gamma \vdash M~N \mred M'~N : B$.
 \item\label{lm:mredappr} If $\Gamma \vdash N \mred N' : A$ then $\Gamma \vdash M~N \mred M~N' : B$.
 \item\label{lm:mredabs} If $\Gamma,x{:}A \vdash M \mred M' : B$ then $\Gamma \vdash \lambda x{:}A.M \mred \lambda x{:}A.M : A \arrow B$.
-\item\label{lm:mredsubs} If $Gamma, x{:}A \vdash M : B$ and $\Gamma \vdash N \red N' : A$
+\item\label{lm:mredsubs} If $\Gamma, x{:}A \vdash M : B$ and $\Gamma \vdash N \red N' : A$
 then $\Gamma \vdash [N/x]M \mred [N'/x]M : B$.
 \end{enumerate}  
 \end{lemma}
@@ -383,13 +383,7 @@ The usual definition of strong normalization via accessibility does not only con
 From this definition, it easily follows:
 
  \begin{lemma}\label{lm:mredsn}
- If $\Gamma \vdash M \mred M' : B$ and $\Gamma \vdash M : B \in \csn$ then $\Gamma \vdash M' : B \csn$ where 
-
-\[
-\ianc{}{\Gamma \vdash M \mred M : B}{} \qquad
-\ibnc{\Gamma \vdash M \red N : B}{\Gamma \vdash N \mred M' : B}
-      {\Gamma \vdash M \mred M' : B}{}
-\]
+ If $\Gamma \vdash M \mred M' : B$ and $\Gamma \vdash M : B \in \csn$ then $\Gamma \vdash M' : B \in \csn$.
  \end{lemma}
 
 
@@ -426,6 +420,8 @@ If $\Gamma, x{:}A \vdash [\rho]M : B \in \csn$ and $\Gamma, x{:}A \ext{\rho} \Ga
 $\Gamma \vdash M : B \in \csn$.  
 \end{lemma}
 \begin{proof}
+By induction on $\Gamma, x{:}A \vdash [\rho]M : B \in \csn$.
+	\\[1em]
 Assume $\Gamma \vdash M \red M' : B$ \\
 $\Gamma, x{:}A \vdash [\rho]M \red [\rho]M' : B$ \hfill by weakening of typed. red. \\
 $\Gamma, x{:}A \vdash [\rho]M' : B \in \csn$ \hfill using $\Gamma, x{:}A \vdash [\rho]M : B \in \csn$\\
@@ -438,7 +434,7 @@ $\Gamma \vdash M' : B \in \csn$ \hfill by IH
 %  \item\label{pp2} If $\Gamma \vdash R : A \arrow B \in \csn$ where $R$ is not a lambda-abstraction and $\Gamma \vdash N : A \in \csn$
 %    then $\Gamma \vdash R~N : B \in \csn$.
   \item\label{pp3} If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A$ then $\Gamma, x{:}A \vdash M : B \in \csn$.
-  \item\label{pp4} If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B \in \csn$
+  \item\label{pp4} If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B \in \csn$.
 %  \item\label{pp5} If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
 %   \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.
   \item\label{pp6} If $\Gamma \vdash M~N : B \in \csn$ then
@@ -454,9 +450,9 @@ $\Gamma \vdash M' : B \in \csn$ \hfill by IH
 \end{lemma}
 \begin{proof}
 % Property \ref{pp2} is proven by mutual induction on the derivations; 
-Properties \ref{pp6}, \ref{pp7}, and \ref{pp4} are proven by induction on the first derivation. 
+Each property is proven by induction on the first derivation. 
 \\[1em]
-In all the proofs below we silently exploit type uniqueness and do not track explicitly the reasoning about well-typed terms below.
+In all the proofs below we silently exploit type uniqueness and do not track explicitly the reasoning about well-typed terms.
 \\[1em]
  % \fbox{\ref{pp2}. If $\Gamma \vdash R : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
  %     then $\Gamma \vdash R~N : B \in \csn$. } where $R$ is not a lambda-abstraction.
@@ -472,7 +468,7 @@ In all the proofs below we silently exploit type uniqueness and do not track exp
  % $\Gamma \vdash R'~N : B \in \csn$ \hfill by IH \\
  % $\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R'~N$
  % % $\Gamma \vdash R~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash R~N \red Q$.
-
+ %
  % \paragraph{Sub-case:} $\D = \ibnc
  %  {\Gamma \vdash N \red N' : A}{\Gamma \vdash R : A \arrow B}
  %  {\Gamma \vdash R\,N \red R\,N' : B}{}$ and $Q = R~N'$
@@ -481,7 +477,7 @@ In all the proofs below we silently exploit type uniqueness and do not track exp
  % $\Gamma \vdash R~N' : B\in \csn$ \hfill by IH \\
  % $\Gamma \vdash Q : B \in \csn$ \hfill since $Q = R~N'$
  % % $\Gamma \vdash R~N \in \csn$ \hfill by abstraction over assumption $\Gamma \vdash R~N \red Q$.
-
+%
 % % \paragraph{Sub-case:} $\D = \Gamma \vdash (\lambda x{:}A.M)\;N  \red  \Gamma \vdash [N/x]M : B$
 % % \\[1em]
 % % $\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption of $\beta$-reduction \\
@@ -505,14 +501,15 @@ In all the proofs below we silently exploit type uniqueness and do not track exp
 %
 \vspace{1em}
 % \noindent
- \fbox{\ref{pp3}. If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A$ then $\Gamma, x{:}A \vdash M : B\in \csn$.}
- \\[1em]
+\fbox{\ref{pp3}. If $\Gamma \vdash [N/x]M : B \in \csn$ and $\Gamma \vdash N : A$ then $\Gamma, x{:}A \vdash M : B\in \csn$.}
+\\
+Induction on $\Gamma \vdash [N/x]M : B \in \csn$. \\[1em]
 Assume $\Gamma, x{:}A \vdash M \red M' : B$\\
 $\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Lemma \ref{lem:redsubst}\\
 $\Gamma \vdash [N/x]M' : B \in \csn$ \hfill by using  $\Gamma \vdash [N/x]M : B \in \csn$ \\
 $\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill by IH\\
 $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $\Gamma, x{:}A \vdash M \red M' : B$ was arbitrary.
-
+\\[1em]
 % By induction on $M$.
 % \paragraph{Sub-case:} $M = x$ \\
 % $\Gamma, x{:}A \vdash x : A \in \csn$ \hfill trivial since there is no reduction $\Gamma, x{:}A \vdash x \red x : A$
@@ -528,7 +525,7 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $\Gamma, x{:}A \vdash M \red 
 % $\Gamma, x{:}A \vdash M_2  : C \in \csn$ \hfill by IH \\
 % {\color{red}{$\Gamma, x{:}A \vdash M_1~M_2 : B \in \csn$ \hfill by Property \ref{pp2} -- $M_1$ is not neutral}}
 % %
-
+%
 % \paragraph{Sub-case:} $M = \lambda y{:}A'.M'$ \\
 % $[N/x](\lambda y{:}A'. M') = (\lambda y{:}A'. [N/x]M')$ \hfill by def. subst.\ednote{Should we insist on $(\lambda y{:}A'. [N/x,y/y]M')$? .am  I think it doesn't matter here whether one uses simultaneous subst. or single subst. -bp} \\
 % $\Gamma, y{:}A' \vdash [N/x]M' :B \in \csn$ \hfill by Property \ref{pp7}\\
@@ -539,8 +536,8 @@ $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill since $\Gamma, x{:}A \vdash M \red 
 % %
 \fbox{\ref{pp4}. If $\Gamma, x{:}A \vdash M : B \in \csn$ then $\Gamma \vdash  \lambda x{:}A.M : A \arrow B\in \csn$}
 \\[1em]
-Induction on $\Gamma, x{:}A \vdash M : B \in \csn$\\[1em]
-Assume $\Gamma \vdash \lambda x{:}A.M \red Q : A \arrow B$
+Induction on $\Gamma, x{:}A \vdash M : B \in \csn$. \\[1em]
+Assume $\Gamma \vdash \lambda x{:}A.M \red Q : A \arrow B$\\
 $\Gamma, x{:}A \vdash M \red M' : B$ and $Q = \lambda x{:}A.M'$ \hfill by reduction rule for $\lambda$.\\
 $\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill by assumption $\Gamma, x{:}A \vdash M : B\in \csn$ \\
 $\Gamma \vdash \lambda x{:}A.M' : A \arrow B\in \csn$ \hfill by IH \\
@@ -548,7 +545,7 @@ $\Gamma \vdash Q : A \arrow B \in \csn$ \hfill since $Q = \lambda x{:}A.M'$\\
 $\Gamma \vdash \lambda x.M : A \arrow B \in \csn$ \hfill since $\Gamma \vdash \lambda x.M \red Q : A \arrow B$ was arbitrary
 \\[1em]
 %
-
+%
 % \fbox{\ref{pp5}. If $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma \vdash R : A \in
 %    \csn$ then $\Gamma \vdash [R/x]M : B \in \csn$.  }{\color{red}{~~not used -- can be removed -bp}}
 % \\[1em]
