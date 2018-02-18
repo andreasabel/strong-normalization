@@ -211,20 +211,18 @@ necessary as soon as want to add $\eta$-expansion or add a unit type
 where every term of type unit reduces to the unit element. We will
 consider the extension with the unit type in Section~\ref{sec:unit}.
 
+
 On top of the single step reduction relation, we can define multi-step
 reductions as usual:
 
 \[
-\ianc{}{\Gamma \vdash M \mred M : B}{} \qquad
+\ianc{}{\Gamma \vdash M \mred N : B}{\Gamma \vdash M \red N} \qquad
 \ibnc{\Gamma \vdash M \red N : B}{\Gamma \vdash N \mred M' : B}
       {\Gamma \vdash M \mred M' : B}{}
 \]
 
-
-We now list some standard properties of (typed) reduction. We start
-with the fact that typed reductions are only defined on well-typed
-terms, i.e. if $M$ steps then $M$ is well-typed. The rules for typing
-are standard and omitted.
+Our definition of multi-step reductions guarantees that we take at least one step.
+In addition, we have that typed reductions are only defined on well-typed terms, i.e. if $M$ steps then $M$ is well-typed.
 
 \begin{lemma}[Basic Properties  of Typed Reductions and Typing]\quad
   \begin{itemize}
@@ -271,7 +269,7 @@ We also will rely on some standard multi-step reduction properties which are pro
 \item\label{lm:mredappr} If $\Gamma \vdash N \mred N' : A$ then $\Gamma \vdash M~N \mred M~N' : B$.
 \item\label{lm:mredabs} If $\Gamma,x{:}A \vdash M \mred M' : B$ then $\Gamma \vdash \lambda x{:}A.M \mred \lambda x{:}A.M : A \arrow B$.
 \item\label{lm:mredsubs} If $\Gamma, x{:}A \vdash M : B$ and $\Gamma \vdash N \red N' : A$
-then $\Gamma \vdash [N/x]M \mred [N'/x]M : B$.
+then $ \Gamma \vdash [N/x]M \mred [N'/x]M : B$.
 \end{enumerate}  
 \end{lemma}
 
@@ -397,11 +395,24 @@ The usual definition of strong normalization via accessibility does not only con
 
 From this definition, it easily follows:
 
- \begin{lemma}\label{lm:mredsn}
- If $\Gamma \vdash M \mred M' : B$ and $\D : \Gamma \vdash M : B \in \csn$ then $\C : \Gamma \vdash M' : B \in \csn$ and $\C \leq \D$.
+ \begin{lemma}[Multi-step Strong Normalization]\label{lm:mredsn}
+If  $\Gamma \vdash M \mred M' : B$ and
+   $\D:\Gamma \vdash M : B \in \csn$ then $\D':\Gamma \vdash M' : B \in \csn$ and $\D' < \D$.
  \end{lemma}
  \begin{proof}
-Induction on the first derivation.   
+Induction on $\Gamma \vdash M\mred M' : B$ .
+
+\paragraph{Case} $\ianc{}{\Gamma \vdash M \mred M' : B}{\Gamma \vdash M \red M' : B} \qquad$
+\\[1em]
+$\D' : \Gamma \vdash M' : B \in \csn$ and $\D' < \D$ \hfill by using $\D:\Gamma \vdash M : B \in \csn$
+
+\paragraph{Case} $ \ibnc{\Gamma \vdash M \red N : B}{\Gamma \vdash N \mred M' : B}
+      {\Gamma \vdash M \mred M' : B}{}$
+\\[1em]
+$\D : \Gamma \vdash M : B \in \csn$ \hfill by assumption\\
+$\D_1 : \Gamma \vdash N : B \in \csn$ and $\D_1 < \D$ \hfill by using $\D: \Gamma \vdash M : B \in \csn$\\
+$\D_2 : \Gamma \vdash M' : B \in \csn$ and $\D_2 < \D_1$ \hfill by IH using $\D_1$ \\
+$\D_2 < \D$ \hfill since $\D_2 < \D_1$ and $\D_1 < \D$ 
 
  \end{proof}
 
@@ -1258,8 +1269,8 @@ $\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill using $\Gamma, x{:}A \vdash M : B 
 $\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
 $\Gamma, x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
 $\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Subst. Lemma for Typed Red\\
-$\Gamma \vdash [N/x]M'] : B' \in \csn$ \hfill by using $\Gamma \vdash [N/x]M : B' \in \csn$ \\
-$\Gamma \vdash (\lambda x{:}A.M')~N : B'$ \hfill by IH
+$\Gamma \vdash [N/x]M' : B' \in \csn$ \hfill by using $\Gamma \vdash [N/x]M : B' \in \csn$ \\
+$\Gamma \vdash (\lambda x{:}A.M')~N : B'$ \hfill by IH (since $\Gamma \vdash [N/x]M' : B' \in \csn$ is smaller)
 
 \paragraph{Case}
  $\D = \ianc {\Gamma \vdash \lambda x{:}A.M : A \arrow B 
@@ -1269,10 +1280,11 @@ $\Gamma \vdash (\lambda x{:}A.M')~N : B'$ \hfill by IH
 $\Gamma \vdash N' : A \in \csn$ \hfill using $\Gamma \vdash N : A \in \csn$\\
 $\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption \\
 $\Gamma, x{:}A \vdash M : B $ \hfill by inversion on typing\\
-$\Gamma \vdash [N/x]M \mred [N'/x]M : B$ \hfill by Lemma \ref{lm:mredprop}(\ref{lm:mredsubs}) using $\Gamma \vdash N \red N' : A$\\
+$\C : \Gamma \vdash [N/x]M \mred [N'/x]M : B$ and $1 \leq \C$ \hfill by Lemma \ref{lm:mredprop}(\ref{lm:mredsubs}) using $\Gamma \vdash N \red N' : A$\\
+% $\Gamma \vdash [N/x]M \red Q : B$ and $\Gamma \vdash Q \mred [N'/x]M : B$ \hfill since $\C \geq 1$ and multi-step red.\\
 $\Gamma \vdash [N'/x]M : B' \in \csn$ \hfill Lemma \ref{lm:mredsn} using $\Gamma \vdash [N/x]M : B' \in \csn$\\
 $\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by assumption \\
-$\Gamma \vdash (\lambda x{:}A.M)~N' : B' \in \csn$ \hfill by IH % (since $\Gamma \vdash N' : A \in \csn$ is smaller)
+$\Gamma \vdash (\lambda x{:}A.M)~N' : B' \in \csn$ \hfill by IH  (since $\Gamma \vdash N' : A \in \csn$ is smaller)
   
 \end{proof}
 
@@ -1283,7 +1295,7 @@ $\Gamma \vdash (\lambda x{:}A.M)~N' : B' \in \csn$ \hfill by IH % (since $\Gamma
 If $\Gamma \vdash M \redsn N : A$ and $\Gamma \vdash M \red N' : A$
   then either $N = N'$ or 
   there $\exists Q$ s.t. $\Gamma \vdash N'  \redsn Q : A$
-        and $\Gamma \vdash N \mred Q$.   
+        and $\Gamma \vdash N \mred Q$.
 \end{lemma}
 \begin{proof}
 By induction on    $\Gamma \vdash M \redsn N : A$.
@@ -1309,7 +1321,7 @@ WE SHOW: there exists a $Q$ s.t. $\Gamma \vdash (\lambda x{:}A.M')~N  \redsn Q :
 Let $Q = [N/x]M'$.  \\
 $\Gamma \vdash (\lambda x{:}A.M')~N \redsn [N/x]M' : B$ \hfill by def. of $\redsn$\\
 $\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Subst. of typed red. (Lemma \ref{lem:redsubst})\\
-$\Gamma \vdash [N/x]M \mred [N/x]M' : B$ \hfill using def. of $\mred$ together with reflexivity  
+$\Gamma \vdash [N/x]M \mred [N/x]M' : B$ \hfill using def. of $\mred$ 
 
 \paragraph{Case}
 $\D = \ianc{\Gamma \vdash N : A \in \csn \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{}$
@@ -1356,7 +1368,7 @@ WE SHOW: there exists a $Q$ s.t. $\Gamma \vdash M~N' \redsn Q : B$ and $\Gamma \
 \\[0.5em]
 Let $Q = M'~N'$ \\[0.5em]
 $\Gamma \vdash M~N' \redsn M'~N' : B$ \hfill by $\Gamma \vdash M \redsn M' : A \arrow B$ \\
-$\Gamma \vdash \vdash N\mred N' : A$ \hfill by rule for $\mred$ and reflexivity\\
+$\Gamma \vdash \vdash N\mred N' : A$ \hfill by rule for $\mred$\\
 $\Gamma \vdash M'~N \mred M'~N' : B$ \hfill by Multi-Step Reduction (Lemma \ref{lm:mredprop})(\ref{lm:mredappr}))
 
 \end{proof}
@@ -1393,9 +1405,8 @@ $\Gamma \vdash Q : B \in \csn$ \hfill by assumption $\Gamma \vdash M'~N : B \in 
 % TO SHOW $\Gamma \vdash Q : B \in \csn$
 
 {\color{red}{\paragraph{Sub-case} $\exists P$ s.t. $\Gamma \vdash Q \redsn P : B$ and $\Gamma \vdash M'~N \mred P : B$\\[0.5em]
-$\C : \Gamma \vdash P : B \in \csn$ and $\C \leq \D$ \hfill using $\D : \Gamma \vdash M'~N : B \in \csn$ and Lemma \ref{lm:mredsn}
+$\C : \Gamma \vdash P : B \in \csn$ and $\C < \D$ \hfill using $\D : \Gamma \vdash M'~N : B \in \csn$ and Lemma \ref{lm:mredsn}
 \\
-$\C < D$ \hfill since we took at least one step using  $\Gamma \vdash M'~N \mred P : B$\\
 $\Gamma \vdash Q : B \in \csn$  \hfill by IH using $\C : \Gamma \vdash P : B \in \csn$ and $\Gamma \vdash Q \redsn P : B$
 }}
 
