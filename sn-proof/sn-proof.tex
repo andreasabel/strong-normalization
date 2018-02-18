@@ -386,10 +386,11 @@ The usual definition of strong normalization via accessibility does not only con
 From this definition, it easily follows:
 
  \begin{lemma}\label{lm:mredsn}
- If $\Gamma \vdash M \mred M' : B$ and $\Gamma \vdash M : B \in \csn$ then $\Gamma \vdash M' : B \in \csn$.
+ If $\Gamma \vdash M \mred M' : B$ and $\D : \Gamma \vdash M : B \in \csn$ then $\C : \Gamma \vdash M' : B \in \csn$ and $\C \leq \D$.
  \end{lemma}
  \begin{proof}
 Induction on the first derivation.   
+
  \end{proof}
 
 To check strong normalizability of a term $M$ it is sufficient to consider every one-step
@@ -989,7 +990,7 @@ Hence this approach seems particularly amendable to mechanizing proofs.
 \\[1em]
 \multicolumn{1}{l}{\mbox{Strong head reduction}} \\[1em]
 \ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{} \qquad
-\ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash M : A}{\Gamma \vdash R\,M \redSN R'\,M}{}
+\ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash M : A}{\Gamma \vdash R\,M \redSN R'\,M : B}{}
 \end{array}
 \]
   \caption{Inductive definition of strongly normalizing terms}
@@ -1191,7 +1192,277 @@ By induction on $\SN$
 
 % We will write $M \in \csn$ for $M$ is strongly normalizing in our ``informal definition'', i.e. all reduction sequences starting in $M$ are finite, to distinguish it from our inductive definition in Figure \ref{fig:sn}.
 
+\subsection{Soundness (Short alternative proof)}
 
+We first define $\redsn$ (strong head reduction):
+
+
+  \[
+\begin{array}{l}
+\infer{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{\Gamma, x{:}A \vdash M : B \quad \Gamma \vdash N : A \in \csn }
+\qquad
+\infer{\Gamma \vdash M\;N \redsn M'\;N : B}{\Gamma \vdash M \redsn M' : A \arrow B \quad \Gamma \vdash N : A} %  M\,\textis not a%}\;\lambda %  %& s \in \csn
+  \\[1em]
+\end{array}
+\]
+
+It satisfies a few  key properties:
+
+% \begin{lemma}\label{lm:redsnred}
+% If $\Gamma \vdash M \redsn N : B$ then $\Gamma \vdash M \red N : B$.
+% \end{lemma}
+% \begin{proof}
+% Induction on the first derivation.  
+% \end{proof}
+
+\begin{lemma}\label{lm:bclosed}
+If $\Gamma \vdash N : A \in \csn$ and $\Gamma \vdash [N/x]M : B \in \csn$ 
+then $\Gamma \vdash (\lambda x{:}A.M)~N : B \in \csn$. 
+\end{lemma}
+\begin{proof}
+The proof follows from the closure properties (Lemma \ref{lem:appsnclosure}) using the empty evaluation context. We prove it here directly as the generalization to evaluation contexts is not needed.
+\\[1em]
+Proof by induction -- either $\Gamma, x{:}A \vdash M : B \in \csn$ is getting smaller,  
+$\Gamma \vdash N : A \in \csn$ is getting smaller, or 
+$\Gamma \vdash [N/x]M : B \in \SN$  is getting smaller.
+
+Assume  $\Gamma \vdash (\lambda x.M)~N \red P : B'$.
+
+\paragraph{Case} 
+  $\D = \ianc {\Gamma \vdash \lambda x{:}A.M : A \arrow B 
+         \quad \Gamma \vdash  N : A}
+              {\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }{}$ and $ Q = [N/x]M$
+ \\
+$\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption
+
+\paragraph{Case}
+ $\D = \ianc {\ianc{\Gamma, x{:}A \vdash M \red M' : B}
+                   {\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M' : A \arrow B }{}
+        \quad \Gamma \vdash N : A}
+             {\Gamma \vdash (\lambda x{:}A.M)~N \red (\lambda x{:}A.M')~N : B}{}$ 
+ and $Q = (\lambda x{:}A.M')~N$
+\\[0.5em]
+$\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill using $\Gamma, x{:}A \vdash M : B \in \csn$\\
+$\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
+$\Gamma, x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
+$\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Subst. Lemma for Typed Red\\
+$\Gamma \vdash [N/x]M'] : B' \in \csn$ \hfill by using $\Gamma \vdash [N/x]M : B' \in \csn$ \\
+$\Gamma \vdash (\lambda x{:}A.M')~N : B'$ \hfill by IH
+
+\paragraph{Case}
+ $\D = \ianc {\Gamma \vdash \lambda x{:}A.M : A \arrow B 
+        \quad \Gamma \vdash N \red N' : A}
+             {\Gamma \vdash (\lambda x{:}A.M)~N \red (\lambda x{:}A.M)~N' : B}{}$
+\\[0.5em]
+$\Gamma \vdash N' : A \in \csn$ \hfill using $\Gamma \vdash N : A \in \csn$\\
+$\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption \\
+$\Gamma, x{:}A \vdash M : B $ \hfill by inversion on typing\\
+$\Gamma \vdash [N/x]M \mred [N'/x]M : B$ \hfill by Lemma \ref{lm:mredprop}(\ref{lm:mredsubs}) using $\Gamma \vdash N \red N' : A$\\
+$\Gamma \vdash [N'/x]M : B' \in \csn$ \hfill Lemma \ref{lm:mredsn} using $\Gamma \vdash [N/x]M : B' \in \csn$\\
+$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by assumption \\
+$\Gamma \vdash (\lambda x{:}A.M)~N' : B' \in \csn$ \hfill by IH % (since $\Gamma \vdash N' : A \in \csn$ is smaller)
+  
+\end{proof}
+
+
+
+
+\begin{lemma}[Confluence $\csn$]\label{lm:confsn}$\;$
+If $\Gamma \vdash M \redsn N : A$ and $\Gamma \vdash M \red N' : A$
+  then either $N = N'$ or 
+  there $\exists Q$ s.t. $\Gamma \vdash N'  \redsn Q : A$
+        and $\Gamma \vdash N \mred Q$.   
+\end{lemma}
+\begin{proof}
+By induction on    $\Gamma \vdash M \redsn N : A$.
+
+\paragraph{Case}
+$\D = \ianc{\Gamma \vdash N : A \in \csn \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{}$
+\qquad
+$\ianc{\Gamma \vdash \lambda x{:}A.M : A \arrow B \quad \Gamma \vdash  N : A}
+      {\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }{}$
+\\[1em]
+$[N/x]M : B = [N/x]M : B $ \hfill by reflexivity
+
+\paragraph{Case}
+$\D = \ianc{\Gamma \vdash N : A \in \csn \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{}$
+\qquad
+$\ianc {\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M' : A \arrow B \quad \Gamma \vdash N : A}
+       {\Gamma \vdash (\lambda x{:}A.M)~N  \red (\lambda x{:}A.M')~N : B}{}$
+\\[0.5em]
+$\Gamma, x{:}A \vdash M \red M' : B$ \hfill by inversion \\[0.5em]
+WE SHOW: there exists a $Q$ s.t. $\Gamma \vdash (\lambda x{:}A.M')~N  \redsn Q : B$ and 
+                                 $\Gamma \vdash [N/x]M \mred Q : B$
+\\[0.5em]
+Let $Q = [N/x]M'$.  \\
+$\Gamma \vdash (\lambda x{:}A.M')~N \redsn [N/x]M' : B$ \hfill by def. of $\redsn$\\
+$\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Subst. of typed red. (Lemma \ref{lem:redsubst})\\
+$\Gamma \vdash [N/x]M \mred [N/x]M' : B$ \hfill using def. of $\mred$ together with reflexivity  
+
+\paragraph{Case}
+$\D = \ianc{\Gamma \vdash N : A \in \csn \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{}$
+\qquad
+$\ianc {\Gamma \vdash N\red N' : A  \quad \Gamma \vdash \lambda x{:}A.M : A \arrow B}
+       {\Gamma \vdash (\lambda x{:}A.M)~N  \red (\lambda x{:}A.M)~N' : B }{}$
+\\[1em]
+WE SHOW: there exists a $Q$ s.t. $\Gamma \vdash (\lambda x{:}A.M)~N' \redsn Q : B$ and $\Gamma \vdash  [N/x]M \mred Q : B$\\[0.5em]
+Let $Q = [N'/x]M$.\\
+$\Gamma \vdash (\lambda x{:}A.M)~N' \redsn [N'/x]M : B$ \hfill by def. of $\redsn$\\
+$\Gamma \vdash [N/x]M \mred [N'/x]M : B $ \hfill by Lemma \ref{lm:mredprop}(\ref{lm:mredsubs}) with $\Gamma \vdash N\red N' : A$ and $\Gamma, x{:}A \vdash M : B$
+
+\paragraph{Case}
+$\D  = \ianc{\Gamma \vdash M \redsn M_1 : A \arrow B \quad \Gamma \vdash N : A}
+            {\Gamma \vdash M\;N \redsn M_1\;N : B}{}$ 
+\qquad
+$\ianc {\Gamma \vdash M \red M_2 : A \arrow B \quad \Gamma \vdash N : A}
+       {\Gamma \vdash M~N  \red M_2~N : B}{}$
+\\[1em]
+Either $M_2 = M_1$ or there exists a $P$ s.t. $\Gamma \vdash M_2 \redsn P : A \arrow B$ and $\Gamma \vdash M_1 \mred P : A \arrow B$ \hfill by IH 
+
+\paragraph{Sub-case}$M_2 = M_1$
+\\[0.5em]
+$M_1~N = M_2~N$ \hfill trivial
+
+
+\paragraph{Sub-case} there exists a $P$ s.t. $\Gamma \vdash M_2 \redsn P : A \arrow B$ and $\Gamma \vdash M_1 \mred P : A \arrow B$\\[1em]
+WE SHOW: there exists a $Q$ s.t. $\Gamma \vdash M_2~N \redsn Q : B$ and $\Gamma \vdash  M_1\;N \mred Q : B$
+\\[0.5em]
+Let $Q = P~N$\\[0.5em]
+$\Gamma \vdash M_2~N \redsn P~N : B$ \hfill using def. of $\redsn$ and $\Gamma \vdash M_2 \redsn P : A \arrow B$\\
+$\Gamma \vdash M_1\;N \mred P~N : B$ \hfill using Lemma \ref{lm:mredprop} (\ref{lm:mredappl}) on multi-step red. and $\Gamma \vdash M_1 \mred P : A \arrow B$
+
+
+
+\paragraph{Case}
+$\D  = \ianc{\Gamma \vdash M \redsn M' : A \arrow B \quad \Gamma \vdash N : A}
+            {\Gamma \vdash M\;N \redsn M'\;N : B}{}$ 
+\qquad
+$\ianc {\Gamma \vdash N\red N' : A  \quad \Gamma \vdash M : A \arrow B}
+       {\Gamma \vdash M~N  \red M~N' : B }{}$
+\\[1em]
+WE SHOW: there exists a $Q$ s.t. $\Gamma \vdash M~N' \redsn Q : B$ and $\Gamma \vdash M'\;N \mred Q : B$
+\\[0.5em]
+Let $Q = M'~N'$ \\[0.5em]
+$\Gamma \vdash M~N' \redsn M'~N' : B$ \hfill by $\Gamma \vdash M \redsn M' : A \arrow B$ \\
+$\Gamma \vdash \vdash N\mred N' : A$ \hfill by rule for $\mred$ and reflexivity\\
+$\Gamma \vdash M'~N \mred M'~N' : B$ \hfill by Multi-Step Reduction (Lemma \ref{lm:mredprop})(\ref{lm:mredappr}))
+
+\end{proof}
+
+
+
+\begin{lemma}[Backward closure of $\csn$]\label{lm:backclosn}$\;$
+\\
+ If $\Gamma \vdash M \redsn M' : A$ and $\Gamma \vdash M' : A \in \csn$ then
+     $\Gamma \vdash M : A \in \csn$.
+\end{lemma}
+\begin{proof}
+By induction on    $\Gamma \vdash M \redsn M' : A$.
+
+\paragraph{Case}
+$\D = \ianc{\Gamma \vdash N : A \in \csn \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{}$
+\\[1em]
+$\Gamma \vdash  [N/x]M : B \in \csn$ \hfill by assumption \\
+$\Gamma \vdash N : A \in \csn $ \hfill by assumption \\
+$\Gamma \vdash (\lambda x{:}A.M)~N : B \in \csn$ \hfill by Lemma \ref{lm:bclosed}
+
+
+\paragraph{Case}
+$\D = \ianc{\Gamma \vdash M \redsn M' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash M\,N \redsn M'\,N : B}{}$
+\\[1em]
+$\Gamma \vdash M'~N : B \in \csn$ \hfill by assumption \\
+$\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by Lemma \ref{lem:psn}(Prop. \ref{pp6})\\
+$\Gamma \vdash M : A \arrow B \in \csn$ \hfill by IH \\[0.5em]
+Assume $\Gamma \vdash M~N \red Q : B$ \\
+Either $Q = M'~N$ or $\exists P$ s.t. $\Gamma \vdash Q \redsn P : B$ and $\Gamma \vdash M'~N \mred P : B$ where we take at least one step (i.e. $P \not = M'~N$) \hfill by Conf. Lemma \ref{lm:confsn} 
+
+\paragraph{Sub-case} $Q = M'~N$ \\
+$\Gamma \vdash Q : B \in \csn$ \hfill by assumption $\Gamma \vdash M'~N : B \in \csn$
+% TO SHOW $\Gamma \vdash Q : B \in \csn$
+
+{\color{red}{\paragraph{Sub-case} $\exists P$ s.t. $\Gamma \vdash Q \redsn P : B$ and $\Gamma \vdash M'~N \mred P : B$\\[0.5em]
+$\C : \Gamma \vdash P : B \in \csn$ and $\C \leq \D$ \hfill using $\D : \Gamma \vdash M'~N : B \in \csn$ and Lemma \ref{lm:mredsn}
+\\
+$\C < D$ \hfill since we took at least one step using  $\Gamma \vdash M'~N \mred P : B$\\
+$\Gamma \vdash Q : B \in \csn$  \hfill by IH using $\C : \Gamma \vdash P : B \in \csn$ and $\Gamma \vdash Q \redsn P : B$
+}}
+
+
+
+\end{proof}
+
+
+\begin{theorem}[Soundness of $\SN$]
+\mbox{}
+  \begin{enumerate}
+  \item If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.
+  \item If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.
+   \item If $\Gamma \vdash M \redSN M' : A$ then
+           $\Gamma \vdash M \redsn M' : A$.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+By mutual structural induction on the given derivations using the
+closure properties. \\[1em]
+\noindent
+\fbox{1. If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.}
+
+\paragraph{Case} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{}$
+\\[1em]
+$R = C[x] $ \hfill since $\Gamma \vdash R : A \in \SNe$ \\
+$\Gamma \vdash R : A \in \csn$ \hfill by IH(1)
+
+\paragraph{Case} $\D = \ianc{\Gamma, x{:}A \vdash M : B \in \SN}
+                           {\Gamma  \vdash \lambda x{:}A.M  : A \arrow B \in \SN}{}$
+\\[1em]
+$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by IH(1) \\
+$\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{lem:psn}(\ref{pp4})
+
+\paragraph{Case} $\D = \ibnc{\Gamma \vdash M \redSN M' : A}{
+                             \Gamma \vdash M' : A \in \SN}
+                            {\Gamma \vdash M  : A \in \SN}{} $
+\\[1em]
+$\Gamma \vdash M' : A \in \csn$ \hfill by IH(1)\\
+$\Gamma \vdash M : A \in \csn$ \hfill by IH (3) using the empty evaluation context and Lemma \ref{lm:closn}(\ref{cp2})
+% $\Gamma \vdash M \redsn M' : A$ \hfill by IH(3)\\
+% {\color{red}{$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5}) -- should be proven differently without using $\redsn$}}
+\\[1em]
+\noindent
+\fbox{2. If $\Gamma \vdash C[x] : A \in \SNe$ then $\Gamma \vdash C[x] : A \in \csn$.}
+
+\paragraph{Case} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{}$
+\\[1em]
+$C = \_ $ \hfill since $C[x] = x$\\
+$\forall M'.~\Gamma \vdash x \red M' : A \imply \Gamma \vdash M' : A \in \csn$ \hfill since $\Gamma \vdash x \red M' : A$ is impossible
+\\
+$\Gamma \vdash x \in \csn$
+
+\paragraph{Case}$\D = \ibnc{\Gamma \vdash R : A \arrow B \in \SNe}{\Gamma \vdash M : A \in \SN}{\Gamma \vdash R\,M : B \in \SNe}{}$
+\\
+$C'[x] = R$ \hfill since $C[x] = R\;M$\\
+$\Gamma \vdash C'[x] : A \arrow B\in \csn$ \hfill by IH(2) \\
+$\Gamma \vdash M : A \in \csn$ \hfill by IH(1)\\
+$\Gamma \vdash C'[x]\;M : B \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp3})\\
+$\Gamma \vdash C[x] : A \arrow B \in \csn$ \hfill since $C[x] = C'[x]~M$
+\\[1em]
+
+\fbox{3. If $\Gamma \vdash M \redSN M' : A$ then
+           $\Gamma \vdash M \redsn M' : A$.}
+
+Induction on $\Gamma \vdash M \redSN M' : A$ 
+
+\paragraph{Case}
+$\D = \ianc{\Gamma \vdash N : A \in \SN \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redSN [N/x]M : B}{}$
+\\[1em]
+$\Gamma \vdash N : A \in \csn$ \hfill by IH (1)\\
+$\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B$ \hfill by def. of $\redsn$
+
+\paragraph{Case}
+$\D = \ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash M : A}{\Gamma \vdash R\,M \redSN R'\,M : B}{}$
+\\[1em]
+$\Gamma \vdash R \redsn R' : A \arrow B$ \hfill by IH(3) \\
+$\Gamma \vdash  R\,M \redsn R'\,M : B$ \hfill by def. of $\redsn$
+\end{proof}
 
 
 \subsection{Soundness and Completeness}
