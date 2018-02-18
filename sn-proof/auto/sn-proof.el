@@ -3,9 +3,6 @@
  (lambda ()
    (TeX-add-to-alist 'LaTeX-provided-package-options
                      '(("natbib" "authoryear")))
-   (add-to-list 'LaTeX-verbatim-environments-local "lstlisting")
-   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "lstinline")
-   (add-to-list 'LaTeX-verbatim-macros-with-delims-local "lstinline")
    (TeX-run-style-hooks
     "latex2e"
     "prelude"
@@ -103,17 +100,17 @@
     "cr1"
     "cr2"
     "cr3"
+    "sec:unit"
     "fig:sncase")
    (LaTeX-add-environments
     '("SOLUTION" 1)
     '("ADDITIONAL" 1)
+    "exercise"
     "problem"
     "sol"
     "axiom"
     "lemma"
     "theorem")
    (LaTeX-add-bibliographies
-    "bibi-extract")
-   (LaTeX-add-amsthm-newtheorems
-    "exercise")))
+    "bibi-extract")))
 

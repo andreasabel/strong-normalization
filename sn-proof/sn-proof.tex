@@ -187,8 +187,10 @@ We consider as the main rule for reduction (or evaluation) applying a term to an
 
 \[
 \begin{array}{c}
-\infer[\beta]{\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }
-    {\Gamma \vdash \lambda x{:}A.M : A \arrow B & \Gamma \vdash  N : A}
+\infer[\beta]
+{\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }
+%    {\Gamma \vdash \lambda x{:}A.M : A \arrow B & \Gamma \vdash  N : A}
+    {\Gamma, x{:}A \vdash M :  B & \Gamma \vdash  N : A}
 \qquad
 %\infer[\eta]{\Gamma \vdash M \red \lambda x{:}A.M~x : A \arrow B}{
 % M \not= \lambda y{:}A.M'}
@@ -201,9 +203,16 @@ We consider as the main rule for reduction (or evaluation) applying a term to an
 \end{array}
 \]
 
-Our typed reduction relation is inspired by the type-directed definition of algorithmic equality for $\lambda$-terms (see for example \cite{Crary:ATAPL} or \cite{Harper03tocl}). Keeping track of types in the definition of equality or reduction becomes quickly necessary as soon as want to add $\eta$-expansion or add a unit type where every term of type unit reduces to the unit element. We do not add these rules at this point.
+Our typed reduction relation is inspired by the type-directed
+definition of algorithmic equality for $\lambda$-terms (see for
+example \cite{Crary:ATAPL} or \cite{Harper03tocl}). Keeping track of
+types in the definition of equality or reduction becomes quickly
+necessary as soon as want to add $\eta$-expansion or add a unit type
+where every term of type unit reduces to the unit element. We will
+consider the extension with the unit type in Section~\ref{sec:unit}.
 
-On top of the single step reduction relation, we can define multi-step reductions as follows:
+On top of the single step reduction relation, we can define multi-step
+reductions as usual:
 
 \[
 \ianc{}{\Gamma \vdash M \mred M : B}{} \qquad
@@ -212,9 +221,12 @@ On top of the single step reduction relation, we can define multi-step reduction
 \]
 
 
-In addition, we have that typed reductions are only defined on well-typed terms, i.e. if $M$ steps then $M$ is well-typed.
+We now list some standard properties of (typed) reduction. We start
+with the fact that typed reductions are only defined on well-typed
+terms, i.e. if $M$ steps then $M$ is well-typed. The rules for typing
+are standard and omitted.
 
-\begin{lemma}[Properties about Typed Reductions and Typing]\quad
+\begin{lemma}[Basic Properties  of Typed Reductions and Typing]\quad
   \begin{itemize}
   \item If $\Gamma \vdash M \red N : A$ then $\Gamma \vdash M : A$ and $\Gamma \vdash N : A$.
   \item If $\Gamma \vdash M : A$ then $A$ is unique.
@@ -224,7 +236,7 @@ In addition, we have that typed reductions are only defined on well-typed terms,
 
 The typing and typed reduction strategy satisfies weakening and
 strengthening\ednote{Should maybe be already formulated using context
-  extensions? -bp}.
+  extensions? -bp. Likewise, the subsitution lemma cound be formulated with well typed subst. Moreover the weaken/stren of typing follow from the same for reduction and lemma 1.1 -am}.
 
 \begin{lemma}[Weakening and Strengthening of Typing and Typed Reductions]\label{lem:redprop}\quad
   \begin{itemize}
@@ -245,11 +257,11 @@ If $\Gamma, x{:}A \vdash M \red M' : B$ and $\Gamma \vdash N : A$ then
 $\Gamma \vdash [N/x]M \red [N/x]M' : B$.
 \end{lemma}
 \begin{proof}
-By induction on the first derivation. 
+By induction on the first derivation, unsing standard properties of composition of substitutions. 
 \end{proof}
 
 
-We also will rely on some standard multi-step reduction properties which are proven by induction.
+We also will rely on some standard multi-step reduction properties which are proven by induction\ednote{There are some typing assumptions missing, I think, eg $N : A$ in 2 etc. 5 can be generalized to well typed subst again -am}.
 
 \begin{lemma}[Properties of Multi-Step Reductions]\label{lm:mredprop}
 \quad
@@ -1919,6 +1931,7 @@ Using the fundamental lemma with the identity substitution $\inden{\Gamma}{\text
 \newpage
 
 \section{Extension: Unit type}
+\label{sec:unit}
 We will now extend our simply-typed lambda-calculus the unit type, written as $\one$.
 
 \[
