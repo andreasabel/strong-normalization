@@ -1051,7 +1051,7 @@ $\Gamma \vdash C[~(\lambda x.M)~N'~] : B \in \csn$ \hfill by IH
 \textbf{Sub-Case} $\ianc{\Gamma, x{:}A \vdash M \red M' : B}{\Gamma \vdash (\lambda x.M)~N \red (\lambda x.M')~N : B}{}$\\
 $\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill by $\Gamma, x{:}A \vdash M : B \in \csn$ and $\Gamma, x{:}A \vdash M \red M' : B$\\
 $\Gamma \vdash C[~[x/N]M~] \red C[~[x/N]M'~] : B'$ \hfill by Lemma \ref{lem:redsubst} and \ref{lm:pectx} (3)\\
-$\Gamma, x{:}A \vdash C[~[x/N]M'~] : B' \in \csn$ \hfill by $\Gamma \vdash C[~[N/x]M~] : B \in \csn$\\
+$\Gamma \vdash C[~[x/N]M'~] : B' \in \csn$ \hfill by $\Gamma \vdash C[~[N/x]M~] : B \in \csn$\\
 $\Gamma \vdash C[\,(\lambda x.M')~N\,] : B' \in \csn$ \hfill by IH
 
 \paragraph{Case} $\exists D$ s.t. $P = D[(\lambda x.M)~N]$, $\Gamma \holetype B \vdash D : B' \in \csn$
