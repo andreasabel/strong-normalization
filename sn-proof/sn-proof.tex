@@ -1257,10 +1257,10 @@ $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption
 \\[0.5em]
 $\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill using $\Gamma, x{:}A \vdash M : B \in \csn$\\
 $\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
-$\Gamma, x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
+% $\Gamma, x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
 $\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Subst. Lemma for Typed Red\\
-$\Gamma \vdash [N/x]M' : B' \in \csn$ \hfill by using $\Gamma \vdash [N/x]M : B' \in \csn$ \\
-$\Gamma \vdash (\lambda x{:}A.M')~N : B'$ \hfill by IH (since $\Gamma \vdash [N/x]M' : B' \in \csn$ is smaller)
+$\Gamma \vdash [N/x]M : B' \in \csn$ \hfill by using $\Gamma \vdash [N/x]M : B' \in \csn$ \\
+$\Gamma \vdash (\lambda x{:}A.M')~N : B$ \hfill by IH (since $\Gamma \vdash [N/x]M' : B \in \csn$ is smaller)
 
 \paragraph{Case}
  $\D = \ianc {\Gamma \vdash \lambda x{:}A.M : A \arrow B 
