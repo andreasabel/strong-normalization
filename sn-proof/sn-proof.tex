@@ -236,10 +236,10 @@ The typing and typed reduction strategy satisfies weakening and
 strengthening\ednote{Should maybe be already formulated using context
   extensions? -bp. Likewise, the subsitution lemma cound be formulated with well typed subst. Moreover the weaken/stren of typing follow from the same for reduction and lemma 1.1 -am}.
 
-\begin{lemma}[Weakening and Strengthening of Typing and Typed Reductions]\label{lem:redprop}\quad
+\begin{lemma}[Weakening and Strengthening of Typed Reductions]\label{lem:redprop}\quad
   \begin{itemize}
-  \item If $\Gamma, \Gamma' \vdash M : B$ then $\Gamma, x{:}A, \Gamma' \vdash M : B$.
-  \item If $\Gamma, x{:}A, \Gamma' \vdash M : B$ and $x \not\in\FV(M)$ then $\Gamma, \Gamma' \vdash M : B$.
+%   \item If $\Gamma, \Gamma' \vdash M : B$ then $\Gamma, x{:}A, \Gamma' \vdash M : B$.
+%  \item If $\Gamma, x{:}A, \Gamma' \vdash M : B$ and $x \not\in\FV(M)$ then $\Gamma, \Gamma' \vdash M : B$.
   \item If $\Gamma, \Gamma' \vdash M \red N : B$ then $\Gamma, x{:}A, \Gamma' \vdash M \red N : B$.
   \item If $\Gamma, x{:}A, \Gamma' \vdash M \red N : B$ and $x \not\in \FV(M)$ then
         $x \not\in \FV N$ and $\Gamma, \Gamma' \vdash M \red N : B$.
@@ -259,14 +259,17 @@ By induction on the first derivation, unsing standard properties of composition 
 \end{proof}
 
 
-We also will rely on some standard multi-step reduction properties which are proven by induction\ednote{There are some typing assumptions missing, I think, eg $N : A$ in 2 etc. 5 can be generalized to well typed subst again -am}.
+We also will rely on some standard multi-step reduction properties
+which are proven by induction.
 
 \begin{lemma}[Properties of Multi-Step Reductions]\label{lm:mredprop}
 \quad
 \begin{enumerate}
 \item\label{lm:mredtrans} If $\Gamma \vdash M_1 \mred M_2 : B$ and $\Gamma \vdash M_2 \mred M_3 : B$ then $\Gamma \vdash M_1 \mred M_3 : B$.
-\item\label{lm:mredappl} If $\Gamma \vdash M \mred M' : A \arrow B$ then $\Gamma \vdash M~N \mred M'~N : B$.
-\item\label{lm:mredappr} If $\Gamma \vdash N \mred N' : A$ then $\Gamma \vdash M~N \mred M~N' : B$.
+\item\label{lm:mredappl} If $\Gamma \vdash M \mred M' : A \arrow B$
+  and $\Gamma \vdash N : A$ 
+  and then $\Gamma \vdash M~N \mred M'~N : B$.
+\item\label{lm:mredappr} If $\Gamma \vdash M : A \arrow B$ and $\Gamma \vdash N \mred N' : A$ then $\Gamma \vdash M~N \mred M~N' : B$.
 \item\label{lm:mredabs} If $\Gamma,x{:}A \vdash M \mred M' : B$ then $\Gamma \vdash \lambda x{:}A.M \mred \lambda x{:}A.M : A \arrow B$.
 \item\label{lm:mredsubs} If $\Gamma, x{:}A \vdash M : B$ and $\Gamma \vdash N \red N' : A$
 then $ \Gamma \vdash [N/x]M \mred [N'/x]M : B$.
@@ -1446,7 +1449,8 @@ $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{l
                             {\Gamma \vdash M  : A \in \SN}{} $
 \\[1em]
 $\Gamma \vdash M' : A \in \csn$ \hfill by IH(1)\\
-$\Gamma \vdash M : A \in \csn$ \hfill by IH (3) using the empty evaluation context and Lemma \ref{lm:closn}(\ref{cp2})
+$\Gamma \vdash M \redsn M' : A $ \hfill by IH (3) \\
+$\Gamma \vdash M : A \in \csn$ \hfill by Backwards Closure (Lemma \ref{lm:backclosn}) 
 % $\Gamma \vdash M \redsn M' : A$ \hfill by IH(3)\\
 % {\color{red}{$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5}) -- should be proven differently without using $\redsn$}}
 \\[1em]
@@ -1530,7 +1534,9 @@ $\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \csn$ \hfill by  Property \ref{l
                             {\Gamma \vdash M  : A \in \SN}{} $
 \\[1em]
 $\Gamma \vdash M' : A \in \csn$ \hfill by IH(1)\\
-$\Gamma \vdash M : A \in \csn$ \hfill by IH (3) using the empty evaluation context and Lemma \ref{lm:closn}(\ref{cp2})
+% $\Gamma \vdash redsn M' : A$ \hfill by IH(3)
+$\Gamma \vdash M : A \in \csn$ \hfill by IH(3) using the empty
+evaluation context and Lemma \ref{lm:closn}(\ref{cp2})
 % $\Gamma \vdash M \redsn M' : A$ \hfill by IH(3)\\
 % {\color{red}{$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5}) -- should be proven differently without using $\redsn$}}
 \\[1em]
