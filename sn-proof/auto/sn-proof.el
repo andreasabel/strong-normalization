@@ -3,6 +3,9 @@
  (lambda ()
    (TeX-add-to-alist 'LaTeX-provided-package-options
                      '(("natbib" "authoryear")))
+   (add-to-list 'LaTeX-verbatim-environments-local "lstlisting")
+   (add-to-list 'LaTeX-verbatim-macros-with-braces-local "lstinline")
+   (add-to-list 'LaTeX-verbatim-macros-with-delims-local "lstinline")
    (TeX-run-style-hooks
     "latex2e"
     "prelude"
@@ -44,6 +47,8 @@
     "C"
     "G"
     "Q"
+    "hole"
+    "holetype"
     "one"
     "SN"
     "SNe"
@@ -79,12 +84,16 @@
     "pp4"
     "pp6"
     "pp7"
+    "def:ectx"
+    "lm:pectx"
+    "def:snectx"
+    "lm:psnectx"
+    "lm:invrectx"
     "lm:mredecxt"
     "lm:ecxt"
     "lm:closn"
     "cp2"
     "cp3"
-    "lm:compecxt"
     "lem:appsnclosure"
     "fig:sn"
     "lm:renameSN"
@@ -105,12 +114,14 @@
    (LaTeX-add-environments
     '("SOLUTION" 1)
     '("ADDITIONAL" 1)
-    "exercise"
     "problem"
     "sol"
     "axiom"
     "lemma"
     "theorem")
    (LaTeX-add-bibliographies
-    "bibi-extract")))
+    "bibi-extract")
+   (LaTeX-add-amsthm-newtheorems
+    "exercise"))
+ :latex)
 
