@@ -10,6 +10,11 @@ LF tm : ty -> type =
 ;
 %name tm M.
 
+LF ecxt : (tm A -> tm B) -> type =
+   | hole : ecxt (\x. x)
+   | capp : ecxt E -> {M : tm C} ecxt (\x. app (E x) M)
+;
+
 schema cxt = tm A;
 
 LF step : tm A -> tm A -> type =
@@ -19,8 +24,13 @@ LF step : tm A -> tm A -> type =
    | rappr : step N N' -> step (app M N) (app M N')
 ;
 
+LF mstep : tm A -> tm A -> type =
+   | m-single : step M N -> mstep M N
+   | m-step : step M N -> mstep N M' -> mstep M M'
+;
+
 % Accessibility definition
-inductive Sn : (g: cxt) {M: [ g |- tm A[]]} ctype =
+inductive Sn : (g: cxt) {M: [g |- tm A[]]} ctype =
   | Acc : ({M' : [g |- tm A[]]} {S: [g |- step M M']} Sn [g |- M'])
           -> Sn [g |- M]
 ;
@@ -43,218 +53,273 @@ and inductive SNRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} ctype =
 		-> SNRed [g |- app R M] [g |- app R' M]
 ;
 
-% Lemma 3.2: If Sn [g |- app M N], then Sn [g |- M] and Sn [g |- N]
-rec prop5a : (g: cxt) {M: [g |- tm (arr A[] B[])]}
-		      {N: [g |- tm A[]]}
-		      Sn [g |- app M N] -> Sn [g |- M] =
-    mlam M, N => fn sn =>
-    let Acc r = sn in Acc (mlam M', S =>
-				    let sn' = r [_ |- app M' N] [_ |- rappl S] in
-				    prop5a [_ |- M'] [_ |- _] sn')
-;
-
-rec prop5b : (g: cxt) {M: [g |- tm (arr A[] B[])]}
-		      {N: [g |- tm A[]]}
-		      Sn [g |- app M N] -> Sn [g |- N] =
-    mlam M, N => fn sn =>
-    let Acc r = sn in Acc (mlam N', S =>
-				    let sn' = r [_ |- app M N'] [_ |- rappr S] in
-				    prop5b [_ |- _] [_ |- N'] sn')
-;
-
-% Lemma 3.3: If Sn [g, x: A |- M], then Sn [g |- abs \x. M]
-rec prop3_helper : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
-			    {M': [g |- tm (arr A[] B[])]}
-			    Sn [g, x: tm A[] |- M] -> [g |- step (abs \x. M) M'] -> Sn [g |- M'] =
-    mlam M, M' => fn sn => fn s =>
-    let [g |- rabs \x. S1] = s in
-    let Acc r = sn in
-    let [_ |- S1] : [g, x: tm _ |- step M M1] = [_ |- S1] in
-    let sn' = r [_ |- M1] [_ |- S1] in
-    prop3 [_ |- M1] sn'
-
-and prop3 : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
-		     Sn [g, x: tm A[] |- M] -> Sn [g |- abs \x. M] =
-    mlam M => fn sn =>
-    let Acc r = sn in Acc (mlam M', S => prop3_helper [_ |- M] [_ |- M'] sn [_ |- S])
-;
-
-% Lemma 3.4: If Sn [g |- abs \x. M], then Sn [g, x: tm A |- M].
-rec prop6 : (g:cxt) {M: [g, x: tm A[] |- tm B[]]}
-		    Sn [g |- abs \x. M] -> Sn [g, x: tm A[] |- M] =
-    mlam M => fn sn =>
-    let Acc r = sn in Acc (mlam M', S =>
-				    let sn' = r [_ |- abs \x. M'] [_ |- rabs \x. S] in
-				    prop6 [_ |- M'] sn')
-;
-
-% All variables are in sn.
-empty: type.
-
-rec varDontStep : (g: cxt) {#p : [g |- tm A[]]}
-			  {M : [g |- tm A[]]}
-			  [g |- step #p M] -> [|- empty] =
-    mlam p, M => fn s => impossible s;
-
-rec varSn : (g:cxt) {#p: [g |- tm A[]]} Sn [g |- #p] =
-    mlam #p => Acc (mlam M', S => impossible (varDontStep [_ |- #p] [_ |- M'] [_ |- S]))
-;
-
-% Weakening and exchange for sn.
-rec weakSN: (g: cxt) {M: [g |- tm A[]]} Sn [g |- M] -> Sn [g, x: tm B[] |- M[..]] =
-    ?
-;
-
-rec exchange_helper: (g : cxt) {M : [g, x: tm A[], y: tm A'[] |- tm B[]]}
-			       {M': [g, x: tm A[], y: tm A'[] |- tm B[]]}
-			       Sn [g, y: tm A'[], x: tm A[] |- M[..,x,y]]
-		     -> [g, x: tm A[], y: tm A'[] |- step M M']
-		     -> Sn [g, x: tm A[], y: tm A'[] |- M'] =
-    mlam M => mlam M' => fn sn => fn s =>
-    let Acc f = sn in ?
-
-and exchangeSN: (g : cxt) {M: [g, x: tm A[], y: tm A'[] |- tm B[]]}
-                Sn [g, y: tm A'[], x: tm A[] |- M[..,x,y]] -> Sn [g, x: tm A[], y: tm A'[] |- M] = 
-    mlam M => fn sn => Acc (mlam M', R => exchange_helper [_ |- M] [_ |- M'] sn [_ |- R])
-;
-
-% Lemma 3.5:
-% - If Sn [g |- M] and Sn [g |- N] then Sn [g |- app M N]
-% - If Sn [g |- [N/x] M] and Sn [g |- N] then Sn [g, x: A |- M]
-% - If Sn [g, x: A |- M] and Sn [g |- N] then Sn [g |- [N/x] M]
-rec prop2 : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
-		     {N: [g |- tm A[]]}
-		     Sn [g |- M [.., N]]
-	    -> Sn [g, x: tm A[] |- M] =
-    mlam M, N => fn sn =>
-    case [_ |- M] of
-    | [g, x: tm A[] |- #p[..]] => varSn [g, x: tm A[] |- #p[..]]
-    | [g, x: tm A[] |- x] => varSn [g, x: tm A[] |- x]
-    | [g, x: tm A[] |- abs (\y. M')] =>
-      let sn' = prop6 [g, y: tm _ |- M'[.., (N[..]), y]] sn in
-      let sn'' = prop2 [g, y:tm _, x:tm A[] |- M'[.., x,y]] [g, y:tm _ |- N[..]] sn' in
-      let sn''' = exchangeSN [g, x: tm A[], y : tm _ |- M'] sn'' in 
-       prop3 [g, x:tm A[], y:tm _ |- M'] sn'''
-
-    | [g, x : tm A[] |- app M1 M2] => let sn1 = prop5a [_ |- M1[.., N]] [_ |- M2[.., N]] sn in
-				      let sn2 = prop5b [_ |- M1[.., N]] [_ |- M2[.., N]] sn in
-				      let sn1' = prop2 [_ |- M1] [_ |- N] sn1 in
-				      let sn2' = prop2 [_ |- M2] [_ |- N] sn2 in
-				      prop1 [_ |- M1] [_ |- M2] sn1' sn2'
-
-and prop1_helper : (g: cxt) {M: [g |- tm (arr A[] B[])]}
-			    {N: [g |- tm A[]]}
-			    {Q: [g |- tm B[]]}
-			    {S: [g |- step (app M N) Q]}
-			    Sn [g |- M] -> Sn [g |- N] -> Sn [g |- Q] =
-    mlam M, N, Q, S => fn sn1 => fn sn2 =>
-    let Acc r1 = sn1 in
-    let Acc r2 = sn2 in
-    case [_ |- S] of
-    | [g |- rbeta] => let [g |- abs (\x.M')] = [g |- M] in
-		      let sn = prop6 [_ |- M'] sn1 in
-		      prop4 [_ |- M'] [_ |- N] sn sn2
-    | [g |- rappl S'] => let [g |- S'] : [g |- step M M'] = [g |- S'] in
-			 let sn = r1 [g |- M'] [g |- S'] in
-			 prop1 [_ |- M'] [_ |- N] sn sn2
-    | [g |- rappr S'] => let [g |- S'] : [g |- step N N'] = [g |- S'] in
-			 let sn = r2 [g |- N'] [g |- S'] in
-			 prop1 [_ |- M] [_ |- N'] sn1 sn
-
-and prop1 : (g: cxt) {M: [g |- tm (arr A[] B[])]}
-		     {N: [g |- tm A[]]}
-		     Sn [g |- M] -> Sn [g |- N] -> Sn [g |- (app M N)] =
-    mlam M, N => fn sn1 => fn sn2 =>
-    Acc (mlam M', S => prop1_helper [_ |- M] [_ |- N] [_ |- M'] [_ |- S] sn1 sn2)
-
-and prop4 : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
-		     {N: [g |- tm A[]]}
-		     Sn [g, x: tm A[] |- M] -> Sn [g |- N] -> Sn [g |- M[.., N]] =
-    mlam M, N => fn sn1 => fn sn2 =>
-    case [_ |- M] of
-    | [g, x: tm A[] |- #p[..]] => varSn [_ |- #p[..]]
-    | [g, x: tm A[] |- x] => sn2
-    | [g, x: tm A[] |- abs \y. M1] =>
-      let sn = prop6 [_ |- M1] sn1 in
-      let sn : Sn [g, x:tm A[], y:tm A'[] |- M1] = sn in
-      let exc = exchangeSN [g, y: tm A'[], x:tm A[] |- M1[..,x,y]] sn in
-      let sn'' = prop4 [g, y:tm _, x:tm _ |- M1[..,x,y]] [_ |- N[..]] exc (weakSN [_ |- N] sn2) in
-      prop3 [g, y:tm A'[] |- M1[..,N[..],y]] sn''
-    | [g, x: tm A[] |- app M1 M2] => let snl = prop5a [_ |- M1] [_ |- M2] sn1 in
-				     let snr = prop5b [_ |- M1] [_ |- M2] sn1 in
-				     let sn1' = prop4 [_ |- M1] [_ |- N] snl sn2 in
-				     let sn2' = prop4 [_ |- M2] [_ |- N] snr sn2 in
-				     prop1 [_ |- M1[.., N]] [_ |- M2[.., N]] sn1' sn2'
-;
-
+% Strong head reduction
 inductive SnRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} ctype =
   | SnBeta : {M: [g, x: tm A[] |- tm B[]]} Sn [g |- N]
 	     -> SnRed [g |- app (abs \x. M) N] [g |- M[.., N]]
-  | SnAppl : SnRed [g |- M] [g |- M'] -> SnRed [g |- app M N] [g |- app M' N]
+  | SnAppl : SnRed [g |- M] [g |- M']
+	     -> SnRed [g |- (app M N)] [g |- app M' N]
 ;
 
-% Lemma 3.6: Backwards closure
-rec backwards_closed : (g: cxt) {M: [g |- tm A[]]}
-				{M': [g |- tm A[]]}
-				SnRed [g |- M] [g |- M']
-		       -> Sn [g |- M'] -> Sn [g |- M] =
-    mlam M, M' => fn r => fn sn =>
-    case r of
-    | SnBeta [g, x: tm A[] |- M] sn' => let sn1 = prop2 [_ |- M] [_ |- _] sn in
-					let sn2 = prop3 [_ |- M] sn1 in
-					prop1 [_ |- _] [_ |- _] sn2 sn'
-    | SnAppl r' => let snl' = prop5a [_ |- _] [_ |- _] sn in
-		   let snl = backwards_closed [_ |- _] [_ |- _] r' snl' in
-		   let snr = prop5b [_ |- _] [_ |- _] sn in
-		   prop1 [_ |- _] [_ |- _] snl snr
+% Lemma 1.3: If [g, x: tm A[] |- step M M'] and N: [g |- tm A[]] then [g |- step M[.., N] M'[.., N]].
+rec subst_red : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
+			 {M': [g, x: tm A[] |- tm B[]]}
+			 {N : [g |- tm A[]]}
+			 {S : [g, x: tm A[] |- step M M']}
+			 [g |- step M[.., N] M'[.., N]] =
+    mlam M => mlam M' => mlam N => mlam S =>
+    case [_ |- S] of
+    | [g, x: tm A[] |- rbeta] => [_ |- rbeta]
+    | [g, x: tm A[] |- rabs (\y. S')] => let [_ |- S'] : [g, x: tm A[], y: tm A'[] |- step M M'] = [_ |- S'] in
+					 ? % need exchange
+    | [g, x: tm A[] |- rappl S'] => let [_ |- S''] = subst_red [_ |- _] [_ |- _] [_ |- N] [_ |- S'] in
+				    [_ |- rappl S'']
+    | [g, x: tm A[] |- rappr S'] => let [_ |- S''] = subst_red [_ |- _] [_ |- _] [_ |- N] [_ |- S'] in
+				    [_ |- rappr S'']
 ;
 
-rec closure_prop2 : (g: cxt) {M: [g |- tm (arr A[] B[])]}
-			     {N: [g |- tm A[]]}
-			     Sn [g |- M] -> Sn [g |- N]
-		    -> Sn [g |- app M N] =
-    mlam M, N => fn snl => fn snr =>
-    Acc (mlam M', S => closure_prop3 [_ |- M] [_ |- N] [_ |- M'] [_ |- S] snl snr)
-
-and closure_prop3 : (g: cxt) {M: [g |- tm (arr A[] B[])]}
-			     {N: [g |- tm A[]]}
-			     {R: [g |- tm B[]]}
-			     {S: [g |- step (app M N) R]}
-			     Sn [g |- M] -> Sn [g |- N]
-		    -> Sn [g |- R] =
-    mlam M => mlam N => mlam R => mlam S => fn snl => fn snr =>
-    let sn' = prop1 [_ |- M] [_ |- N] snl snr in
-    let Acc r = sn' in r [_ |- R] [_ |- S]
+% Lemma 1.4 (2): If [g |- mstep M M'] then [g |- mstep (app M N) (app M' N)].
+rec mstep_appl : (g: cxt) {M  : [g |- tm (arr A[] B[])]}
+			  {M' : [g |- tm (arr A[] B[])]}
+			  {N  : [g |- tm A[]]}
+			  {MS : [g |- mstep M M']}
+			  [g |- mstep (app M N) (app M' N)] =
+    mlam M => mlam M' => mlam N => mlam MS =>
+    case [_ |- MS] of
+    | [g |- m-single S] => [g |- m-single (rappl S)]
+    | [g |- m-step S MS'] => let [_ |- MS''] = mstep_appl [_ |- _] [_ |- M'] [_ |- N] [_ |- MS'] in
+			     [g |- m-step (rappl S) MS'']
 ;
 
-% Lemma 3.10: Soundness of SN with respect to sn
-rec soundSN : (g: cxt) {M: [g |- tm A[]]}
-		       SN [g |- M]
-	      -> Sn [g |- M] =
+% Lemma 1.4 (3): If [g |- mstep N N'] then [g |- mstep (app M N) (app M N')].
+rec mstep_appr : (g: cxt) {M  : [g |- tm (arr A[] B[])]}
+			  {N  : [g |- tm A[]]}
+			  {N' : [g |- tm A[]]}
+			  {MS : [g |- mstep N N']}
+			  [g |- mstep (app M N) (app M N')] =
+    mlam M => mlam N => mlam N' => mlam MS =>
+    case [_ |- MS] of
+    | [g |- m-single S] => [g |- m-single (rappr S)]
+    | [g |- m-step S MS'] => let [_ |- MS''] = mstep_appr [_ |- M] [_ |- _] [_ |- N'] [_ |- MS'] in
+			     [g |- m-step (rappr S) MS'']
+;
+
+% Lemma 1.4 (5): If M: [g, x: tm A[] |- tm B[]] and [g |- step N N'] then [g |- mstep M[.., N] M[.., N']].
+rec subst_mred : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
+			  {N : [g |- tm A[]]}
+			  {N': [g |- tm A[]]}
+			  {S : [g |- step N N']}
+			  [g |- mstep M[.., N] M[.., N']] =
+    mlam M => mlam N => mlam N' => mlam S =>
+    ?
+;
+
+% Lemma 4.1: If Sn [g |- M] and [g |- mstep M M'] then Sn [g |- M'].
+rec mstep_sn: (g: cxt) {M : [g |- tm A[]]}
+		       {M': [g |- tm A[]]}
+		       {MS: [g |- mstep M M']}
+		       Sn [g |- M]
+	      -> Sn [g |- M'] =
+    mlam M => mlam M' => mlam MS => fn sn =>
+    case [_ |- MS] of
+    | [g |- m-single S] => let Acc r = sn in r [_ |- M'] [_ |- S]
+    | [g |- m-step S MS'] => let Acc r = sn in
+			     let sn' = r [_ |- _] [_ |- S] in
+			     mstep_sn [_ |- _] [_ |- M'] [_ |- MS'] sn'
+;
+
+% Lemma 4.4 (1): If Sn [g |- [N/x] M] and Sn [g |- N] then Sn [g, x: A |- M].
+rec lemma441 : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
+			{N: [g |- tm A[]]}
+			Sn [g |- M [.., N]] -> Sn [g |- N]
+	       -> Sn [g, x: tm A[] |- M] =
+    mlam M => mlam N => fn sn1 => fn sn2 =>
+    Acc (mlam M', S => lemma441_helper [_ |- M] [_ |- N] [_ |- M'] [_ |- S] sn1 sn2)
+
+and lemma441_helper : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
+			       {N : [g |- tm A[]]}
+			       {M': [g, x: tm A[] |- tm B[]]}
+			       {S : [g, x: tm A[] |- step M M']}
+			       Sn [g |- M[.., N]] -> Sn [g |- N]
+		      -> Sn [g, x: tm A[] |- M'] =
+    mlam M => mlam N => mlam M' => mlam S => fn sn1 => fn sn2 =>
+    let Acc r = sn1 in
+    let [_ |- S'] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S] in
+    let sn' = r [_ |- M'[.., N]] [_ |- S'] in
+    lemma441 [_ |- M'] [_ |- N] sn' sn2
+;
+
+% Lemma 4.4 (2): If Sn [g, x: tm A[] |- M] then Sn [g |- abs \x. M].
+rec lemma442 : (g:cxt) {M: [g, x: tm A[] |- tm B[]]}
+		       Sn [g, x: tm A[] |- M]
+	       -> Sn [g |- abs \x. M] =
+    mlam M => fn sn =>
+    Acc (mlam M' => mlam S => lemma442_helper [_ |- M] [_ |- M'] sn [_ |- S])
+
+and lemma442_helper : (g:cxt) {M : [g, x: tm A[] |- tm B[]]}
+			      {M' : [g |- tm (arr A[] B[])]}
+			      Sn [g, x: tm A[] |- M] -> [g |- step (abs \x. M) M']
+		      -> Sn [g |- M'] =
+    mlam M => mlam M' => fn sn => fn s =>
+    let [g |- rabs (\x. S1)] = s in
+    let Acc r = sn in
+    let [g, x : tm A[] |- S1] : [g, x : tm A[] |- step M M1] = [g, x: tm _ |- S1] in
+    let sn' = r [g, x: tm _ |- M1] [g, x: tm _ |- S1] in
+    lemma442 [_ |- M1] sn'
+;
+
+% Lemma 4.4 (3): If Sn [g |- app M N] then Sn [g |- M] and Sn [g |- N].
+rec lemma443a : (g: cxt) {M: [g |- tm (arr A[] B[])]}
+			 {N : [g |- tm A[]]}
+			 Sn [g |- (app M N)] -> Sn [g |- M] =
+    mlam M => mlam N => fn sn =>
+    let Acc r = sn in
+    Acc (mlam M' => mlam S =>
+	 let sn' = r [_ |- app M' N] [_ |- rappl S] in
+	 lemma443a [_ |- M'] [_ |- _] sn')
+;
+
+rec lemma443b : (g: cxt) {M : [g |- tm (arr A[] B[])]}
+			 {N : [g |- tm A[]]}
+			 Sn [g |- (app M N)] -> Sn [g |- N] =
+    mlam M => mlam N => fn sn =>
+    let Acc r = sn in
+    Acc (mlam N' => mlam S =>
+	 let sn' = r [_ |- app M N'] [_ |- rappr S] in
+	 lemma443b [_ |- _] [_ |- N'] sn')
+;
+
+% Lemma 4.10 (2): If Sn [g |- C[x]] and Sn [g |- N] then Sn [g |- app (C[x]) N].
+% rec lemma4102 : (g: cxt) {#x: [g |- tm A[]]}
+%			 {E : [g |- ecxt (\x. C)]}
+%			 {N : [g |- tm B[]]}
+%			 Sn [g |- ?] ->  Sn [g |- N]
+%		-> Sn [g |- app ? N] =
+%    ?
+%;
+
+
+% Lemma 4.17: If Sn [g |- N] and Sn [g |- M[.., N]] then Sn [g |- app (abs \x. M) N].
+rec lemma417 : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
+			{N: [g |- tm A[]]}
+			Sn [g |- M[.., N]] -> Sn [g |- N]
+	       -> Sn [g |- app (abs \x. M) N] =
+    mlam M => mlam N => fn sn1 => fn sn2 =>
+    Acc (mlam P, S => lemma417_helper [_ |- M] [_ |- N] [_ |- P] [_ |- S] sn1 sn2)
+
+and lemma417_helper : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
+			       {N: [g |- tm A[]]}
+			       {P: [g |- tm B[]]}
+			       {S: [g |- step (app (abs \x. M) N) P]}
+			       Sn [g |- M[.., N]] -> Sn [g |- N]
+		      -> Sn [g |- P] =
+    mlam M => mlam N => mlam P => mlam S => fn sn1 => fn sn2 =>
+    case [_ |- S] of
+    | [g |- rbeta] => sn1
+    | [g |- rappl S'] => let [_ |- rabs (\x. S'')] = [_ |- S'] in
+			 let [_ |- S''] : [g, x: tm _ |- step M M'] = [_ |- S''] in
+			 let [_ |- S'''] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S''] in
+			 let Acc r = sn1 in
+			 let sn = r [_ |- M'[.., N]] [_ |- S'''] in
+			 lemma417 [_ |- M'] [_ |- N] sn sn2
+    | [g |- rappr S'] => let Acc r = sn2 in
+			 let [_ |- S'] : [_ |- step N N'] = [_ |- S'] in
+			 let sn = r [_ |- N'] [_ |- S'] in
+			 let [_ |- MS''] = subst_mred [_ |- M] [_ |- N] [_ |- N'] [_ |- S'] in
+			 let sn' = mstep_sn [_ |- M[.., N]] [_ |- M[.., N']] [_ |- MS''] sn1 in
+			 lemma417 [_ |- M] [_ |- N'] sn' sn
+;
+
+inductive ConfResult : (g: cxt) {N: [g |- tm A[]]} {N': [g |- tm A[]]} ctype =
+  | Eq    : ConfResult [g |- N] [g |- N]
+  | Conf  : SnRed [g |- N'] [g |- Q] -> [g |- mstep N Q] -> ConfResult [g |- N] [g |- N']
+;
+
+rec confluence : (g: cxt) {M : [g |- tm A[]]}
+			  {N : [g |- tm A[]]}
+			  {N': [g |- tm A[]]}
+			  {S : [g |- step M N']}
+			  SnRed [g |- M] [g |- N]
+		 -> ConfResult [g |- N] [g |- N'] =
+    mlam M => mlam N => mlam N' => mlam S => fn snr =>
+    case snr of
+    | SnBeta [g, x: tm A[] |- M] sn =>
+      (case [g |- S] of
+       | [g |- rbeta] => Eq
+       | [g |- rappl S'] => let [_ |- rabs (\x. S'')] = [_ |- S'] in
+			    let [_ |- S''] : [g, x: tm _ |- step M M'] = [_ |- S''] in
+			    let snr' = SnBeta [g, x: tm _ |- M'] sn in
+			    let sn : Sn [g |- N] = sn in
+			    let [_ |- R] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S''] in
+			    Conf snr' [g |- m-single R]
+       | [g |- rappr S'] => let [_ |- S'] : [_ |- step N N'] = [_ |- S'] in
+			    let ms = subst_mred [_ |- M] [_ |- N] [_ |- N'] [_ |- S'] in
+			    let Acc r = sn in
+			    let sn' = r [_ |- N'] [_ |- S'] in
+			    Conf (SnBeta [g, x: tm _ |- M] sn') ms
+      )
+    | SnAppl r =>
+      (case [_ |- S] of
+       | [g |- rbeta] => impossible r
+       | [g |- rappl S'] => let conf = confluence [_ |- _] [_ |- _] [_ |- _] [_ |- S'] r in
+			    (case conf of
+			     | Eq => Eq
+			     | Conf snr' ms => let snr' : SnRed [g |- M2] [g |- P] = snr' in
+					       let [_ |- MS] = ms in % type error without this line?
+					       let ms' = mstep_appl [_ |- _] [_ |- P] [_ |- _] [_ |- MS] in
+					       Conf (SnAppl snr') ms'
+			    )
+       | [g |- rappr S'] => let [_ |- MS] = [_ |- m-single S'] in
+			    let r: SnRed [_ |- M] [_ |- M'] = r in
+			    let ms = mstep_appr [_ |- M'] [_ |- _] [_ |- _] [_ |- MS] in
+			    Conf (SnAppl r) ms
+      )
+;
+
+rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}
+				 {M': [g |- tm A[]]}
+				 SnRed [g |- M] [g |- M'] -> Sn [g |- M']
+			-> Sn [g |- M] =
+    mlam M => mlam M' => fn snr => fn sn =>
+    case snr of
+    | SnBeta ([g, x: tm A[] |- M]) sn' => lemma417 [_ |- M] [_ |- _] sn sn'
+    | SnAppl r => let sn' = lemma443a [_ |- _] [_ |- _] sn in
+		  let sn'' = backwards_closure [_ |- _] [_ |- _] r sn' in
+		  Acc (mlam M', S => bc_helper [_ |- _] [_ |- _] [_ |- _] [_ |- M'] [_ |- S] r sn)
+
+and bc_helper : (g: cxt) {M : [g |- tm (arr A[] B[])]}
+			 {M': [g |- tm (arr A[] B[])]}
+			 {N : [g |- tm A[]]}
+			 {Q : [g |- tm B[]]}
+			 {S : [g |- step (app M N) Q]}
+			 SnRed [g |- M] [g |- M'] -> Sn [g |- app M' N]
+		-> Sn [g |- Q] =
+    mlam M => mlam M' => mlam N => mlam Q => mlam S => fn snr => fn sn =>
+    let conf = confluence [_ |- app M N] [_ |- app M' N] [_ |- Q] [_ |- S] (SnAppl snr) in
+    case conf of
+     | Eq => sn
+     | Conf snr' ms => let [_ |- MS] = ms in % type error without this line?
+		       let sn' = mstep_sn [_ |- _] [_ |- _] [_ |- MS] sn in
+		       backwards_closure [_ |- Q] [_ |- _] snr' sn'
+;
+
+rec soundSN : (g: cxt) {M: [g |- tm A[]]} SN [g |- M] -> Sn [g |- M] =
     mlam M => fn sn =>
     case sn of
-    | SNeu sne => soundSNe [_ |- _] sne
-    | SAbs sn' => let sn'' = soundSN [_ |- _] sn' in prop3 [_ |- _] sn''
-    | SRed r sn' => let sn'' = soundSN [_ |- _] sn' in
-		    let r' = soundSNRed [_ |- _] [_ |- _] r in
-		    backwards_closed [_ |- _] [_ |- _] r' sn''
+    | SNeu sne => soundSNe [_ |- M] sne
+    | SAbs sn' => let sn'' = soundSN [_ |- _] sn' in lemma442 [_ |- _] sn''
+    | SRed snr sn' => let snr' = soundSNRed [_ |- _] [_ |- _] snr in
+		      let sn'' = soundSN [_ |- _] sn' in
+		      backwards_closure [_ |- M] [_ |- _] snr' sn''
 
-and soundSNe : (g: cxt) {M: [g |- tm A[]]}
-			SNe [g |- M]
-	       -> Sn [g |- M] =
+and soundSNe : (g: cxt) {M: [g |- tm A[]]} SNe [g |- M] -> Sn [g |- M] =
     mlam M => fn sne =>
     case sne of
-     | SApp sne' sn' => let snl = soundSNe [_ |- _] sne' in
-			let snr = soundSN [_ |- _] sn' in
-			closure_prop2 [_ |- _] [_ |- _] snl snr
+     | SApp sne' sn => ?
 
-and soundSNRed : (g: cxt) {M : [g |- tm A[]]}
-			  {M': [g |- tm A[]]}
-			  SNRed [g |- M] [g |- M']
-		 -> SnRed [g |- M] [g |- M'] =
-    mlam M => mlam M' => fn r =>
-    case r of
-    | SBeta ([g, x: tm A[] |- M']) snr => let snr' = soundSN [_ |- _] snr in
-					  SnBeta [g, x: tm A[] |- M'] snr'
-    | SAppl r' => soundSNRed [_ |- _] [_ |- _] r
+and soundSNRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} SNRed [g |- M] [g |- M'] -> SnRed [g |- M] [g |- M'] =
+    mlam M => mlam M' => fn snr =>
+    case snr of
+    | SBeta ([g, x: tm A[] |- M]) sn => let sn' = soundSN [_ |- _] sn in SnBeta [_ |- M] sn'
+    | SAppl snr' => let snr'' = soundSNRed [_ |- _] [_ |- _] snr' in SnAppl snr''
 ;
