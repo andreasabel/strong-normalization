@@ -25,7 +25,7 @@ LF step : tm A -> tm A -> type =
 ;
 
 LF mstep : tm A -> tm A -> type =
-   | m-single : step M N -> mstep M N
+   | m-refl :  mstep M M
    | m-step : step M N -> mstep N M' -> mstep M M'
 ;
 
@@ -61,6 +61,13 @@ inductive SnRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} ctype =
 	     -> SnRed [g |- (app M N)] [g |- app M' N]
 ;
 
+% Lemma: Transitivity of multi-step reductions
+rec m-trans : (g : cxt) {M : [g |- tm A[]]}
+              [g |- mstep M1 M] -> [g |- mstep M M2]
+            -> [g |- mstep M1 M2] = 
+?
+;
+
 % Lemma 1.3: If [g, x: tm A[] |- step M M'] and N: [g |- tm A[]] then [g |- step M[.., N] M'[.., N]].
 rec subst_red : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
 			 {M': [g, x: tm A[] |- tm B[]]}
@@ -90,7 +97,7 @@ rec mstep_appl : (g: cxt) {M  : [g |- tm (arr A[] B[])]}
 			  [g |- mstep (app M N) (app M' N)] =
     mlam M => mlam M' => mlam N => mlam MS =>
     case [_ |- MS] of
-    | [g |- m-single S] => [g |- m-single (rappl S)]
+    | [g |- m-refl] => [g |- m-refl]
     | [g |- m-step S MS'] => let [_ |- MS''] = mstep_appl [_ |- _] [_ |- M'] [_ |- N] [_ |- MS'] in
 			     [g |- m-step (rappl S) MS'']
 ;
@@ -103,7 +110,7 @@ rec mstep_appr : (g: cxt) {M  : [g |- tm (arr A[] B[])]}
 			  [g |- mstep (app M N) (app M N')] =
     mlam M => mlam N => mlam N' => mlam MS =>
     case [_ |- MS] of
-    | [g |- m-single S] => [g |- m-single (rappr S)]
+    | [g |- m-refl] => [g |- m-refl]
     | [g |- m-step S MS'] => let [_ |- MS''] = mstep_appr [_ |- M] [_ |- _] [_ |- N'] [_ |- MS'] in
 			     [g |- m-step (rappr S) MS'']
 ;
@@ -115,8 +122,8 @@ rec subst_mred : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
 			  [g |- step N N']
 			  -> [g |- mstep M[.., N] M[.., N']] =
     mlam M => mlam N => mlam N' => fn s => case [_, x:tm _ |- M] of 
-| [g, x:tm A[] |- x ] => let [g |- S] = s in [g |- m-single S]
-| [g, x:tm A[] |- #p[..] ] => ? 
+| [g, x:tm A[] |- x ] => let [g |- S] = s in [g |- m-step S m-refl]
+| [g, x:tm A[] |- #p[..] ] => [g |- m-refl]
 | [g, x:tm A[] |- abs \x.M] => 
   let [g |- S] = s in 
   let [ g, y: tm _ |- S'] = subst_mred [g, y:tm _ , x:tm A[] |- M[.., x, y]]
@@ -125,7 +132,7 @@ rec subst_mred : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
 | [g, x:tm A[] |- app M1 M2] => 
   let [g |- S1] = subst_mred [g, x:tm A[] |- M1] [g |- N] [g |- N'] s in 
   let [g |- S2] = subst_mred [g, x:tm A[] |- M2] [g |- N] [g |- N'] s in 
-  let [g |- MS1] =  mstep_appl [g |- M1[..,N]] [g |- M1[.., N'] ] [g |- M2[.., N']] [g |- S1] in
+%  let [g |- MS1] =  mstep_appl [g |- M1[..,N]] [g |- M1[.., N'] ] [g |- M2[.., N']] [g |- S1] in
    ?
 ;
 
@@ -137,7 +144,7 @@ rec mstep_sn: (g: cxt) {M : [g |- tm A[]]}
 	      -> Sn [g |- M'] =
     mlam M => mlam M' => mlam MS => fn sn =>
     case [_ |- MS] of
-    | [g |- m-single S] => let Acc r = sn in r [_ |- M'] [_ |- S]
+    | [g |- m-refl] =>  sn
     | [g |- m-step S MS'] => let Acc r = sn in
 			     let sn' = r [_ |- _] [_ |- S] in
 			     mstep_sn [_ |- _] [_ |- M'] [_ |- MS'] sn'
@@ -267,7 +274,7 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}
 			    let snr' = SnBeta [g, x: tm _ |- M'] sn in
 			    let sn : Sn [g |- N] = sn in
 			    let [_ |- R] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S''] in
-			    Conf snr' [g |- m-single R]
+			    Conf snr' [g |- m-step R m-refl]
        | [g |- rappr S'] => let [_ |- S'] : [_ |- step N N'] = [_ |- S'] in
 			    let ms = subst_mred [_ |- M] [_ |- N] [_ |- N'] [_ |- S'] in
 			    let Acc r = sn in
@@ -285,7 +292,7 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}
 					       let ms' = mstep_appl [_ |- _] [_ |- P] [_ |- _] [_ |- MS] in
 					       Conf (SnAppl snr') ms'
 			    )
-       | [g |- rappr S'] => let [_ |- MS] = [_ |- m-single S'] in
+       | [g |- rappr S'] => let [_ |- MS] = [_ |- m-step S' m-refl] in
 			    let r: SnRed [_ |- M] [_ |- M'] = r in
 			    let ms = mstep_appr [_ |- M'] [_ |- _] [_ |- _] [_ |- MS] in
 			    Conf (SnAppl r) ms
