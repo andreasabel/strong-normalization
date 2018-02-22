@@ -47,6 +47,8 @@
     "C"
     "G"
     "Q"
+    "hole"
+    "holetype"
     "one"
     "SN"
     "SNe"
@@ -82,12 +84,16 @@
     "pp4"
     "pp6"
     "pp7"
+    "def:ectx"
+    "lm:pectx"
+    "def:snectx"
+    "lm:psnectx"
+    "lm:invrectx"
     "lm:mredecxt"
     "lm:ecxt"
     "lm:closn"
     "cp2"
     "cp3"
-    "lm:compecxt"
     "lem:appsnclosure"
     "fig:sn"
     "lm:renameSN"
@@ -116,5 +122,10 @@
    (LaTeX-add-bibliographies
     "bibi-extract")
    (LaTeX-add-amsthm-newtheorems
+<<<<<<< HEAD
     "exercise")))
+=======
+    "exercise"))
+ :latex)
+>>>>>>> 6cd09dd2caf3adc9bbccc505625f404215252e94
 
