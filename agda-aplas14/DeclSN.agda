@@ -97,8 +97,12 @@ split ._ (_∷_ {Es = Es} (appl t) eq) r (cong (appr Est) (appr .Est) t⇒) = in
 mutual
 
 -- it seems possible to use sn (Es [ subst (sgs u) t ]*) instead of SN {i} (Es [ subst (sgs u) t ]*) ? - bp
-  appsn₃ : ∀ {i a b c Γ} {u : Tm Γ a} {t : Tm (a ∷ Γ) b}{Es : ECxt* Γ b c}{x} → sn (Es [ x ]*) → sn t → SN {i} (Es [ subst (sgs u) t ]*)
-           → sn u → sn (Es [ app (abs t) u ]*)
+  appsn₃ : ∀ {i a b c Γ} {u : Tm Γ a} {t : Tm (a ∷ Γ) b}{Es : ECxt* Γ b c}{x}
+    → sn (Es [ x ]*)
+    → sn t
+    → SN {i} (Es [ subst (sgs u) t ]*)  -- TODO: use sn here?
+    → sn u
+    → sn (Es [ app (abs t) u ]*)
   appsn₃ {Es = Es} x t t[u] u = acc (λ t⇒ → help {Es = Es} x t t[u] u (mkEhole* Es) t⇒)
     where
     help : ∀ {i a b c Γ} {u : Tm Γ a} {t : Tm (a ∷ Γ) b} {t' : Tm Γ c} {x}  {z}{Es : ECxt* Γ b c} → sn (Es [ x ]*) → sn t →
