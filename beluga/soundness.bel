@@ -230,14 +230,50 @@ rec lemma443b : (g: cxt) {M : [g |- tm (arr A[] B[])]}
 ;
 
 % Lemma 4.10 (2): If Sn [g |- C[x]] and Sn [g |- N] then Sn [g |- app (C[x]) N].
- rec lemma4102 : (g: cxt){C: [g, u:tm A[] |- tm (arr B1[] B2[])]} 
+
+ rec lemma4102_aux2 : {g: cxt}{A:[|- ty]}{B1:[|- ty]}{B2: [|- ty]}
+                         {C: [g, u:tm A[] |- tm (arr B1[] B2[])]} 
+                         {#x: [g |- tm A[]]}
+			 {E : [g |- ecxt \x. C]}
+			 {N : [g |- tm B1[]]}
+			 Sn [g |- C[..,#x ] ] ->  Sn [g |- N]
+                     -> {Q : [g |- tm B2[]]} {S: [g |- step  (app C[.., #x ] N)  Q]}
+                        Sn [g |- Q] = 
+mlam g, A, B1, B2, C, #x, E, N => fn s1, s2 => mlam Q, S => case [g |- S] of 
+   | [g |- rappl Sl] => ?
+   | [g |- rappr Sr] => ?
+;
+
+ rec lemma4102_aux : {g: cxt}{A:[|- ty]}{B1:[|- ty]}{B2: [|- ty]}
+                         {C: [g, u:tm A[] |- tm (arr B1[] B2[])]} 
                          {#x: [g |- tm A[]]}
 			 {E : [g |- ecxt \x. C]}
 			 {N : [g |- tm B1[]]}
 			 Sn [g |- C[..,#x ] ] ->  Sn [g |- N]
 		-> Sn [g |- app C[.., #x ] N] =
-    ?
+mlam g, A, B1, B2, C, #x, E, N => fn s1, s2 =>
+  Acc (mlam Q => mlam S => lemma4102_aux2 [g] [ |- A] [|- B1] [|- B2] [g, x:tm A[] |- C]
+                                  [g |- #x] [g |- E] [g |- N] s1 s2 [g |- Q] [g |- S])
 ;
+%{case [g |- S] of 
+   | [g |- rappl Sl] => ?
+   | [g |- rappr Sr] => ? 
+}%
+
+
+ rec lemma4102 : (g: cxt)
+                         {C: [g, u:tm A[] |- tm (arr B1[] B2[])]} 
+                         {#x: [g |- tm A[]]}
+			 {E : [g |- ecxt \x. C]}
+			 {N : [g |- tm B1[]]}
+			 Sn [g |- C[..,#x ] ] ->  Sn [g |- N]
+		-> Sn [g |- app C[.., #x ] N] =
+mlam C, #x, E, N => fn s => 
+  lemma4102_aux [_] [ |- _ ] [ |- _] [|- _ ] 
+             [_, x:tm _ |- C]
+             [_ |- #x] [_ |- E] [_ |- N] s
+;
+
 
 
 % Lemma 4.17: If Sn [g |- N] and Sn [g |- M[.., N]] then Sn [g |- app (abs \x. M) N].
@@ -356,6 +392,7 @@ rec soundSN : (g: cxt) {M: [g |- tm A[]]} SN [g |- M] -> Sn [g |- M] =
 and soundSNe : (g: cxt) {M: [g |- tm A[]]} SNe [g |- M] -> Sn [g |- M] =
     mlam M => fn sne =>
     case sne of
+     | SVar [g |- #p] => ?
      | SApp sne' sn => ?
 
 and soundSNRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} SNRed [g |- M] [g |- M'] -> SnRed [g |- M] [g |- M'] =
