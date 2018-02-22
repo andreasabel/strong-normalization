@@ -10,11 +10,6 @@ LF tm : ty -> type =
 ;
 %name tm M.
 
-LF ecxt : (tm A -> tm B) -> type =
-   | hole : ecxt (\x. x)
-   | capp : ecxt E -> {M : tm C} ecxt (\x. app (E x) M)
-;
-
 schema cxt = tm A;
 
 LF step : tm A -> tm A -> type =
@@ -82,12 +77,14 @@ rec subst_red : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
 			 [g |- step M[.., N] M'[.., N]] =
     mlam M => mlam M' => mlam N => fn s => case s of 
     | [g, x: tm A[] |- rbeta] => [_ |- rbeta]
-    | [g, x: tm A[] |- rabs (\y. S')] => let [_ |- S'] : [g, x: tm A[], y: tm A'[] |- step M M'] = [_ |- S'] in
-     let [g, y:tm A'[] |- S''] =  subst_red [g, y:tm A'[], x : tm A[] |- M[.., x, y]]					 
-                                          [g, y:tm A'[], x : tm A[] |- M'[.., x, y]]
-                                          [g, y:tm A'[] |- N[..]] 
-                                          [g, y:tm A'[], x:tm A[] |- S'[.., x,y]]
-    in [g |- rabs \y.S'']					 
+
+    | [g, x: tm A[] |- rabs (\y. S')] =>
+      let [_ |- S'] : [g, x: tm A[], y: tm A'[] |- step M M'] = [_ |- S'] in
+      let [g, y:tm A'[] |- S''] =  subst_red [g, y:tm A'[], x : tm A[] |- M[.., x, y]]
+                                             [g, y:tm A'[], x : tm A[] |- M'[.., x, y]]
+                                             [g, y:tm A'[] |- N[..]]
+                                             [g, y:tm A'[], x:tm A[] |- S'[.., x,y]]
+      in [g |- rabs \y.S'']
 
     | [g, x: tm A[] |- rappl S'] => let [_ |- S''] = subst_red [_ |- _] [_ |- _] [_ |- N] [_ |- S'] in
 				    [_ |- rappl S'']
@@ -229,49 +226,76 @@ rec lemma443b : (g: cxt) {M : [g |- tm (arr A[] B[])]}
 	 lemma443b [_ |- _] [_ |- N'] sn')
 ;
 
+inductive Neutral: (g: cxt) {M: [g |- tm A[]]} ctype =
+  | Nvar : {#x: [g |- tm A[]]} Neutral [g |- #x]
+  | Napp : {R: [g |- tm (arr A[] B[])]} {N: [g |- tm A[]]} Neutral [g |- R]
+	   -> Neutral [g |- app R N]
+;
+
+% Lemma: If SNe [g |- R] then Neutral [g |- R].
+rec neutralSNe : (g: cxt) {R: [g |- tm A[]]} SNe [g |- R] -> Neutral [g |- R] =
+    mlam R => fn sne =>
+    case sne of
+    | SVar [g |- #p] => Nvar [g |- #p]
+    | SApp sne' sn => let neu = neutralSNe [_ |- _] sne' in Napp [_ |- _] [_ |- _] neu
+;
+
+% Lemma 4.9 (modified): If Neutral [g |- R] and [g |- step (app R N) Q], then Neutral [g |- Q].
+rec lemma49 : (g: cxt) {R: [g |- tm (arr A[] B[])]}
+		       {N: [g |- tm A[]]}
+		       {Q: [g |- tm B[]]}
+		       {S: [g |- step (app R N) Q]}
+		       Neutral [g |- R]
+	      -> Neutral [g |- Q] =
+    mlam R => mlam N => mlam Q => mlam S => fn neu =>
+    case [_ |- S] of
+    | [g |- rbeta] => impossible neu
+    | [g |- rappl S'] => (case neu of
+			  | Napp ([g |- R']) ([g |- N']) neu' =>
+			    let neu'' = lemma49 [_ |- R'] [_ |- N'] [_ |- _] [_ |- S'] neu' in
+			    Napp [_ |- _] [_ |- N] neu''
+			 )
+    | [g |- rappr S'] => Napp [_ |- R] [_ |- _] neu
+;
+
+% All variables are in sn.
+empty: type.
+
+rec varDontStep : (g: cxt) {#p : [g |- tm A[]]}
+			   {M : [g |- tm A[]]}
+			   [g |- step #p M] -> [|- empty] =
+    mlam p, M => fn s => impossible s;
+
+rec varSn : (g:cxt) {#p: [g |- tm A[]]} Sn [g |- #p] =
+    mlam #p => Acc (mlam M', S => impossible (varDontStep [_ |- #p] [_ |- M'] [_ |- S]))
+;
+
 % Lemma 4.10 (2): If Sn [g |- C[x]] and Sn [g |- N] then Sn [g |- app (C[x]) N].
+rec lemma4102 : (g: cxt) {R: [g |- tm (arr A[] B[])]}
+			 {N: [g |- tm A[]]}
+			 Neutral [g |- R] -> Sn [g |- R] -> Sn [g |- N]
+		-> Sn [g |- app R N] =
+    mlam R => mlam N => fn neu => fn sn1 => fn sn2 =>
+    Acc (mlam Q, S => lemma4102_aux [_ |- R] [_ |- N] [_ |- Q] [_ |- S] neu sn1 sn2)
 
- rec lemma4102_aux2 : {g: cxt}{A:[|- ty]}{B1:[|- ty]}{B2: [|- ty]}
-                         {C: [g, u:tm A[] |- tm (arr B1[] B2[])]} 
-                         {#x: [g |- tm A[]]}
-			 {E : [g |- ecxt \x. C]}
-			 {N : [g |- tm B1[]]}
-			 Sn [g |- C[..,#x ] ] ->  Sn [g |- N]
-                     -> {Q : [g |- tm B2[]]} {S: [g |- step  (app C[.., #x ] N)  Q]}
-                        Sn [g |- Q] = 
-mlam g, A, B1, B2, C, #x, E, N => fn s1, s2 => mlam Q, S => case [g |- S] of 
-   | [g |- rappl Sl] => ?
-   | [g |- rappr Sr] => ?
-;
-
- rec lemma4102_aux : {g: cxt}{A:[|- ty]}{B1:[|- ty]}{B2: [|- ty]}
-                         {C: [g, u:tm A[] |- tm (arr B1[] B2[])]} 
-                         {#x: [g |- tm A[]]}
-			 {E : [g |- ecxt \x. C]}
-			 {N : [g |- tm B1[]]}
-			 Sn [g |- C[..,#x ] ] ->  Sn [g |- N]
-		-> Sn [g |- app C[.., #x ] N] =
-mlam g, A, B1, B2, C, #x, E, N => fn s1, s2 =>
-  Acc (mlam Q => mlam S => lemma4102_aux2 [g] [ |- A] [|- B1] [|- B2] [g, x:tm A[] |- C]
-                                  [g |- #x] [g |- E] [g |- N] s1 s2 [g |- Q] [g |- S])
-;
-%{case [g |- S] of 
-   | [g |- rappl Sl] => ?
-   | [g |- rappr Sr] => ? 
-}%
-
-
- rec lemma4102 : (g: cxt)
-                         {C: [g, u:tm A[] |- tm (arr B1[] B2[])]} 
-                         {#x: [g |- tm A[]]}
-			 {E : [g |- ecxt \x. C]}
-			 {N : [g |- tm B1[]]}
-			 Sn [g |- C[..,#x ] ] ->  Sn [g |- N]
-		-> Sn [g |- app C[.., #x ] N] =
-mlam C, #x, E, N => fn s => 
-  lemma4102_aux [_] [ |- _ ] [ |- _] [|- _ ] 
-             [_, x:tm _ |- C]
-             [_ |- #x] [_ |- E] [_ |- N] s
+and lemma4102_aux : (g: cxt) {R: [g |- tm (arr A[] B[])]}
+			     {N: [g |- tm A[]]}
+			     {Q: [g |- tm B[]]}
+			     {S: [g |- step (app R N) Q]}
+			     Neutral [g |- R] -> Sn [g |- R] -> Sn [g |- N]
+		    -> Sn [g |- Q] =
+    mlam R => mlam N => mlam Q => mlam S => fn neu => fn sn1 => fn sn2 =>
+    case [_ |- S] of
+     | [g |- rbeta] => impossible neu
+     | [g |- rappl S'] => let Acc r = sn1 in
+			  let sn' = r [_ |- _] [_ |- S'] in
+			  let neu' = lemma49 [_ |- _] [_ |- _] [_ |- _] [_ |- S] neu in
+			  (case neu' of
+			   | Napp [g |- M'] [g |- N] neu'' => lemma4102 [_ |- _] [_ |- N] neu'' sn' sn2
+			  )
+     | [g |- rappr S'] => let Acc r = sn2 in
+			  let sn' = r [_ |- _] [_ |- S'] in
+			  lemma4102 [_ |- R] [_ |- _] neu sn1 sn'
 ;
 
 
@@ -392,8 +416,11 @@ rec soundSN : (g: cxt) {M: [g |- tm A[]]} SN [g |- M] -> Sn [g |- M] =
 and soundSNe : (g: cxt) {M: [g |- tm A[]]} SNe [g |- M] -> Sn [g |- M] =
     mlam M => fn sne =>
     case sne of
-     | SVar [g |- #p] => ?
-     | SApp sne' sn => ?
+    | SVar [g |- #p] => varSn [g |- #p]
+    | SApp sne' sn => let snl = soundSNe [_ |- _] sne' in
+		      let snr = soundSN [_ |- _] sn in
+		      let neu = neutralSNe [_ |- _] sne' in
+		      lemma4102 [_ |- _] [_ |- _] neu snl snr
 
 and soundSNRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} SNRed [g |- M] [g |- M'] -> SnRed [g |- M] [g |- M'] =
     mlam M => mlam M' => fn snr =>
