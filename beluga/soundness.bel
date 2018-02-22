@@ -165,27 +165,6 @@ rec mstep_sn: (g: cxt) {M : [g |- tm A[]]}
 			     mstep_sn [_ |- _] [_ |- M'] [_ |- MS'] sn'
 ;
 
-% Lemma 4.4 (1): If Sn [g |- [N/x] M] and Sn [g |- N] then Sn [g, x: A |- M].
-rec lemma441 : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
-			{N: [g |- tm A[]]}
-			Sn [g |- M [.., N]] -> Sn [g |- N]
-	       -> Sn [g, x: tm A[] |- M] =
-    mlam M => mlam N => fn sn1 => fn sn2 =>
-    Acc (mlam M', S => lemma441_helper [_ |- M] [_ |- N] [_ |- M'] [_ |- S] sn1 sn2)
-
-and lemma441_helper : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
-			       {N : [g |- tm A[]]}
-			       {M': [g, x: tm A[] |- tm B[]]}
-			       {S : [g, x: tm A[] |- step M M']}
-			       Sn [g |- M[.., N]] -> Sn [g |- N]
-		      -> Sn [g, x: tm A[] |- M'] =
-    mlam M => mlam N => mlam M' => mlam S => fn sn1 => fn sn2 =>
-    let Acc r = sn1 in
-    let [_ |- S'] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S] in
-    let sn' = r [_ |- M'[.., N]] [_ |- S'] in
-    lemma441 [_ |- M'] [_ |- N] sn' sn2
-;
-
 % Lemma 4.4 (2): If Sn [g, x: tm A[] |- M] then Sn [g |- abs \x. M].
 rec lemma442 : (g:cxt) {M: [g, x: tm A[] |- tm B[]]}
 		       Sn [g, x: tm A[] |- M]
@@ -214,16 +193,6 @@ rec lemma443a : (g: cxt) {M: [g |- tm (arr A[] B[])]}
     Acc (mlam M' => mlam S =>
 	 let sn' = r [_ |- app M' N] [_ |- rappl S] in
 	 lemma443a [_ |- M'] [_ |- _] sn')
-;
-
-rec lemma443b : (g: cxt) {M : [g |- tm (arr A[] B[])]}
-			 {N : [g |- tm A[]]}
-			 Sn [g |- (app M N)] -> Sn [g |- N] =
-    mlam M => mlam N => fn sn =>
-    let Acc r = sn in
-    Acc (mlam N' => mlam S =>
-	 let sn' = r [_ |- app M N'] [_ |- rappr S] in
-	 lemma443b [_ |- _] [_ |- N'] sn')
 ;
 
 inductive Neutral: (g: cxt) {M: [g |- tm A[]]} ctype =
