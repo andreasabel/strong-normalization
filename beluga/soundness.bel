@@ -62,10 +62,16 @@ inductive SnRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} ctype =
 ;
 
 % Lemma: Transitivity of multi-step reductions
-rec m-trans : (g : cxt) {M : [g |- tm A[]]}
+
+rec m-trans : (g : cxt) {M1 : [g |- tm A[]]}
               [g |- mstep M1 M] -> [g |- mstep M M2]
             -> [g |- mstep M1 M2] = 
-?
+
+mlam M1 => fn s1, s2 => case s1 of 
+| [g |- m-refl] => s2
+| [g |- m-step S MS] =>  
+  let [g |- MS'] = m-trans [g |- _ ] [g |- MS] s2 in 
+     [g |- m-step S MS']
 ;
 
 % Lemma 1.3: If [g, x: tm A[] |- step M M'] and N: [g |- tm A[]] then [g |- step M[.., N] M'[.., N]].
@@ -115,6 +121,17 @@ rec mstep_appr : (g: cxt) {M  : [g |- tm (arr A[] B[])]}
 			     [g |- m-step (rappr S) MS'']
 ;
 
+% Lemma 1.4 (4) : If [g, x:tm A[] |- mstep M M'] then [g |- mstep (abs \x.M) (abs \x.M')]
+rec mstep_abs : (g : cxt) {M : [g , x: tm A[] |- tm B[]]}
+                [g, x:tm A[] |- mstep M M'] -> [g |- mstep (abs \x.M) (abs \x.M')] = 
+mlam M => fn s1 => case s1 of 
+| [g, x:tm A[] |- m-refl] => [g |- m-refl]
+| [g, x:tm A[] |- m-step S MS] => 
+  let [g |- MS'] = mstep_abs [g, x : tm A[] |- _ ] [g, x : tm A[] |- MS] in 
+  let [g |- S'] = [g |- rabs \x.S] in 
+   [g |- m-step S' MS']
+;
+
 % Lemma 1.4 (5): If M: [g, x: tm A[] |- tm B[]] and [g |- step N N'] then [g |- mstep M[.., N] M[.., N']].
 rec subst_mred : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
 			  {N : [g |- tm A[]]}
@@ -128,12 +145,13 @@ rec subst_mred : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
   let [g |- S] = s in 
   let [ g, y: tm _ |- S'] = subst_mred [g, y:tm _ , x:tm A[] |- M[.., x, y]]
                               [g, y:tm _ |- N[..]] [g, y:tm _ |- N'[..]] [g, y:tm _ |- S[..]]  in 
-   ?
+     mstep_abs [g, y : tm _ |- _] [g, y: tm _ |- S']
 | [g, x:tm A[] |- app M1 M2] => 
   let [g |- S1] = subst_mred [g, x:tm A[] |- M1] [g |- N] [g |- N'] s in 
   let [g |- S2] = subst_mred [g, x:tm A[] |- M2] [g |- N] [g |- N'] s in 
-%  let [g |- MS1] =  mstep_appl [g |- M1[..,N]] [g |- M1[.., N'] ] [g |- M2[.., N']] [g |- S1] in
-   ?
+  let [g |- MS1] =  mstep_appl [g |- M1[..,N]]  [g |- M1[.., N'] ] [g |- M2[.., N]]    [g |- S1] in
+  let [g |- MS2] = mstep_appr  [g |- M1[..,N']]  [g |- M2[..,N]]    [g |- M2[.., N'] ]  [g |- S2] in
+    m-trans [g |- _ ] [g |- MS1] [g |- MS2]
 ;
 
 % Lemma 4.1: If Sn [g |- M] and [g |- mstep M M'] then Sn [g |- M'].
@@ -346,3 +364,4 @@ and soundSNRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} SNRed [g |- M] 
     | SBeta ([g, x: tm A[] |- M]) sn => let sn' = soundSN [_ |- _] sn in SnBeta [_ |- M] sn'
     | SAppl snr' => let snr'' = soundSNRed [_ |- _] [_ |- _] snr' in SnAppl snr''
 ;
+
