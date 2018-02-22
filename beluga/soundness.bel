@@ -190,13 +190,14 @@ rec lemma443b : (g: cxt) {M : [g |- tm (arr A[] B[])]}
 ;
 
 % Lemma 4.10 (2): If Sn [g |- C[x]] and Sn [g |- N] then Sn [g |- app (C[x]) N].
-% rec lemma4102 : (g: cxt) {#x: [g |- tm A[]]}
-%			 {E : [g |- ecxt (\x. C)]}
-%			 {N : [g |- tm B[]]}
-%			 Sn [g |- ?] ->  Sn [g |- N]
-%		-> Sn [g |- app ? N] =
-%    ?
-%;
+ rec lemma4102 : (g: cxt){C: [g, u:tm A[] |- tm (arr B1[] B2[])]} 
+                         {#x: [g |- tm A[]]}
+			 {E : [g |- ecxt \x. C]}
+			 {N : [g |- tm B1[]]}
+			 Sn [g |- C[..,#x ] ] ->  Sn [g |- N]
+		-> Sn [g |- app C[.., #x ] N] =
+    ?
+;
 
 
 % Lemma 4.17: If Sn [g |- N] and Sn [g |- M[.., N]] then Sn [g |- app (abs \x. M) N].
