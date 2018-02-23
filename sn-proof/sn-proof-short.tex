@@ -608,66 +608,47 @@ $\Gamma \vdash (\lambda x{:}A.M)~N : B \in \csn$ \hfill by Lemma \ref{lm:bclosed
 \paragraph{Case}
 $\D = \ianc{\Gamma \vdash M \redsn M' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash M\,N \redsn M'\,N : B}{}$
 \\[1em]
-$\Gamma \vdash M'~N : B \in \csn$ \hfill by assumption \\
-$\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by Lemma \ref{lem:psn}(Prop. \ref{pp6})\\
-$\Gamma \vdash M : A \arrow B \in \csn$ \hfill by IH \\
-$\Gamma \vdash N: A \in \csn$ \hfill by Lemma \ref{lem:psn}(Prop. \ref{pp6})\\[0.5em]
+We generalize and have to show that if $\Gamma \vdash N : A \in \csn$, $\Gamma \vdash M : A \arrow B \in \csn$, $\Gamma \vdash M \redsn M': A \arrow B$ and $\Gamma \vdash M'~N : B \in \csn$, then $\Gamma \vdash M~N : B\in \csn$.\ednote{The assumptions that $M$, $N$ are $\csn$ don't seem to be doing anything here except serving as induction measures. Is that correct? -ah}
 
-\noindent We generalize and have to show that if $\Gamma \vdash N : A \in \csn$, $\Gamma \vdash M : A \arrow B \in \csn$, $\Gamma \vdash M \redsn M': A \arrow B$ and $(M'\,N) : B \in \csn$, then $(M\,N) : B\in \csn$.
+\noindent Proof by induction on $\Gamma \vdash N: A \in \csn$ and $\Gamma \vdash M : A \arrow B \in \csn$. \\[1em]
+Assume $\Gamma \vdash M~N \red Q : B$.
 
-\noindent Proof by induction on $\Gamma \vdash N: A \in \csn$ and $\Gamma \vdash M : A \arrow B \in \csn$.
-
-\paragraph{Sub-case} $\mathcal{D} = \ianc{}{\Gamma \vdash (\lambda x{:}A.M)~N \red [N/x]M : B}{\beta}$
+\paragraph{Case} $\mathcal{D} = \ianc{}{\Gamma \vdash (\lambda x{:}A.M)~N \red [N/x]M : B}{\beta}$
 \\[1em]
 Contradiction with $\Gamma \vdash (\lambda x{:}A.M) \redsn M' : A \arrow B$.
 
-\paragraph{Sub-case} $\mathcal{D} = \ianc{\Gamma \vdash M \red M'' : A \arrow B}{\Gamma \vdash M\,N \red M''\,N: B}{}$
+\paragraph{Case} $\mathcal{D} = \ianc{\Gamma \vdash M \red M'' : A \arrow B}{\Gamma \vdash M\,N \red M''\,N: B}{}$
 \\[1em]
 To show: $\Gamma \vdash M''\,N \in \csn$.
 \\[1em]
 $\Gamma \vdash M \red M'' : A $ \hfill by assumption \\
 $\Gamma \vdash M \redsn M' : A \arrow B$ \hfill by assumption \\
-$\Gamma \vdash M' = M'' \vee (\exists P. \Gamma \vdash M'' \redsn P : A \arrow B \wedge \Gamma \vdash M' \red P: A \arrow B)$ \hfill by Conf. Lemma \ref{lm:confsn} \\[0.5em]
-%w. $M \red M''$ and $M \redsn M'$
+$\Gamma \vdash M' = M''$ or $\exists P$ s.t. $\Gamma \vdash M'' \redsn P : A \arrow B$ and $\Gamma \vdash M' \mred P: A \arrow B$ \hfill by Conf. Lemma \ref{lm:confsn}
 
 \paragraph{Sub-case} $\Gamma \vdash M' = M''$
 \\[1em]
 $\Gamma \vdash M'\,N : B \in \csn$ \hfill by assumption \\
-$\Gamma \vdash M''\,N : B \in \csn$ \hfill since $M' = M''$ \\
-\\[0.5em]
+$\Gamma \vdash M''\,N : B \in \csn$ \hfill since $M' = M''$
 
-\paragraph{Sub-case} $\exists P. \Gamma \vdash M'' \redsn P : A \arrow B \wedge \Gamma \vdash M' \red P: A \arrow B$
+\paragraph{Sub-case} $\exists P$ s.t. $\Gamma \vdash M'' \redsn P : A \arrow B$ and $\Gamma \vdash M' \mred P: A \arrow B$
 \\[1em]
-$\Gamma \vdash M \red M'' : A \arrow B$ \hfill by assumption \\
-$\Gamma \vdash M'' \redsn P : A \arrow B$ \hfill by assumption \\
+$\Gamma \vdash M'~N \mred P~N : A \arrow B$ \hfill by Lemma \ref{lm:mredprop} (\ref{lm:mredappl}) \\
+$\Gamma \vdash M'~N : B \in \csn$ \hfill by assumption \\
 $\Gamma \vdash P\,N : B \in \csn$ \hfill by Lemma \ref{lm:mredsn} \\
+$\Gamma \vdash M'' \redsn P : A \arrow B$ \hfill by assumption \\
+$\Gamma \vdash M \red M'' : A \arrow B$ \hfill by assumption \\
+$\Gamma \vdash M'' : A \arrow B \in \csn$ \hfill using $\Gamma \vdash M : A \arrow B \in \csn$ \\
 $\Gamma \vdash M''\,N : B \in \csn$ \hfill by IH (since $\Gamma \vdash M'': A \arrow B \in \csn$ is smaller) \\
 \\[0.5em]
 
-\paragraph{Sub-case} $\mathcal{D} = \ianc{\Gamma \vdash N \red N' : A}{\Gamma \vdash M\,N \red M\,N': B}{}$
+\paragraph{Case} $\mathcal{D} = \ianc{\Gamma \vdash N \red N' : A}{\Gamma \vdash M\,N \red M\,N': B}{}$
 \\[1em]
 $\Gamma \vdash N \red N' : A $ \hfill by assumption \\
 $\Gamma \vdash M \redsn M' : A \arrow B$ \hfill by assumption \\
 $\Gamma \vdash M: A \in \csn$ \hfill  by assumption\\
 $\Gamma \vdash M'\,N : B \in \csn$ \hfill by assumption\\
 $\Gamma \vdash M'\,N': B \in \csn$ \hfill as $M'\,N \red M'\,N'$\\
-$\Gamma \vdash M\,N' : B \in \csn$ \hfill by IH (since $\Gamma \vdash N': A \in \csn$ is smaller) \\
-\\[0.5em]
-
-
-% Either $Q = M'~N$ or $\exists P$ s.t. $\Gamma \vdash Q \redsn P : B$ and $\Gamma \vdash M'~N \mred P : B$ where we take at least one step (i.e. $P \not = M'~N$) \hfill by Conf. Lemma \ref{lm:confsn}
-
-% \paragraph{Sub-case} $Q = M'~N$ \\
-% $\Gamma \vdash Q : B \in \csn$ \hfill by assumption $\Gamma \vdash M'~N : B \in \csn$
-% % TO SHOW $\Gamma \vdash Q : B \in \csn$
-
-% {\color{red}{\paragraph{Sub-case} $\exists P$ s.t. $\Gamma \vdash Q \redsn P : B$ and $\Gamma \vdash M'~N \mred P : B$\\[0.5em]
-% $\C : \Gamma \vdash P : B \in \csn$ and $\C < \D$ \hfill using $\D : \Gamma \vdash M'~N : B \in \csn$ and Lemma \ref{lm:mredsn}
-% \\
-% $\Gamma \vdash Q : B \in \csn$  \hfill by IH using $\C : \Gamma \vdash P : B \in \csn$ and $\Gamma \vdash Q \redsn P : B$
-% }}
-
-
+$\Gamma \vdash M\,N' : B \in \csn$ \hfill by IH (since $\Gamma \vdash N': A \in \csn$ is smaller)
 
 \end{proof}
 
