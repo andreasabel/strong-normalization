@@ -219,7 +219,7 @@ On top of the single step reduction relation, we can define multi-step
 reductions as usual:
 
 \[
-\ianc{}{\Gamma \vdash M \mred N : B}{\Gamma \vdash M \red N} \qquad
+\ianc{\Gamma \vdash M \red N}{\Gamma \vdash M \mred N : B}{} \qquad
 \ibnc{\Gamma \vdash M \red N : B}{\Gamma \vdash N \mred M' : B}
       {\Gamma \vdash M \mred M' : B}{}
 \]
@@ -258,7 +258,7 @@ If $\Gamma, x{:}A \vdash M \red M' : B$ and $\Gamma \vdash N : A$ then
 $\Gamma \vdash [N/x]M \red [N/x]M' : B$.
 \end{lemma}
 \begin{proof}
-By induction on the first derivation, unsing standard properties of composition of substitutions.
+By induction on the first derivation, using standard properties of composition of substitutions.
 \end{proof}
 
 
@@ -271,9 +271,9 @@ which are proven by induction.
 \item\label{lm:mredtrans} If $\Gamma \vdash M_1 \mred M_2 : B$ and $\Gamma \vdash M_2 \mred M_3 : B$ then $\Gamma \vdash M_1 \mred M_3 : B$.
 \item\label{lm:mredappl} If $\Gamma \vdash M \mred M' : A \arrow B$
   and $\Gamma \vdash N : A$ 
-  and then $\Gamma \vdash M~N \mred M'~N : B$.
+  then $\Gamma \vdash M~N \mred M'~N : B$.
 \item\label{lm:mredappr} If $\Gamma \vdash M : A \arrow B$ and $\Gamma \vdash N \mred N' : A$ then $\Gamma \vdash M~N \mred M~N' : B$.
-\item\label{lm:mredabs} If $\Gamma,x{:}A \vdash M \mred M' : B$ then $\Gamma \vdash \lambda x{:}A.M \mred \lambda x{:}A.M : A \arrow B$.
+\item\label{lm:mredabs} If $\Gamma,x{:}A \vdash M \mred M' : B$ then $\Gamma \vdash \lambda x{:}A.M \mred \lambda x{:}A.M' : A \arrow B$.
 \item\label{lm:mredsubs} If $\Gamma, x{:}A \vdash M : B$ and $\Gamma \vdash N \red N' : A$
 then $ \Gamma \vdash [N/x]M \mred [N'/x]M : B$.
 \end{enumerate}
@@ -408,7 +408,7 @@ If  $\Gamma \vdash M \mred M' : B$ and
  \begin{proof}
 Induction on $\Gamma \vdash M\mred M' : B$ .
 
-\paragraph{Case} $\ianc{}{\Gamma \vdash M \mred M' : B}{\Gamma \vdash M \red M' : B} \qquad$
+\paragraph{Case} $\ianc{\Gamma \vdash M \red M' : B}{\Gamma \vdash M \mred M' : B}{} \qquad$
 \\[1em]
 $\D' : \Gamma \vdash M' : B \in \csn$ and $\D' < \D$ \hfill by using $\D:\Gamma \vdash M : B \in \csn$
 
@@ -1336,9 +1336,8 @@ The proof follows from the closure properties (Lemma \ref{lem:appsnclosure}) usi
 \\[1em]
 Proof by induction -- either $\Gamma, x{:}A \vdash M : B \in \csn$ is getting smaller,
 $\Gamma \vdash N : A \in \csn$ is getting smaller, or
-$\Gamma \vdash [N/x]M : B \in \SN$  is getting smaller.
-
-Assume  $\Gamma \vdash (\lambda x.M)~N \red P : B'$.
+$\Gamma \vdash [N/x]M : B \in \SN$  is getting smaller.\\[1em]
+Assume  $\Gamma \vdash (\lambda x{:}A.M)~N \red P : B$.
 
 \paragraph{Case}
   $\D = \ianc {\Gamma \vdash \lambda x{:}A.M : A \arrow B
@@ -1354,11 +1353,10 @@ $\Gamma \vdash [N/x]M : B \in \csn$ \hfill by assumption
              {\Gamma \vdash (\lambda x{:}A.M)~N \red (\lambda x{:}A.M')~N : B}{}$
  and $Q = (\lambda x{:}A.M')~N$
 \\[0.5em]
-$\Gamma, x{:}A \vdash M' : B \in \csn$ \hfill using $\Gamma, x{:}A \vdash M : B \in \csn$\\
+$\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Lemma \ref{lem:redsubst} \\
+$\Gamma \vdash [N/x]M' : B \in \csn$ \hfill using $\Gamma \vdash [N/x]M : B \in \csn$ \\
 $\Gamma \vdash N : A \in \csn$ \hfill by assumption \\
 % $\Gamma, x{:}A \vdash C[x] : B' \in \csn$ \hfill by assumption \\
-$\Gamma \vdash [N/x]M \red [N/x]M' : B$ \hfill by Subst. Lemma for Typed Red\\
-$\Gamma \vdash [N/x]M : B' \in \csn$ \hfill by using $\Gamma \vdash [N/x]M : B' \in \csn$ \\
 $\Gamma \vdash (\lambda x{:}A.M')~N : B$ \hfill by IH (since $\Gamma \vdash [N/x]M' : B \in \csn$ is smaller)
 
 \paragraph{Case}
@@ -1366,14 +1364,13 @@ $\Gamma \vdash (\lambda x{:}A.M')~N : B$ \hfill by IH (since $\Gamma \vdash [N/x
         \quad \Gamma \vdash N \red N' : A}
              {\Gamma \vdash (\lambda x{:}A.M)~N \red (\lambda x{:}A.M)~N' : B}{}$
 \\[0.5em]
-$\Gamma \vdash N' : A \in \csn$ \hfill using $\Gamma \vdash N : A \in \csn$\\
 $\Gamma \vdash \lambda x{:}A.M : A \arrow B$ \hfill by assumption \\
 $\Gamma, x{:}A \vdash M : B $ \hfill by inversion on typing\\
 $\C : \Gamma \vdash [N/x]M \mred [N'/x]M : B$ and $1 \leq \C$ \hfill by Lemma \ref{lm:mredprop}(\ref{lm:mredsubs}) using $\Gamma \vdash N \red N' : A$\\
 % $\Gamma \vdash [N/x]M \red Q : B$ and $\Gamma \vdash Q \mred [N'/x]M : B$ \hfill since $\C \geq 1$ and multi-step red.\\
-$\Gamma \vdash [N'/x]M : B' \in \csn$ \hfill Lemma \ref{lm:mredsn} using $\Gamma \vdash [N/x]M : B' \in \csn$\\
-$\Gamma, x{:}A \vdash M : B \in \csn$ \hfill by assumption \\
-$\Gamma \vdash (\lambda x{:}A.M)~N' : B' \in \csn$ \hfill by IH  (since $\Gamma \vdash N' : A \in \csn$ is smaller)
+$\Gamma \vdash [N'/x]M : B \in \csn$ \hfill Lemma \ref{lm:mredsn} using $\Gamma \vdash [N/x]M : B' \in \csn$\\
+$\Gamma \vdash N' : A \in \csn$ \hfill using $\Gamma \vdash N : A \in \csn$\\
+$\Gamma \vdash (\lambda x{:}A.M)~N' : B \in \csn$ \hfill by IH  (since $\Gamma \vdash N' : A \in \csn$ is smaller)
 
 \end{proof}
 
@@ -1384,7 +1381,7 @@ $\Gamma \vdash (\lambda x{:}A.M)~N' : B' \in \csn$ \hfill by IH  (since $\Gamma 
 If $\Gamma \vdash M \redsn N : A$ and $\Gamma \vdash M \red N' : A$
   then either $N = N'$ or
   there $\exists Q$ s.t. $\Gamma \vdash N'  \redsn Q : A$
-        and $\Gamma \vdash N \mred Q$.
+        and $\Gamma \vdash N \mred Q : A$.
 \end{lemma}
 \begin{proof}
 By induction on    $\Gamma \vdash M \redsn N : A$.
@@ -1494,7 +1491,7 @@ Proof by induction on $\Gamma \vdash N: A \in \csn$ and $\Gamma \vdash M : A \ar
 
 Assume $\Gamma \vdash M~N \red Q : B$. \\
 
-\paragraph{Sub-case} $\mathcal{D} = \ianc{}{\Gamma \vdash (\lambda x{:}A.M)~N \red [N/x]M : B}{}$
+\paragraph{Sub-case} $\mathcal{D} = \ianc{}{\Gamma \vdash (\lambda x{:}A.M)~N \red [N/x]M : B}{\beta}$
 \\[1em]
 Contradiction with $\Gamma \vdash (\lambda x{:}A.M) \redsn M' : A \arrow B$.
 
