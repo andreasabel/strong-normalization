@@ -345,30 +345,6 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}
       )
 ;
 
-rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}
-				 {M': [g |- tm A[]]}
-				 SnRed [g |- M] [g |- M'] -> Sn [g |- M']
-			-> Sn [g |- M] =
-    mlam M => mlam M' => fn snr => fn sn =>
-    case snr of
-    | SnBeta ([g, x: tm A[] |- M]) sn' => lemma417 [_ |- M] [_ |- _] sn sn'
-    | SnAppl r => Acc (mlam M', S => bc_helper [_ |- _] [_ |- _] [_ |- _] [_ |- M'] [_ |- S] r sn)
-
-and bc_helper : (g: cxt) {M : [g |- tm (arr A[] B[])]}
-			 {M': [g |- tm (arr A[] B[])]}
-			 {N : [g |- tm A[]]}
-			 {Q : [g |- tm B[]]}
-			 {S : [g |- step (app M N) Q]}
-			 SnRed [g |- M] [g |- M'] -> Sn [g |- app M' N]
-		-> Sn [g |- Q] =
-    mlam M => mlam M' => mlam N => mlam Q => mlam S => fn snr => fn sn =>
-    let conf = confluence [_ |- app M N] [_ |- app M' N] [_ |- Q] [_ |- S] (SnAppl snr) in
-    case conf of
-     | Eq => sn
-     | Conf snr' ms => let sn' = mstep_sn [_ |- _] [_ |- _] ms sn in
-		       backwards_closure [_ |- Q] [_ |- _] snr' sn'
-;
-
 rec bc_aux : (g: cxt) {M : [g |- tm (arr A[] B[])]}
 		      {M': [g |- tm (arr A[] B[])]}
 		      {N : [g |- tm A[]]}
@@ -397,6 +373,16 @@ and bc_aux2 : (g: cxt) {M : [g |- tm (arr A[] B[])]}
     | [g |- rappr S'] => let Acc r = sn in
 			 let sn' = r [_ |- _] [_ |- rappr S'] in
 			 bc_aux [_ |- M] [_ |- M'] [_ |- _] snr sn'
+;
+
+rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}
+				 {M': [g |- tm A[]]}
+				 SnRed [g |- M] [g |- M'] -> Sn [g |- M']
+			-> Sn [g |- M] =
+    mlam M => mlam M' => fn snr => fn sn =>
+    case snr of
+    | SnBeta ([g, x: tm A[] |- M]) sn' => lemma417 [_ |- M] [_ |- _] sn sn'
+    | SnAppl r => bc_aux [_ |- _] [_ |- _] [_ |- _] r sn
 ;
 
 rec soundSN : (g: cxt) {M: [g |- tm A[]]} SN [g |- M] -> Sn [g |- M] =
