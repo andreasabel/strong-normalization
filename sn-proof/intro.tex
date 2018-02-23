@@ -1,0 +1,236 @@
+We discuss here an alternative proof method for proving
+normalization. We will focus here on a \emph{semantic} proof method
+using \emph{saturated sets} (see \cite{Luo:PHD90}). This proof method
+goes back to \cite{Girard1972} building on some previous ideas
+by \cite{Tait67}.
+
+The key question is how to prove that given a lambda-term, its
+evaluation terminates, i.e. normalizes. We concentrate here on a typed
+operational semantics following \cite{Goguen:TLCA95} and define
+a reduction strategy that transforms $\lambda$-terms into
+$\beta$ normal form. This allows us to give a concise presentation of the important issues that arise.
+
+ We see this benchmark as a good jumping point to investigate and mechanize the meta-theory of dependently typed systems where a typed operational semantics simplifies the study of its meta-theory. The approach of typed operational semantics is however not limited to dependently typed systems, but it has been used extensively in studying subtyping,  type-preserving compilation, and shape analysis. Hence, we believe it does describe an important approach to describing reductions.
+
+
+
+\section{Simply Typed Lambda Calculus with Type-directed Reduction}
+Recall the lambda-calculus together with its reduction rules.
+
+
+\[
+\begin{array}{llcl}
+\mbox{Terms}  & M,N & \bnfas & x \mid \lambda x{:A}. M \mid M\;N \\
+\mbox{Types} & A, B & \bnfas & \base \mid A \arrow B
+\end{array}
+\]
+
+We consider as the main rule for reduction (or evaluation) applying a term to an abstraction, called \emph{$\beta$-reduction}.
+% together with \emph{$\eta$-expansion}. We only $\eta$-expand a term, if we do not immediately create a redex to avoid infinite alternations between $\eta$-expansion and $\beta$-reduction.
+ We use the judgment $\Gamma \vdash M \red N :A$ to mean that both $M$ and $N$ have type $A$ in the context $\Gamma$ and the term $M$ reduces to the term $N$.
+
+% \[
+% \begin{array}{lcll}
+% %\multicolumn{3}{l}{\mbox{$\beta$-reduction}}  \\
+% \Gamma \vdash (\lambda x{:}A.M)\;N : B & \red & \Gamma \vdash [N/x]M : B & \mbox{$\beta$-reduction} \\
+% \Gamma \vdash M : A \arrow B & \red & \Gamma \vdash \lambda x{:}A.M~x : A \arrow B & \mbox{$\eta$-expansion}
+% \end{array}
+% \]
+
+% The $\beta$-reduction rule only applies once we have found a redex.  However, we also need congruence rules to allow evaluation of arbitrary subterms.
+
+\[
+\begin{array}{c}
+\infer[\beta]
+{\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }
+%    {\Gamma \vdash \lambda x{:}A.M : A \arrow B & \Gamma \vdash  N : A}
+    {\Gamma, x{:}A \vdash M :  B & \Gamma \vdash  N : A}
+\qquad
+%\infer[\eta]{\Gamma \vdash M \red \lambda x{:}A.M~x : A \arrow B}{
+% M \not= \lambda y{:}A.M'}
+\\[1em]
+\infer{\Gamma \vdash M\,N \red M'\,N : B}{\Gamma \vdash M \red M' : A \arrow B & \Gamma \vdash N : A}
+\qquad
+\infer{\Gamma \vdash M\,N \red M\,N' : B}{\Gamma \vdash M : A \arrow B & \Gamma \vdash N \red N' : A}
+\\[1em]
+\infer{\Gamma \vdash \lambda x{:}A.M \red \lambda x{:}A.M' : A \arrow B}{\Gamma, x{:}A \vdash M \red M' : B}
+\end{array}
+\]
+
+Our typed reduction relation is inspired by the type-directed
+definition of algorithmic equality for $\lambda$-terms (see for
+example \cite{Crary:ATAPL} or \cite{Harper03tocl}). Keeping track of
+types in the definition of equality or reduction becomes quickly
+necessary as soon as want to add $\eta$-expansion or add a unit type
+where every term of type unit reduces to the unit element. We will
+consider the extension with the unit type in Section~\ref{sec:unit}.
+
+
+On top of the single step reduction relation, we can define multi-step
+reductions as usual:
+
+\[
+\ianc{\Gamma \vdash M \red N}{\Gamma \vdash M \mred N : B}{} \qquad
+\ibnc{\Gamma \vdash M \red N : B}{\Gamma \vdash N \mred M' : B}
+      {\Gamma \vdash M \mred M' : B}{}
+\]
+
+Our definition of multi-step reductions guarantees that we take at least one step.
+In addition, we have that typed reductions are only defined on well-typed terms, i.e. if $M$ steps then $M$ is well-typed.
+
+\begin{lemma}[Basic Properties  of Typed Reductions and Typing]\quad
+  \begin{itemize}
+  \item If $\Gamma \vdash M \red N : A$ then $\Gamma \vdash M : A$ and $\Gamma \vdash N : A$.
+  \item If $\Gamma \vdash M : A$ then $A$ is unique.
+  \end{itemize}
+\end{lemma}
+
+
+The typing and typed reduction strategy satisfies weakening and
+strengthening\ednote{Should maybe be already formulated using context
+  extensions? -bp. Likewise, the subsitution lemma cound be formulated with well typed subst. Moreover the weaken/stren of typing follow from the same for reduction and lemma 1.1 -am}.
+
+\begin{lemma}[Weakening and Strengthening of Typed Reductions]\label{lem:redprop}\quad
+  \begin{itemize}
+%   \item If $\Gamma, \Gamma' \vdash M : B$ then $\Gamma, x{:}A, \Gamma' \vdash M : B$.
+%  \item If $\Gamma, x{:}A, \Gamma' \vdash M : B$ and $x \not\in\FV(M)$ then $\Gamma, \Gamma' \vdash M : B$.
+  \item If $\Gamma, \Gamma' \vdash M \red N : B$ then $\Gamma, x{:}A, \Gamma' \vdash M \red N : B$.
+  \item If $\Gamma, x{:}A, \Gamma' \vdash M \red N : B$ and $x \not\in \FV(M)$ then
+        $x \not\in \FV N$ and $\Gamma, \Gamma' \vdash M \red N : B$.
+  \end{itemize}
+\end{lemma}
+\begin{proof}
+By induction on the first derivation.
+\end{proof}
+
+
+\begin{lemma}[Substitution Property of Typed Reductions]\label{lem:redsubst}\quad
+If $\Gamma, x{:}A \vdash M \red M' : B$ and $\Gamma \vdash N : A$ then
+$\Gamma \vdash [N/x]M \red [N/x]M' : B$.
+\end{lemma}
+\begin{proof}
+By induction on the first derivation, using standard properties of composition of substitutions.
+\end{proof}
+
+
+We also will rely on some standard multi-step reduction properties
+which are proven by induction.
+
+\begin{lemma}[Properties of Multi-Step Reductions]\label{lm:mredprop}
+\quad
+\begin{enumerate}
+\item\label{lm:mredtrans} If $\Gamma \vdash M_1 \mred M_2 : B$ and $\Gamma \vdash M_2 \mred M_3 : B$ then $\Gamma \vdash M_1 \mred M_3 : B$.
+\item\label{lm:mredappl} If $\Gamma \vdash M \mred M' : A \arrow B$
+  and $\Gamma \vdash N : A$ 
+  then $\Gamma \vdash M~N \mred M'~N : B$.
+\item\label{lm:mredappr} If $\Gamma \vdash M : A \arrow B$ and $\Gamma \vdash N \mred N' : A$ then $\Gamma \vdash M~N \mred M~N' : B$.
+\item\label{lm:mredabs} If $\Gamma,x{:}A \vdash M \mred M' : B$ then $\Gamma \vdash \lambda x{:}A.M \mred \lambda x{:}A.M' : A \arrow B$.
+\item\label{lm:mredsubs} If $\Gamma, x{:}A \vdash M : B$ and $\Gamma \vdash N \red N' : A$
+then $ \Gamma \vdash [N/x]M \mred [N'/x]M : B$.
+\end{enumerate}
+\end{lemma}
+
+
+
+\subsection*{When is a term in normal form?}
+
+We define here briefly when a term is in $\beta$-normal form.
+% The presence of $\eta$ again requires our definition to be type directed.
+We define the grammar of normal terms as given below
+
+\[
+\begin{array}{llcl}
+\mbox{Normal Terms}  & M,N & \bnfas & \lambda x{:A}. M \mid R \\
+\mbox{Neutral Terms} & R, P & \bnfas & x \mid R\;M \\
+  \end{array}
+\]
+
+This grammar does not enforce $\eta$-long.
+% For example, $\lambda x{:}A \arrow A. x$ is not in $\eta$-long form.
+% To ensure we only characterize $\eta$-long forms, we must ensure that we allow to switch between normal and neutral types at base type.  % On the other hand, $\lambda x{:}A \arrow A. \lambda y{:}A.x~y$ is in $\beta$-short and $\eta$-long form.
+
+% \[
+%   \begin{array}{c}
+% \multicolumn{1}{l}{\fbox{$\nf {\Gamma \vdash M} A$}~~\mbox{Term $M$ is normal at type $A$}}\\[1em]
+% \ianc{\nf {\Gamma, x{:}A \vdash M} B}
+%      {\nf {\Gamma \vdash \lambda x{:}A.M} {A \arrow B}}{} \quad
+% \ianc{\neu {\Gamma \vdash R}{\base}}
+%      {\nf {\Gamma \vdash R}{\base}}{}
+% \\[1em]
+% \multicolumn{1}{l}{\fbox{$\neu {\Gamma \vdash M} A$}~~\mbox{Term $M$ is neutral at type $A$}}\\[1em]
+% \ibnc{\neu {\Gamma \vdash R} {A \arrow B}}{\nf {\Gamma \vdash M} A}
+%      {\neu {\Gamma \vdash R~M} {B}}{}
+% \qquad
+% \ianc{x{:}A \in \Gamma}{\neu {\Gamma \vdash x} {A}}{}
+%   \end{array}
+% \]
+
+% In practice, it often suffices to enforce that we reduce a term to a weak head normal form. For weak head normal forms we simply remove the requirement that all terms applied to a neutral term must be normal.
+
+
+
+
+\subsection*{Proving normalization}
+The question then is, how do we know that we can normalizing a well-typed lambda-term into its $\beta$ normal form? - This is equivalent to asking whether after some reduction steps we will end up in a normal form where there are no further reductions possible. Since a normal lambda-term characterizes normal proofs, normalizing a lambda-term corresponds to normalizing proofs and demonstrates that every proof in the natural deduction system indeed has a normal proof. %
+
+Proving that reduction must terminate is not a simple syntactic argument based on terms, since the $\beta$-reduction rule may yield a term which is bigger than the term we started with. % Further, $\eta$-expansion might make the term bigger.
+
+As syntactic arguments are not sufficient to argue that we can always compute a $\beta$ normal form, we hence need to find a different inductive argument. For the simply-typed lambda-calculus, we could prove that while the expression itself does not get smaller,  the type of an expression does\footnote{This is the essential idea of hereditary substitutions \cite{Watkins02tr}}.  This is a syntactic argument; it however does not scale to polymorphic lambda-calculus or full dependent type theories. We will here instead discuss a \emph{semantic} proof method where we define the meaning of well-typed terms using the abstract notion of \emph{reducibility candidates}.
+
+Throughout this tutorial, we stick to the simply typed lambda-calculus and its extension. This allows us to give a concise presentation of the important issues that arise.  However the most important benefits of typed operational semantics and our approach are demonstrated in systems with dependent types  where our development of the metatheoretic simpler than the existing techniques. We see this benchmark hence as a good jumping point to investigate and mechanize the meta-theory of dependently typed systems.
+
+
+% Unlike all the previous proofs which were syntactic and direct based on the structure of the derivation or terms, semantic proofs
+
+\section{Semantic Interpretation}
+Working with well-typed terms means we need to be more careful to
+consider a term within its typing context. In particular, when we
+define the semantic interpretation of $\inden{\Gamma}{M}{A \arrow B}$
+we must consider all extensions of $\Gamma$ (described by $\Gamma'
+\ext \rho \Gamma$) in which we may use $M$.
+
+\begin{itemize}
+\item $\inden{\Gamma}{M}{\base}$ iff $\Gamma \vdash M\hastype \base$ and $M$ is strongly normalizing
+% , i.e. $\Gamma \vdash M \in \SN$.
+\item $\inden{\Gamma}{M}{A \arrow B}$ iff for all $\Gamma' \ext{\rho} \Gamma$ and $\Gamma' \vdash N :A$, if $\inden{\Gamma'}{N}{A}$ then $\inden{\Gamma'}{[\rho]M~N}{B}$.
+\end{itemize}
+
+
+% Weakening holds for the semantic interpretations.
+
+% \begin{lemma}[Semantic Weakening]\ref{lm:sweak}
+% If $\Gamma \models M : A$ then $\Gamma, x{:}C \models M : A$.
+% \end{lemma}
+
+% We sometimes write these definitions more compactly as follows
+
+% \[
+% \begin{array}{llcl}
+% \mbox{Semantic base type} & \den{o} & := & \SN  \\
+% \mbox{Semantic function type} & \den{A \arrow B} & := & \{ M | \forall \Gamma' \ext{\rho} \Gamma,~\forall \Gamma' \vdash N : A.~ \Gamma'\ models N : A \ \in \den{A}. M\;N \in \den{B} \}
+% \end{array}
+% \]
+
+
+\section{General idea}
+
+We prove that if a term is well-typed, then it is strongly normalizing in  two steps:
+
+\begin{description}
+\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A$ and $M$ is strongly normalizing.
+\item[Step 2] If $\Gamma \vdash M : A$ and $\inden{\Gamma'}{\sigma}{\Gamma}$ then $\inden{\Gamma'}{[\sigma]M}{A}$.
+\end{description}
+
+Therefore, we can conclude that if a term $M$ has type $A$ then $M$ is strongly normalizing and its reduction is finite, choosing $\sigma$ to be the identity substitution.
+% \\[1em]
+% We remark first, that all variables are in the semantic type $A$ and variables are strongly normalizing, i.e. they are already in normal form.
+
+% % \begin{lemma}~\\
+%   \begin{itemize}
+%   \item If $\Gamma \vdash x : A$ then $\Gamma \models x : A$
+%   \item If $\Gamma \vdash x : A$ then $(\Gamma \vdash x) \in \SN$.
+%   \end{itemize}
+
+% \end{lemma}
+
+% These are of course statements we need to prove.

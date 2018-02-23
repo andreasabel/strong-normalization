@@ -1,0 +1,247 @@
+\section{Reducibility Candidates}
+One might ask, what is a good definition of a semantic type? - Rather than
+attempting the proof of the fundamental lemma directly and then trying to
+extract additional lemmas one might need about the semantic types, we follow
+Girard's technique and characterize some key properties our semantic types need
+to satisfy. If a semantic type satisfies these key properties, then our proof of the fundamental lemma will be straightforward. To put it differently, defining these key properties, will allow for a  a modular proof of the fundamental lemma.
+
+% \begin{definition}[Reducibility Candidate] $\Gamma \vdash M \in \den{A}$ is a reducibility
+%   candidate, if the following conditions hold
+%   \begin{itemize}
+%   \item $\CR 1:$ If $\Gamma \vdash M \in \den{A}$ then $M \in \SN$. % , i.e. $\den{A} \subseteq \SN$.% \\[0.5em]
+%   \item $\CR 2:$ If $\Gamma \vdash M \in \SNe$ then $\Gamma \vdash M \in \den{A}$. % , i.e. $\SNe \subseteq \den{A}$. % \\[0.5em]
+%   \item $\CR 3:$ If $\Gamma \vdash M \redSN M'$ and $\Gamma \vdash M' \in \den{A}$ then $\Gamma \vdash M \in \den{A}$, i.e . $\den{A}$ is closed under reduction.
+%   \end{itemize}
+% \end{definition}
+
+% The last property is often also referred to as \emph{backward closed}. We show that that all semantic types $\den{A}$ satisfy the conditions above.
+
+
+
+\begin{theorem}\label{thm:redcand}~
+% For all types $C$, $\Gamma \vdash M \den{C}  \in \CR$, i.e. it satisfies the conditions $\CR_1$, $\CR_2$, and $\CR_3$.
+  \begin{enumerate}
+  \item\label{cr1} \CR 1: If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$. % , i.e. $\den{A} \subseteq \SN$.% \\[0.5em]
+  \item\label{cr2} \CR 2: If $\Gamma \vdash M : A \in \SNe$ then $\inden{\Gamma}{M}{A}$. % , i.e. $\SNe \subseteq \den{A}$. % \\[0.5em]
+  \item\label{cr3} \CR 3: If $\Gamma \vdash M \redSN M' : A$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+We prove these three properties simultaneously.
+\\[1em]
+\fbox{\CR \ref{cr1}.  If $\inden{\Gamma}{M}{C}$ then $\Gamma \vdash M : A \in \SN$.}
+\\[0.5em]
+By induction on the structure of $C$.
+
+\paragraph{Case: $C =\base$}.\\
+$\inden{\Gamma}{M}{\base}$ \hfill by assumption \\
+$\Gamma \vdash M : \base \in \SN$ \hfill by def. of sem. interpretation for $\base$
+
+\paragraph{Case: $C = A \arrow B$}.
+\\
+$\Gamma, x{:}A \vdash x : A \in \SNe$ \hfill by def. of $\SNe$\\
+$\inden{\Gamma. x{:}A}{x}{A}$ \hfill by IH (\ref{cr2}) \\
+% $\Gamma, x{:}A \models x : A$ \hfill by Lemma \ref{lm:closn} (Property \ref{cp2})\\
+$\Gamma, x{:}A \ext{\id} \Gamma$ \hfill by def. of context extensions \\
+% $\Gamma, x{:}A \models M  : A \arrow B$ \hfill by Semantic Weakening Lemma \ref{lm:sweak}\\
+$\inden{\Gamma, x{:}A}{[\id]M~x}{B}$ \hfill by def. of  $\inden{\Gamma, x{:}A}{M}{A \arrow B}$\\
+$\Gamma, x{:}A \vdash [\id]M~x : B\in \SN$ \hfill by IH (\CR \ref{cr1})\\
+$\Gamma, x{:}A \vdash [\id]M : A \arrow B \in \SN$ \hfill by  Extensionality Lemma \ref{lm:pSN} \\% Lemma \ref{lem:psn} (Property \ref{pp6})\\
+$\Gamma \vdash M : A \arrow B\in \SN$ \hfill by Anti-renaming Lemma \ref{lm:anti-renameSN}
+\\[1em]
+\fbox{\CR \ref{cr2}. If $\Gamma \vdash M : C\in \SNe$ then $\inden{\Gamma}{M}{C}$.}
+\\[0.5em]
+By induction on $\Gamma \vdash M : C \in \SNe$.
+
+\paragraph{Case: $C=\base$}.\\
+$\Gamma \vdash M : C \in \SNe$ \hfill by assumption \\
+$\Gamma \vdash M : C \in \SN$ \hfill by def. of $\SN$\\
+% $\Gamma \vdash M \hastype \base$ \hfill by assumption \\
+$\inden{\Gamma}{M}{\base}$ \hfill by def. of semantic typing
+
+\paragraph{Case: $C = A \arrow B$}.\\
+Assume $\Gamma' \ext{\rho} \Gamma$ and $\inden{\Gamma'}{N}{A}$ \\
+$\Gamma' \vdash N : A\in \SN$ \hfill by IH (\CR \ref{cr1}) \\
+$\Gamma \vdash M : A \arrow B \in \SNe$ \hfill by assumption \\
+$\Gamma' \vdash [\rho]M : A \arrow B \in \SNe$ \hfill by Renaming Lemma \ref{lm:renameSN} \\
+$\Gamma' \vdash [\rho]M~N : B \in \SNe$ \hfill by def. of $\SNe$\\
+$\inden{\Gamma'}{[\rho]M~N}{B}$ \hfill by IH (\CR \ref{cr2})\\
+$\inden{\Gamma}{M}{A \arrow B}$ \hfill since $\inden{\Gamma'}{N}{A}$ was arbitrary
+\\[1em]
+\fbox{\CR \ref{cr3}.   If $\Gamma \vdash M \redSN M' : C$ and $\inden{\Gamma}{M'}{C}$ then $\inden{\Gamma}{M}{C}$}
+\\[0.5em]
+By induction on $C$.
+\paragraph{Case: $C = \base$}.\\[0.5em]
+$\Gamma \vdash M' : \base \in \SN$  \hfill since $\inden{\Gamma}{M'}{\base}$\\
+$\Gamma \vdash M : \base \in \SN$ \hfill by closure rule for $\SN$\\
+$\inden{\Gamma}{M}{\base}$ \hfill by definition of semantic typing
+
+\paragraph{Case: $C = A \arrow B$}.
+\\[0.5em]
+Assume $\Gamma' \ext{\rho} \Gamma$,~$\inden{\Gamma'}{N}{A}$ \\
+$\inden{\Gamma'}{M'[\rho]~N}{B}$ \hfill by assumption $\inden{\Gamma}{M'}{A \arrow B}$\\
+$\Gamma \vdash M \redSN M' : A \arrow B$ \hfill by assumption \\
+$\Gamma' \vdash [\rho]M \redSN [\rho]M' : A \arrow B$ \hfill by Renaming Lemma \ref{lm:renameSN}\\
+$\Gamma' \vdash [\rho]M~N \redSN [\rho]M'~N : B$ \hfill by $\redSN$\\
+$\inden{\Gamma}{[\rho]M~N}{B}$ \hfill by IH (\CR\ref{cr3})\\
+$\inden{\Gamma}{M}{A \arrow B}$ \hfill since $\inden{\Gamma'}{N}{A}$ was arbitrary\\
+
+\end{proof}
+
+
+\section{Proving strong normalization}
+As mentioned before, we prove that if a term is well-typed, then it is strongly normalizing in  two steps:
+
+\begin{description}
+\item[Step 1] If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$.
+\item[Step 2] If $\Gamma \vdash M : A$ and $\inden{\Gamma'}{\sigma}{\Gamma}$ then $\inden{\Gamma'}{[\sigma] M}{A}$.
+\end{description}
+
+The first part described in Step 1, is satisfied by the fact that $\inden{\Gamma}{M}{A}$ must be a reducibility candidate (Theorem \ref{thm:redcand}) and  by \CR \ref{cr1})  all terms in $\denot{A}$ are strongly normalizing. We now prove the second step, which is often referred to as the \emph{Fundamental Lemma}.
+It states that if $M$ has type $A$ and we can provide ``good'' instantiation $\sigma$, which provides terms which are themselves normalizing for all the free variables in $M$, then $\inden{\Gamma}{[\sigma]M}{A}$.
+
+
+\begin{lemma}[Fundamental lemma]
+If $\Gamma \vdash M : A$ and $\inden{\Gamma'}{\sigma}{\Gamma}$
+then $\inden{\Gamma'}{[\sigma]M}{A}$.
+\end{lemma}
+\begin{proof}
+By induction on $\Gamma \vdash M : A$.
+
+\paragraph{Case} $\D = \ianc{\Gamma(x) = A}{\Gamma \vdash x : A}{}$
+\\[1em]
+$\inden{\Gamma'}{\sigma}{\Gamma}$ \hfill by assumption \\
+$\inden{\Gamma'}{[\sigma]x}{A}$ \hfill by definition of $[\sigma]x$ and $\inden{\Gamma'}{\sigma}{\Gamma}$
+
+\paragraph{Case} $\D = \ibnc{\Gamma \vdash M : A \rightarrow B}{\Gamma \vdash N : A}{\Gamma \vdash M\;N : B}{}$
+\\
+$\inden{\Gamma'}{\sigma}{\Gamma}$ \hfill by assumption \\
+$\inden{\Gamma'}{[\sigma]M}{A \rightarrow B}$ \hfill by IH\\
+$\inden{\Gamma'}{[\sigma]N}{A}$ \hfill by IH\\
+$\inden{\Gamma'}{[\sigma]M\;[\sigma]N}{B}$ \hfill by $\inden{\Gamma'}{[\sigma]M}{A \rightarrow B}$\\
+$\inden{\Gamma'}{[\sigma](M\;N)}{B}$ \hfill by subst. definition \\
+
+
+\paragraph{Case} $\D = \ianc{\Gamma, x:A \vdash M:B}{\Gamma \vdash \lambda x.M : A \rightarrow B}{}$
+\\
+$\inden{\Gamma'}{\sigma}{\Gamma}$ \hfill by assumption \\
+Assume $\Gamma'' \ext{\rho} \Gamma'$ and $\Gamma'' \vdash N : A$  \\
+$\inden{\Gamma''}{[\rho] \sigma}{\Gamma}$ \hfill by weakening \\
+$\inden{\Gamma''}{([\rho]\sigma, N/x)}{\Gamma, x:A}$ \hfill by definition of semantic substitutions\\
+$\inden{\Gamma''}{[[\rho]\sigma, N/x]M}{B}$ \hfill by IH \\
+$\Gamma'' \vdash (\lambda x.[[\rho]\sigma,x/x]M)\;N \redSN [[\rho]\sigma, N/x]M$ \hfill by reduction $\redSN$ \\
+$(\lambda x.[[\rho]\sigma,x/x]M) = [[\rho]\sigma](\lambda x.M)$ \hfill by subst. def\\
+$\inden{\Gamma''}{([[\rho]\sigma]\lambda x.M)\;N}{B}$ \hfill by $\CR 3$ \\
+$\inden{\Gamma'}{[\sigma](\lambda x.M)}{A \arrow B}$ \hfill since $\Gamma'' \ext{\rho} \Gamma'$ and $\Gamma'' \vdash N : A$  was arbitrary
+
+\end{proof}
+
+
+\begin{corollary}
+If $\Gamma \vdash M : A$ then $\Gamma \vdash M : A \in \SN$.
+\end{corollary}
+
+\begin{proof}
+Using the fundamental lemma with the identity substitution $\inden{\Gamma}{\textsf{id}}{\Gamma}$, we obtain  $\inden{\Gamma}{M}{A}$. By $\CR 1$, we know $\Gamma \vdash M \in \SN$.
+\end{proof}
+
+
+\newpage
+
+\section{Extension: Unit type}
+\label{sec:unit}
+We will now extend our simply-typed lambda-calculus the unit type, written as $\one$.
+
+\[
+\begin{array}{llcl}
+\mbox{Types}  & A & \bnfas & \ldots \mid \one\\
+\mbox{Terms}  & M & \bnfas & \ldots \mid ()
+\end{array}
+\]
+
+In particular, we extend our type-directed reduction rules and allow any term $M$ of type $\one$ to be reduced to $()$.
+
+\[
+  \begin{array}{c}
+\ianc{M \not= ()}{\Gamma \vdash M \red () : \one}    {}
+  \end{array}
+\]
+
+We extend our definition of $\SN$ and $\redSN$ as follows:
+
+\[
+  \begin{array}{c}
+\ianc{}{\Gamma \vdash () : \one \in \SN}    {} \qquad
+\ianc{\Gamma \vdash M : \one}{\Gamma \vdash M \redSN () : \one}{}
+  \end{array}
+\]
+
+We omit here the extensions in the proofs about $\SN$, in particular the renaming, anti-renaming and substitution lemmas.
+
+As $\one$ is simply a new base type, we simply say
+
+\begin{center}
+\begin{tabular}{lcl}
+$\inden{\Gamma}{M}{\one}$ & iff & $\Gamma \vdash M : \one \in \SN$
+\end{tabular}
+\end{center}
+
+We revisit our previous theorem \ref{thm:redcand} and highlight the cases for unit.
+
+\begin{theorem*}
+\CR 1: If $\inden{\Gamma}{M}{A}$ then $\Gamma \vdash M : A \in \SN$. % , i.e. $\den{A} \subseteq \SN$.%
+\end{theorem*}
+
+\begin{proof}
+Induction on type $A$.
+
+\paragraph{Case} $A = \one$.
+\\[1em]
+$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\inden{\Gamma}{M}{A}$
+
+\end{proof}
+
+\begin{theorem*}
+\CR 2: If $\Gamma \vdash M : A \in \SNe$ then $\inden{\Gamma}{M}{A}$. % , i.e. $\SNe \subseteq \den{A}$. %
+\end{theorem*}
+\begin{proof}
+Induction on $A$.
+
+\paragraph{Case} $A = \one$.
+\\[1em]
+$\Gamma \vdash M : \one \in \SNe$ \hfill by assumption \\
+$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\SN$\\
+$\inden \Gamma M \one$ \hfill by def. of semantic interpretation of $\one$
+
+\end{proof}
+
+
+\begin{theorem*}
+ \CR 3: If $\Gamma \vdash M \redSN M' : A$ and $\inden{\Gamma}{M'}{A}$ then $\inden{\Gamma}{M}{A}$, i.e. backwards closure.
+\end{theorem*}
+\begin{proof}
+Induction on $A$.
+
+\paragraph{Case} $A = \one$
+\\[1em]
+$\Gamma \vdash M' : \one \in \SN$ \hfill by assumption $\inden{\Gamma}{M'}{\one}$ \\
+$\Gamma \vdash M \redSN M' : \one$ \hfill by assumption
+$\Gamma \vdash M : \one \in \SN$ \hfill by def. of $\SN$
+
+\end{proof}
+
+We can now revisit the fundamental lemma.
+
+ \begin{lemma}[Fundamental lemma]
+ If $\Gamma \vdash M : C$ and $\inden{\Gamma'}{\sigma}{\Gamma}$
+ then $\inden{\Gamma'}{[\sigma]M}{C}$.
+ \end{lemma}
+ \begin{proof}
+ By induction on $\Gamma \vdash M : C$.
+
+\paragraph{Case} $\D = \ianc{}{\Gamma \vdash () : \one}{}$
+\\[1em]
+$\Gamma \vdash () : \one \in \SN$ \hfill by def. of $\SN$\\
+$\inden \Gamma {()} \one$ \hfill by def. of $\mathcal{R}_\one$\\
+
+\end{proof}
