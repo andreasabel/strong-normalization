@@ -325,119 +325,6 @@ Hence this approach seems particularly amendable to mechanizing proofs.
   \label{fig:sn}
 \end{figure}
 
-
-\begin{lemma}[$\SN$ and $\SNe$ characterize well-typed terms]\quad
-  \begin{enumerate}
-  \item If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A$.
-  \item If $\Gamma \vdash M : A \in \SNe$ then $\Gamma \vdash M : A$.
-  \item If $\Gamma \vdash M \redSN M' : A$ then $\Gamma \vdash M : A$ and $\Gamma \vdash M' : A$.
-  \end{enumerate}
-\end{lemma}
-\begin{proof}
-By induction on the definition of $\SN$, $\SNe$, and $\redSN$.
-\end{proof}
-
-\begin{lemma}[Renaming]~\label{lm:renameSN}
-  \begin{enumerate}
-  \item If $\Gamma \vdash M : A \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M : A \in \SN$
-  \item If $\Gamma \vdash M : A \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M : A \in \SNe$
-  \item If $\Gamma \vdash M \redSN N : A$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M \redSN [\rho]N : A$.
-  \end{enumerate}
-\end{lemma}
-\begin{proof}
-By induction on the first derivation.
-
-\paragraph{Case:} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{} $
-\\[1em]
-$\Gamma' \vdash [\rho]R : A \in \SNe$ \hfill by IH (2) \\
-$\Gamma' \vdash [\rho]R : A \in \SN$ \hfill by def. of $\SN$
-
-\paragraph{Case:} $\D = \ianc{\Gamma, x{:}A \vdash M : B \in \SN}{\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \SN}{}$
-\\[1em]
-$\Gamma', x{:}A \ext {\rho, x/x} \Gamma, x{:}A$ \hfill by def. of $\ext{\rho}$\\
-$\Gamma', x{:}A \vdash [\rho, x/x]M : B \in \SN$ \hfill by IH (1) \\
-$\Gamma' \vdash \lambda x{:}A.[\rho, x/x]M : A \arrow B \in \SN$ \hfill by def. of $\SN$\\
-$\Gamma' \vdash [\rho](\lambda x{:}A.M) : A \arrow B \in \SN$ \hfill by subst. def.
-
-\paragraph{Case:} $\D = \ibnc{\Gamma \vdash M \redSN M' : A}{\Gamma \vdash M' : A \in \SN}{\Gamma \vdash M : A \in \SN}{} $
-\\[1em]
-$\Gamma' \vdash [\rho]M \redSN [\rho]M' : A$ \hfill by IH (3) \\
-$\Gamma' \vdash [\rho]M' : A \in \SN$ \hfill by IH (1)\\
-$\Gamma' \vdash [\rho]M  : A \in \SN$ \hfill by def. of $\SN$
-
-
-\paragraph{Case:} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{} $
-\\[1em]
-$\Gamma' \ext {\rho} \Gamma$ \hfill by assumption \\
-$\Gamma' \vdash [\rho]x : A$ \hfill by renaming of typing \\
-$\Gamma' \vdash [\rho]x : A \in \SNe$ \hfill by def. of $\SNe$
-
-\paragraph{Case:} $\D = \ibnc{\Gamma \vdash R : A \arrow B \in \SNe}{\Gamma \vdash M : A \in \SN}{\Gamma \vdash R\,M : A \arrow B \in \SNe}{} $
-\\[1em]
-$\Gamma' \vdash [\rho]R : A \arrow B \in \SNe$ \hfill by IH (2) \\
-$\Gamma' \vdash [\rho]M : A \in \SN$ \hfill by IH (1) \\
-$\Gamma' \vdash [\rho]R~[\rho]M : A \arrow B \in \SNe$ \hfill by def. of $\SNe$\\
-$\gamma' \vdash [\rho](R~M) : B \in \SNe$ \hfill by subst. def.
-
-\paragraph{Case:}$\D = \ianc{\Gamma, x{:}A \vdash M : B \qquad \Gamma \vdash N : A \in \SN}{\Gamma \vdash (\lambda x{:}A.M)\;N \redSN [N/x]M : B}{} \qquad$
-\\[1em]
-$\Gamma' \vdash [\rho]N : A\in \SN$ \hfill by IH (1) \\
-$\Gamma' \ext{\rho} \Gamma$ \hfill by assumption \\
-$\Gamma', x{:}A \ext{\rho} \Gamma$ \hfill by weakening\\
-$\Gamma', x{:}A \ext{\rho, x/x} \Gamma, x{:}A$ \hfill by def. of weakening subst\\
-$\Gamma', x{:}A \vdash [\rho, x/x]M : B$ \hfill by weakening lemma \\
-$\Gamma' \vdash (\lambda x{:}A.[\rho, x/x]M)~[\rho]N \redSN [\rho, [\rho]N/x]M : B$ \hfill by def. of $\redSN$\\
-$\Gamma' \vdash [\rho]((\lambda x{:}A M)~N) \redSN [\rho]([N/x]M) : B$ \hfill by def. of subst
-
-\paragraph{Case:}$\D = \ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash M : A}{\Gamma \vdash R\,M \redSN R'\,M : B}{}$\\[1em]
-$\Gamma' \vdash [\rho]R \redSN [\rho]R': A \arrow B$ \hfill by IH(3) \\
-$\Gamma' \vdash [\rho]M : A$ \hfill by weakening of typing \\
-$\Gamma \vdash [\rho]R~[\rho]M \redSN [\rho]R'~[\rho]M : B$ \hfill by def. of $\redSN$\\
-$\Gamma \vdash [\rho](R~M) \redSN [\rho](R'~M) : B$ \hfill by def. of subst.
-
-\end{proof}
-
-\begin{lemma}[Anti-Renaming]~\label{lm:anti-renameSN}
-  \begin{enumerate}
-  \item If $\Gamma' \vdash [\rho]M : A \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M : A \in \SN$
-  \item If $\Gamma' \vdash [\rho]M : A \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M : A \in \SNe$
-  \item If $\Gamma' \vdash [\rho]M \redSN [\rho]N : A$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M \redSN N : A$.
-  \end{enumerate}
-\end{lemma}
-\begin{proof}
-By induction on the first derivation\ednote{Should the proof be
-  expanded. -bp}.
-\end{proof}
-
-
-We will use the extensionality of $\SN$ for function types in the proof of \CR1:
-
-\begin{lemma}[Extensionality of $\SN$]\label{lm:pSN}
-If  $x{:}A \in \Gamma$ and $\Gamma \vdash M~x : B \in \SN$ then $\Gamma \vdash M : A \arrow B \in \SN$.
-\end{lemma}
-\begin{proof}
-By induction on $\SN$.
-
-\paragraph{Case:} $\D = \ianc{\Gamma \vdash M~x : B \in \SNe}{\Gamma \vdash M~x : B \in \SN}{} $  \\[1em]
- $\Gamma \vdash M : A \arrow B  \in \SNe$ \hfill by def. of $\SNe$ \\
- $\Gamma \vdash M : A \arrow B \in \SN$ \hfill by def. of $\SN$
- \\[1em]
- \paragraph{Case:} $\D = \ibnc{\Gamma \vdash M~x \redSN Q : B}{\Gamma \vdash Q : B\in \SN}
-                             {\Gamma \vdash M~x : B \in \SN}{} $
- \\[1em]
- \textbf{Sub-case}: $\Gamma \vdash (\lambda y{:}A.M')~x \redSN [x/y]M' : B$ \\[1em]
- $\Gamma \vdash [x/y]M' : B \in \SN$ \hfill by assumption \\
- $\Gamma, y{:}A \vdash M' : B \in \SN$ \hfill by Anti-Renaming Property (Lemma \ref{lm:anti-renameSN})\\
- $\Gamma \vdash \lambda y{:}A.M' : A \arrow B \in \SN$ \hfill by def. of $\SN$
- \\[1em]
- \textbf{Sub-case}: $\Gamma \vdash M~x \redSN M'~x : B$ and $Q = M'~x$ \\[1em]
- $\Gamma \vdash M \redSN M' : A \arrow B$ \hfill by def. of $\redSN$ \\
- $\Gamma \vdash M' : A \arrow B \in \SN$ \hfill by IH \\
- $\Gamma \vdash M  : A \arrow B \in \SN$ \hfill by def. of $\SN$
-
-% To Show: \Gamma \vdash M \in \SN$
-\end{proof}
-
 We first define $\redsn$ (strong head reduction):
 
 \[
@@ -715,6 +602,119 @@ $\D = \ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash M : A}{\G
 \\[1em]
 $\Gamma \vdash R \redsn R' : A \arrow B$ \hfill by IH(3) \\
 $\Gamma \vdash  R\,M \redsn R'\,M : B$ \hfill by def. of $\redsn$
+\end{proof}
+
+\subsection{Properties of the inductive definition}
+
+\begin{lemma}[$\SN$ and $\SNe$ characterize well-typed terms]\quad
+	\begin{enumerate}
+		\item If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A$.
+		\item If $\Gamma \vdash M : A \in \SNe$ then $\Gamma \vdash M : A$.
+		\item If $\Gamma \vdash M \redSN M' : A$ then $\Gamma \vdash M : A$ and $\Gamma \vdash M' : A$.
+	\end{enumerate}
+\end{lemma}
+\begin{proof}
+	By induction on the definition of $\SN$, $\SNe$, and $\redSN$.
+\end{proof}
+
+\begin{lemma}[Renaming]~\label{lm:renameSN}
+	\begin{enumerate}
+		\item If $\Gamma \vdash M : A \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M : A \in \SN$
+		\item If $\Gamma \vdash M : A \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M : A \in \SNe$
+		\item If $\Gamma \vdash M \redSN N : A$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma' \vdash [\rho]M \redSN [\rho]N : A$.
+	\end{enumerate}
+\end{lemma}
+\begin{proof}
+	By induction on the first derivation.
+
+	\paragraph{Case:} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{} $
+	\\[1em]
+	$\Gamma' \vdash [\rho]R : A \in \SNe$ \hfill by IH (2) \\
+	$\Gamma' \vdash [\rho]R : A \in \SN$ \hfill by def. of $\SN$
+
+	\paragraph{Case:} $\D = \ianc{\Gamma, x{:}A \vdash M : B \in \SN}{\Gamma \vdash \lambda x{:}A.M : A \arrow B \in \SN}{}$
+	\\[1em]
+	$\Gamma', x{:}A \ext {\rho, x/x} \Gamma, x{:}A$ \hfill by def. of $\ext{\rho}$\\
+	$\Gamma', x{:}A \vdash [\rho, x/x]M : B \in \SN$ \hfill by IH (1) \\
+	$\Gamma' \vdash \lambda x{:}A.[\rho, x/x]M : A \arrow B \in \SN$ \hfill by def. of $\SN$\\
+	$\Gamma' \vdash [\rho](\lambda x{:}A.M) : A \arrow B \in \SN$ \hfill by subst. def.
+
+	\paragraph{Case:} $\D = \ibnc{\Gamma \vdash M \redSN M' : A}{\Gamma \vdash M' : A \in \SN}{\Gamma \vdash M : A \in \SN}{} $
+	\\[1em]
+	$\Gamma' \vdash [\rho]M \redSN [\rho]M' : A$ \hfill by IH (3) \\
+	$\Gamma' \vdash [\rho]M' : A \in \SN$ \hfill by IH (1)\\
+	$\Gamma' \vdash [\rho]M  : A \in \SN$ \hfill by def. of $\SN$
+
+	\paragraph{Case:} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{} $
+	\\[1em]
+	$\Gamma' \ext {\rho} \Gamma$ \hfill by assumption \\
+	$\Gamma' \vdash [\rho]x : A$ \hfill by renaming of typing \\
+	$\Gamma' \vdash [\rho]x : A \in \SNe$ \hfill by def. of $\SNe$
+
+	\paragraph{Case:} $\D = \ibnc{\Gamma \vdash R : A \arrow B \in \SNe}{\Gamma \vdash M : A \in \SN}{\Gamma \vdash R\,M : A \arrow B \in \SNe}{} $
+	\\[1em]
+	$\Gamma' \vdash [\rho]R : A \arrow B \in \SNe$ \hfill by IH (2) \\
+	$\Gamma' \vdash [\rho]M : A \in \SN$ \hfill by IH (1) \\
+	$\Gamma' \vdash [\rho]R~[\rho]M : A \arrow B \in \SNe$ \hfill by def. of $\SNe$\\
+	$\gamma' \vdash [\rho](R~M) : B \in \SNe$ \hfill by subst. def.
+
+	\paragraph{Case:}$\D = \ianc{\Gamma, x{:}A \vdash M : B \qquad \Gamma \vdash N : A \in \SN}{\Gamma \vdash (\lambda x{:}A.M)\;N \redSN [N/x]M : B}{} \qquad$
+	\\[1em]
+	$\Gamma' \vdash [\rho]N : A\in \SN$ \hfill by IH (1) \\
+	$\Gamma' \ext{\rho} \Gamma$ \hfill by assumption \\
+	$\Gamma', x{:}A \ext{\rho} \Gamma$ \hfill by weakening\\
+	$\Gamma', x{:}A \ext{\rho, x/x} \Gamma, x{:}A$ \hfill by def. of weakening subst\\
+	$\Gamma', x{:}A \vdash [\rho, x/x]M : B$ \hfill by weakening lemma \\
+	$\Gamma' \vdash (\lambda x{:}A.[\rho, x/x]M)~[\rho]N \redSN [\rho, [\rho]N/x]M : B$ \hfill by def. of $\redSN$\\
+	$\Gamma' \vdash [\rho]((\lambda x{:}A M)~N) \redSN [\rho]([N/x]M) : B$ \hfill by def. of subst
+
+	\paragraph{Case:}$\D = \ianc{\Gamma \vdash R \redSN R' : A \arrow B \quad \Gamma \vdash M : A}{\Gamma \vdash R\,M \redSN R'\,M : B}{}$\\[1em]
+	$\Gamma' \vdash [\rho]R \redSN [\rho]R': A \arrow B$ \hfill by IH(3) \\
+	$\Gamma' \vdash [\rho]M : A$ \hfill by weakening of typing \\
+	$\Gamma \vdash [\rho]R~[\rho]M \redSN [\rho]R'~[\rho]M : B$ \hfill by def. of $\redSN$\\
+	$\Gamma \vdash [\rho](R~M) \redSN [\rho](R'~M) : B$ \hfill by def. of subst.
+
+\end{proof}
+
+\begin{lemma}[Anti-Renaming]~\label{lm:anti-renameSN}
+	\begin{enumerate}
+		\item If $\Gamma' \vdash [\rho]M : A \in \SN$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M : A \in \SN$
+		\item If $\Gamma' \vdash [\rho]M : A \in \SNe$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M : A \in \SNe$
+		\item If $\Gamma' \vdash [\rho]M \redSN [\rho]N : A$ and $\Gamma' \ext{\rho} \Gamma$ then $\Gamma \vdash M \redSN N : A$.
+	\end{enumerate}
+\end{lemma}
+\begin{proof}
+	By induction on the first derivation\ednote{Should the proof be
+		expanded. -bp}.
+\end{proof}
+
+
+We will use the extensionality of $\SN$ for function types in the proof of \CR1:
+
+\begin{lemma}[Extensionality of $\SN$]\label{lm:pSN}
+	If  $x{:}A \in \Gamma$ and $\Gamma \vdash M~x : B \in \SN$ then $\Gamma \vdash M : A \arrow B \in \SN$.
+\end{lemma}
+\begin{proof}
+	By induction on $\SN$.
+
+	\paragraph{Case:} $\D = \ianc{\Gamma \vdash M~x : B \in \SNe}{\Gamma \vdash M~x : B \in \SN}{} $  \\[1em]
+	$\Gamma \vdash M : A \arrow B  \in \SNe$ \hfill by def. of $\SNe$ \\
+	$\Gamma \vdash M : A \arrow B \in \SN$ \hfill by def. of $\SN$
+	\\[1em]
+	\paragraph{Case:} $\D = \ibnc{\Gamma \vdash M~x \redSN Q : B}{\Gamma \vdash Q : B\in \SN}
+	{\Gamma \vdash M~x : B \in \SN}{} $
+	\\[1em]
+	\textbf{Sub-case}: $\Gamma \vdash (\lambda y{:}A.M')~x \redSN [x/y]M' : B$ \\[1em]
+	$\Gamma \vdash [x/y]M' : B \in \SN$ \hfill by assumption \\
+	$\Gamma, y{:}A \vdash M' : B \in \SN$ \hfill by Anti-Renaming Property (Lemma \ref{lm:anti-renameSN})\\
+	$\Gamma \vdash \lambda y{:}A.M' : A \arrow B \in \SN$ \hfill by def. of $\SN$
+	\\[1em]
+	\textbf{Sub-case}: $\Gamma \vdash M~x \redSN M'~x : B$ and $Q = M'~x$ \\[1em]
+	$\Gamma \vdash M \redSN M' : A \arrow B$ \hfill by def. of $\redSN$ \\
+	$\Gamma \vdash M' : A \arrow B \in \SN$ \hfill by IH \\
+	$\Gamma \vdash M  : A \arrow B \in \SN$ \hfill by def. of $\SN$
+
+	% To Show: \Gamma \vdash M \in \SN$
 \end{proof}
 
 \input{reducibility.tex}
