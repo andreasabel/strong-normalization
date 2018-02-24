@@ -546,34 +546,12 @@ $\Gamma \vdash M'~N \mred M'~N' : B$ \hfill by Multi-Step Reduction (Lemma \ref{
 
 \end{proof}
 
-
-\begin{lemma}[Backward closure of $\csn$]\label{lm:backclosn}$\;$
-\\
- If $\Gamma \vdash M \redsn M' : A$ and $\Gamma \vdash M' : A \in \csn$ then
-     $\Gamma \vdash M : A \in \csn$.
+\begin{lemma}\label{lm:backclosnaux}
+If $\Gamma \vdash N : A \in \csn$, $\Gamma \vdash M : A \arrow B \in \csn$, $\Gamma \vdash M \redsn M': A \arrow B$ and $\Gamma \vdash M'~N : B \in \csn$, then $\Gamma \vdash M~N : B\in \csn$.\ednote{The assumptions that $M$, $N$ are $\csn$ don't seem to be doing anything here except serving as induction measures. Is that correct? -ah Not quite. You use the assumption $\Gamma \vdash N : A \in \csn$ together with $\Gamma \vdash N \red N' : A$ to conclude $\Gamma \vdash N': A \in \csn$. -bp Right, but the assumption that $N \in \csn$ doesn't seem to be useful on its own. The Beluga mechanization doesn't even have it in the type. -ah}
 \end{lemma}
+
 \begin{proof}
-By induction on    $\Gamma \vdash M \redsn M' : A$.
-
-\paragraph{Case}
-$\D = \ianc{\Gamma \vdash N : A \in \csn \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{}$
-\\[1em]
-$\Gamma \vdash  [N/x]M : B \in \csn$ \hfill by assumption \\
-$\Gamma \vdash N : A \in \csn $ \hfill by assumption \\
-$\Gamma \vdash (\lambda x{:}A.M)~N : B \in \csn$ \hfill by Lemma \ref{lm:bclosed}
-
-
-\paragraph{Case}
-$\D = \ianc{\Gamma \vdash M \redsn M' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash M\,N \redsn M'\,N : B}{}$
-\\[1em]
-$\Gamma \vdash M'~N : B \in \csn$ \hfill by assumption \\
-$\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by Lemma \ref{lem:psn}(Prop. \ref{pp6})\\
-$\Gamma \vdash M : A \arrow B \in \csn$ \hfill by IH \\
-$\Gamma \vdash N: A \in \csn$ \hfill by Lemma \ref{lem:psn}(Prop. \ref{pp6})\\[0.5em]
-
-We generalize and have to show that if $\Gamma \vdash N : A \in \csn$, $\Gamma \vdash M : A \arrow B \in \csn$, $\Gamma \vdash M \redsn M': A \arrow B$ and $\Gamma \vdash M'~N : B \in \csn$, then $\Gamma \vdash M~N : B\in \csn$.\ednote{The assumptions that $M$, $N$ are $\csn$ don't seem to be doing anything here except serving as induction measures. Is that correct? -ah Not quite. You use the assumption $\Gamma \vdash N : A \in \csn$ together with $\Gamma \vdash N \red N' : A$ to conclude $\Gamma \vdash N': A \in \csn$. -bp Right, but the assumption that $N \in \csn$ doesn't seem to be useful on its own. The Beluga mechanization doesn't even have it in the type. -ah}
-
-\noindent Proof by induction on $\Gamma \vdash N: A \in \csn$ and $\Gamma \vdash M : A \arrow B \in \csn$. \\[1em]
+By induction on $\Gamma \vdash N: A \in \csn$ and $\Gamma \vdash M : A \arrow B \in \csn$. \\[1em]
 Assume $\Gamma \vdash M~N \red Q : B$.
 
 \paragraph{Case} $\mathcal{D} = \ianc{}{\Gamma \vdash (\lambda x{:}A.M)~N \red [N/x]M : B}{\beta}$
@@ -614,6 +592,33 @@ $\Gamma \vdash M'\,N : B \in \csn$ \hfill by assumption\\
 $\Gamma \vdash M'\,N': B \in \csn$ \hfill as $M'\,N \red M'\,N'$\\
 $\Gamma \vdash N' : A \in \csn$ \hfill using $\Gamma \vdash N : A \in \csn$ and $\Gamma \vdash N \red N' : A$\\
 $\Gamma \vdash M\,N' : B \in \csn$ \hfill by IH (since $\Gamma \vdash N': A \in \csn$ is smaller)
+
+\end{proof}
+
+\begin{lemma}[Backward closure of $\csn$]\label{lm:backclosn}$\;$
+\\
+ If $\Gamma \vdash M \redsn M' : A$ and $\Gamma \vdash M' : A \in \csn$ then
+     $\Gamma \vdash M : A \in \csn$.
+\end{lemma}
+\begin{proof}
+By induction on    $\Gamma \vdash M \redsn M' : A$.
+
+\paragraph{Case}
+$\D = \ianc{\Gamma \vdash N : A \in \csn \quad \Gamma, x{:}A \vdash M : B}{\Gamma \vdash (\lambda x.M)\;N \redsn [N/x]M : B}{}$
+\\[1em]
+$\Gamma \vdash  [N/x]M : B \in \csn$ \hfill by assumption \\
+$\Gamma \vdash N : A \in \csn $ \hfill by assumption \\
+$\Gamma \vdash (\lambda x{:}A.M)~N : B \in \csn$ \hfill by Lemma \ref{lm:bclosed}
+
+
+\paragraph{Case}
+$\D = \ianc{\Gamma \vdash M \redsn M' : A \arrow B \quad \Gamma \vdash N : A}{\Gamma \vdash M\,N \redsn M'\,N : B}{}$
+\\[1em]
+$\Gamma \vdash M'~N : B \in \csn$ \hfill by assumption \\
+$\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by Lemma \ref{lem:psn}(Prop. \ref{pp6})\\
+$\Gamma \vdash M : A \arrow B \in \csn$ \hfill by IH \\
+$\Gamma \vdash N: A \in \csn$ \hfill by Lemma \ref{lem:psn}(Prop. \ref{pp6}) \\
+$\Gamma \vdash M~N : B \in \csn$ \hfill by Lemma \ref{lm:backclosnaux}
 
 \end{proof}
 
