@@ -253,11 +253,41 @@ Let us begin by contrasting weak and strong normalization. A term $M$ is said to
 As pointed out by \cite{Raamsdonk_onnormalisation}, we can easily characterize all weakly normalising terms as follows: a  weakly normalising term is a normal form or can be obtained as the result of some expansion starting in a  normal form. Following this idea, we can then characterize elegantly strongly normalizing terms also as the closure under expansion where expansion is subject to two restrictions: first, the argument of the redex introduced by the expansion step should be in the set of strongly normalising terms, and second, the expansion step should yield a new head redex (backwards closure) or a  new outermost redex in a  term without a  head redex. This idea will form the essence of the closure properties we state next and also gives rise to an inductive definition of strongly normalizing terms which we give in the next section.
 
 \begin{lemma}[Neutral Terms]\label{lm:neu-step}
-If $\Gamma \vdash R : A \arrow B$ is neutral and $\Gamma \vdash R~N \red Q : B$, then $Q$ is neutral.
+If $\Gamma \vdash R : A \arrow B$ is neutral and $\Gamma \vdash R~N \red Q : B$, then $Q$ is neutral\ednote{It might be nice to have a judgment form for ``$M$ is neutral''? -ah}.
 \end{lemma}
 \begin{proof}
-By induction on $\Gamma \vdash R~N \red Q : B$. \\[1em]
-TODO
+By induction on $\Gamma \vdash R~N \red Q : B$.
+
+\paragraph{Case}
+$\D = \ibnc {\Gamma \vdash \lambda x{:}A.M : A \arrow B}
+	          {\Gamma \vdash  N : A}
+            {\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }{\beta}$
+\\
+Contradiction with the assumption $\Gamma \vdash R : A \arrow B$ is neutral.
+
+\paragraph{Case}
+$\D = \ibnc {\Gamma \vdash R \red R' : A \arrow B}
+	          {\Gamma \vdash N : A}
+            {\Gamma \vdash R~N \red R'~N : B}{}$
+\\
+$\Gamma \vdash R : A \arrow B$ is neutral \hfill by assumption
+
+\paragraph{Sub-case} $R = x$ \\
+Contradiction with the assumption $\Gamma \vdash R \red R' : A \arrow B$.
+
+\paragraph{Sub-case} $R = R''~M$ and $R''$ is neutral \\
+$R''~M \red R' : A \arrow B$ \hfill by assumption \\
+$\Gamma \vdash R' : A \arrow B$ is neutral \hfill by IH \\
+$\Gamma \vdash R'~N : B$ is neutral \hfill by definition of neutral terms
+
+\paragraph{Case}
+$\D = \ibnc {\Gamma \vdash R : A \arrow B}
+	          {\Gamma \vdash N \red N' : A}
+            {\Gamma \vdash R~N \red R~N' : B}{}$
+\\
+$\Gamma \vdash R : A \arrow B$ is neutral \hfill by assumption \\
+$\Gamma \vdash R~N' : B$ is neutral \hfill by definition of neutral terms
+
 \end{proof}
 
 We can now state elegantly that strongly normalizing terms are closed under expansion.
@@ -279,13 +309,40 @@ $\forall M'.~\Gamma \vdash x \red M' : A \imply \Gamma \vdash M' : A \in \csn$ \
 $\Gamma \vdash x : A $ \hfill since $x:A \in \Gamma$\\
 $\Gamma \vdash x : A \in \csn$
 \\[1em]
-\fbox{\ref{cp3}.  If $\Gamma \vdash C[x] : A \arrow B \in \csn$ and $\Gamma \vdash N : A \in \csn$
-     then $\Gamma \vdash C[x]\,N : B \in \csn$.}
+\fbox{\ref{cp3}.  If $\Gamma \vdash R : A \arrow B \in \csn$ (where $R$ is neutral) and $\Gamma \vdash N : A \in \csn$
+     then $\Gamma \vdash R~N : B \in \csn$.}
 \\[1em]
-By simultaneous induction on $\Gamma \vdash R : A \arrow B$ is neutral, $\Gamma \vdash R : A \arrow B \in \csn$, $\Gamma \vdash N : A \in \csn$.
+By simultaneous induction on $\Gamma \vdash R : A \arrow B \in \csn$, $\Gamma \vdash N : A \in \csn$.
 \\[1em]
-Assume $\Gamma \vdash R~N \red Q : B$ \\
-TODO
+Assume $\Gamma \vdash R~N \red Q : B$
+
+\paragraph{Case}
+$\D = \ibnc {\Gamma \vdash \lambda x{:}A.M : A \arrow B}
+{\Gamma \vdash  N : A}
+{\Gamma \vdash (\lambda x{:}A.M)~N  \red [N/x]M : B }{\beta}$
+\\
+Contradiction with the assumption $\Gamma \vdash R : A \arrow B$ is neutral.
+
+\paragraph{Case}
+$\D = \ibnc {\Gamma \vdash R \red R' : A \arrow B}
+{\Gamma \vdash N : A}
+{\Gamma \vdash R~N \red R'~N : B}{}$
+\\
+$\Gamma \vdash R' : A \arrow B \in \csn$ \hfill by using $\Gamma \vdash R : A \arrow B \in \csn$ \\
+$\Gamma \vdash R : A \arrow B$ is neutral \hfill by assumption \\
+$\Gamma \vdash R \red R' : A \arrow B$ \hfill by assumption \\
+$\Gamma \vdash R' N : B$ is neutral \hfill by Lemma \ref{lm:neu-step} \\
+$\Gamma \vdash R' : A \arrow B$ is neutral \hfill by definition of neutral terms \\
+$\Gamma \vdash R' N : B \in \csn$ \hfill by IH (since $\Gamma \vdash R' : A \arrow B \in \csn$ is smaller)
+
+\paragraph{Case}
+$\D = \ibnc {\Gamma \vdash R : A \arrow B}
+{\Gamma \vdash N \red N' : A}
+{\Gamma \vdash R~N \red R~N' : B}{}$
+\\
+$\Gamma \vdash N' : A \in \csn$ \hfill by using $\Gamma \vdash N : A \in \csn$ \\
+$\Gamma \vdash R~N' : B \in \csn$ \hfill by IH (since $\Gamma \vdash N' : A \in \csn$ is smaller)
+
 \end{proof}
 
 \subsection{Inductive Definition of Strongly Normalizing Terms}
@@ -325,7 +382,25 @@ Hence this approach seems particularly amendable to mechanizing proofs.
   \label{fig:sn}
 \end{figure}
 
-We first define $\redsn$ (strong head reduction):
+\begin{lemma}\label{lm:neusne}
+	If $\Gamma \vdash M : A \in \SNe$ then $\Gamma \vdash M : A$ is neutral.
+\end{lemma}
+\begin{proof}
+By induction on $\Gamma \vdash M : A \in \SNe$.
+
+\paragraph{Case} $\D = \ianc{x{:}A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{}$ \\
+$\Gamma \vdash x : A$ is neutral \hfill by definition
+
+\paragraph{Case} $\D = \ibnc{\Gamma \vdash R : A \arrow B \in \SNe}
+                            {\Gamma \vdash M : A \in \SN}
+                            {\Gamma \vdash R~M : B \in \SNe}{}$ \\
+$\Gamma \vdash R : A \arrow B \in \SNe$ \hfill by assumption \\
+$\Gamma \vdash R : A \arrow B$ is neutral \hfill by IH \\
+$\Gamma \vdash R~M : B$ is neutral \hfill by definition of neutral terms
+
+\end{proof}
+
+We now define $\redsn$ (strong head reduction):
 
 \[
 \begin{array}{l}
@@ -559,12 +634,12 @@ For proving normalization, soundness of the inductive definition of $\SN$ suffic
 By mutual structural induction on the given derivations using the
 closure properties. \\[1em]
 \noindent
-\fbox{1. If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.}
+\fbox{1. If $\Gamma \vdash M : A \in \SN$ then $\Gamma \vdash M : A \in \csn$.}\\[1em]
+Induction on $\Gamma \vdash M : A \in \SN$.
 
 \paragraph{Case} $\D = \ianc{\Gamma \vdash R : A \in \SNe}{\Gamma \vdash R : A \in \SN}{}$
 \\[1em]
-$R = C[x] $ \hfill since $\Gamma \vdash R : A \in \SNe$ \\
-$\Gamma \vdash R : A \in \csn$ \hfill by IH(1)
+$\Gamma \vdash R : A \in \csn$ \hfill by IH(2)
 
 \paragraph{Case} $\D = \ianc{\Gamma, x{:}A \vdash M : B \in \SN}
                            {\Gamma  \vdash \lambda x{:}A.M  : A \arrow B \in \SN}{}$
@@ -582,13 +657,22 @@ $\Gamma \vdash M : A \in \csn$ \hfill by Backwards Closure (Lemma \ref{lm:backcl
 % $\Gamma \vdash M \redsn M' : A$ \hfill by IH(3)\\
 % {\color{red}{$\Gamma \vdash M  : A \in \csn$ \hfill by Closure Property \ref{lm:closn}(\ref{cp5}) -- should be proven differently without using $\redsn$}}
 \\[1em]
-\fbox{2. If $\Gamma \vdash M : A \in \SNe$ then $\Gamma \vdash M : A \in \csn$.}
+\fbox{2. If $\Gamma \vdash M : A \in \SNe$ then $\Gamma \vdash M : A \in \csn$.}\\[1em]
+Induction on $\Gamma \vdash M : A \in \SNe$.
 
-TODO
+\paragraph{Case} $\D = \ianc{x : A \in \Gamma}{\Gamma \vdash x : A \in \SNe}{}$ \\
+$\Gamma \vdash x: A \in \csn$ \hfill by Lemma \ref{lm:closn} (\ref{cp2})
+
+\paragraph{Case} $\D = \ibnc{\Gamma \vdash R : A \arrow B \in \SNe}
+                            {\Gamma \vdash M : A \in \SN}
+                            {\Gamma \vdash R~M : B \in \SNe}{}$ \\
+$\Gamma \vdash R : A \arrow B \in \csn$ \hfill by IH (2)\\
+$\Gamma \vdash M : A \in \csn$ \hfill by IH (1) \\
+$\Gamma \vdash R : A \arrow B$ is neutral \hfill by Lemma \ref{lm:neusne} \\
+$\Gamma \vdash R~M : B \in \csn$ \hfill by Lemma \ref{lm:closn} (\ref{cp3})
 \\[1em]
 \fbox{3. If $\Gamma \vdash M \redSN M' : A$ then
-           $\Gamma \vdash M \redsn M' : A$.}
-
+           $\Gamma \vdash M \redsn M' : A$.}\\[1em]
 Induction on $\Gamma \vdash M \redSN M' : A$
 
 \paragraph{Case}
