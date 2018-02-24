@@ -613,7 +613,7 @@ $\Gamma \vdash M' : A \arrow B \in \csn$ \hfill by Lemma \ref{lem:psn}(Prop. \re
 $\Gamma \vdash M : A \arrow B \in \csn$ \hfill by IH \\
 $\Gamma \vdash N: A \in \csn$ \hfill by Lemma \ref{lem:psn}(Prop. \ref{pp6})\\[0.5em]
 
-We generalize and have to show that if $\Gamma \vdash N : A \in \csn$, $\Gamma \vdash M : A \arrow B \in \csn$, $\Gamma \vdash M \redsn M': A \arrow B$ and $\Gamma \vdash M'~N : B \in \csn$, then $\Gamma \vdash M~N : B\in \csn$.\ednote{The assumptions that $M$, $N$ are $\csn$ don't seem to be doing anything here except serving as induction measures. Is that correct? -ah}
+We generalize and have to show that if $\Gamma \vdash N : A \in \csn$, $\Gamma \vdash M : A \arrow B \in \csn$, $\Gamma \vdash M \redsn M': A \arrow B$ and $\Gamma \vdash M'~N : B \in \csn$, then $\Gamma \vdash M~N : B\in \csn$.\ednote{The assumptions that $M$, $N$ are $\csn$ don't seem to be doing anything here except serving as induction measures. Is that correct? -ah Not quite. You use the assumption $\Gamma \vdash N : A \in \csn$ together with $\Gamma \vdash N \red N' : A$ to conclude $\Gamma \vdash N': A \in \csn$. -bp}
 
 \noindent Proof by induction on $\Gamma \vdash N: A \in \csn$ and $\Gamma \vdash M : A \arrow B \in \csn$. \\[1em]
 Assume $\Gamma \vdash M~N \red Q : B$.
@@ -643,6 +643,7 @@ $\Gamma \vdash P\,N : B \in \csn$ \hfill by Lemma \ref{lm:mredsn} \\
 $\Gamma \vdash M'' \redsn P : A \arrow B$ \hfill by assumption \\
 $\Gamma \vdash M \red M'' : A \arrow B$ \hfill by assumption \\
 $\Gamma \vdash M'' : A \arrow B \in \csn$ \hfill using $\Gamma \vdash M : A \arrow B \in \csn$ \\
+$\Gamma \vdash M'': A \arrow B \in \csn$ \hfill using $\Gamma \vdash M : A \arrow B \in \csn$ and $\Gamma \vdash M \red M'' : A \arrow B$\\
 $\Gamma \vdash M''\,N : B \in \csn$ \hfill by IH (since $\Gamma \vdash M'': A \arrow B \in \csn$ is smaller) \\
 \\[0.5em]
 
@@ -653,6 +654,7 @@ $\Gamma \vdash M \redsn M' : A \arrow B$ \hfill by assumption \\
 $\Gamma \vdash M: A \in \csn$ \hfill  by assumption\\
 $\Gamma \vdash M'\,N : B \in \csn$ \hfill by assumption\\
 $\Gamma \vdash M'\,N': B \in \csn$ \hfill as $M'\,N \red M'\,N'$\\
+$\Gamma \vdash N' : A \in \csn$ \hfill using $\Gamma \vdash N : A \in \csn$ and $\Gamma \vdash N \red N' : A$\\
 $\Gamma \vdash M\,N' : B \in \csn$ \hfill by IH (since $\Gamma \vdash N': A \in \csn$ is smaller)
 
 \end{proof}
@@ -730,7 +732,7 @@ $\Gamma \vdash  R\,M \redsn R'\,M : B$ \hfill by def. of $\redsn$
 \end{document}
 %%% Local Variables:
 %%% mode: latex
-%%% TeX-master: "sn-proof"
+%%% TeX-master: "sn-proof-short"
 %%% End:
 
 %  LocalWords:  Girard Tait llcl lcl redex subterms iff reducts IH
