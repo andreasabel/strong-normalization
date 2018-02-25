@@ -73,8 +73,8 @@ mlam M1 => fn s1, s2 => case s1 of
 rec subst_red : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
 			 {M': [g, x: tm A[] |- tm B[]]}
 			 {N : [g |- tm A[]]}
-			 [g, x: tm A[] |- step M M'] ->
-			 [g |- step M[.., N] M'[.., N]] =
+			 [g, x: tm A[] |- step M M']
+		-> [g |- step M[.., N] M'[.., N]] =
     mlam M => mlam M' => mlam N => fn s => case s of
     | [g, x: tm A[] |- rbeta] => [_ |- rbeta]
 
@@ -98,6 +98,7 @@ rec mstep_appl : (g: cxt) {M  : [g |- tm (arr A[] B[])]}
 			  {N  : [g |- tm A[]]}
 			  [g |- mstep M M']
 		 -> [g |- mstep (app M N) (app M' N)] =
+    / total ms (mstep_appl g a b m m' n ms) /
     mlam M => mlam M' => mlam N => fn ms =>
     case ms of
     | [g |- m-refl] => [g |- m-refl]
@@ -111,6 +112,7 @@ rec mstep_appr : (g: cxt) {M  : [g |- tm (arr A[] B[])]}
 			  {N' : [g |- tm A[]]}
 			  [g |- mstep N N']
 		 -> [g |- mstep (app M N) (app M N')] =
+    / total ms (mstep_appr g a b m n n' ms) /
     mlam M => mlam N => mlam N' => fn ms =>
     case ms of
     | [g |- m-refl] => [g |- m-refl]
@@ -122,6 +124,7 @@ rec mstep_appr : (g: cxt) {M  : [g |- tm (arr A[] B[])]}
 rec mstep_abs : (g : cxt) {M : [g , x: tm A[] |- tm B[]]}
 			  [g, x:tm A[] |- mstep M M']
 		-> [g |- mstep (abs \x.M) (abs \x.M')] =
+    / total ms (mstep_abs g a b m m' ms) /
     mlam M => fn s1 => case s1 of
     | [g, x:tm A[] |- m-refl] => [g |- m-refl]
     | [g, x:tm A[] |- m-step S MS] =>
@@ -157,6 +160,7 @@ rec mstep_sn: (g: cxt) {M : [g |- tm A[]]}
 		       {M': [g |- tm A[]]}
 		       [g |- mstep M M'] -> Sn [g |- M]
 	      -> Sn [g |- M'] =
+    / total sn (mstep_sn g m m' ms sn) /
     mlam M => mlam M' => fn ms => fn sn =>
     case ms of
     | [g |- m-refl] =>  sn
@@ -215,6 +219,7 @@ inductive Neutral: (g: cxt) {M: [g |- tm A[]]} ctype =
 
 % Lemma: If SNe [g |- R] then Neutral [g |- R].
 rec neutralSNe : (g: cxt) {R: [g |- tm A[]]} SNe [g |- R] -> Neutral [g |- R] =
+    / total sne (neutralSNe g a r sne) /
     mlam R => fn sne =>
     case sne of
     | SVar [g |- #p] => Nvar [g |- #p]
@@ -245,9 +250,11 @@ empty: type.
 rec varDontStep : (g: cxt) {#p : [g |- tm A[]]}
 			   {M : [g |- tm A[]]}
 			   [g |- step #p M] -> [|- empty] =
+    / total (varDontStep) /
     mlam p, M => fn s => impossible s;
 
 rec varSn : (g:cxt) {#p: [g |- tm A[]]} Sn [g |- #p] =
+    / total (varSn) /
     mlam #p => Acc (mlam M', S => impossible (varDontStep [_ |- #p] [_ |- M'] [_ |- S]))
 ;
 
