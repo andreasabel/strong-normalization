@@ -246,7 +246,7 @@ $\Gamma \vdash M  : A \arrow B \in \csn$ \hfill since $\Gamma \vdash M \red M' :
 
 \end{proof}
 
-\subsection*{Closure properties of strongly normalizating terms}
+\subsection*{Closure properties of strongly normalizing terms}
 
 Let us begin by contrasting weak and strong normalization. A term $M$ is said to be \emph{weakly} normalising if there is a  rewrite sequence starting in M that eventually ends in a  normal form. A  term $M$ is said to be \emph{strongly} normalising if all rewrite sequences starting in M end eventually in a  normal form.
 
@@ -550,7 +550,7 @@ $\Gamma \vdash M'~N \mred M'~N' : B$ \hfill by Multi-Step Reduction (Lemma \ref{
 \end{proof}
 
 \begin{lemma}\label{lm:backclosnaux}
-If $\Gamma \vdash N : A \in \csn$, $\Gamma \vdash M : A \arrow B \in \csn$, $\Gamma \vdash M \redsn M': A \arrow B$ and $\Gamma \vdash M'~N : B \in \csn$, then $\Gamma \vdash M~N : B\in \csn$.\ednote{The assumptions that $M$, $N$ are $\csn$ don't seem to be doing anything here except serving as induction measures. Is that correct? -ah Not quite. You use the assumption $\Gamma \vdash N : A \in \csn$ together with $\Gamma \vdash N \red N' : A$ to conclude $\Gamma \vdash N': A \in \csn$. -bp Right, but the assumption that $N \in \csn$ doesn't seem to be useful on its own. The Beluga mechanization doesn't even have it in the type. -ah}
+If $\Gamma \vdash N : A \in \csn$, $\Gamma \vdash M : A \arrow B \in \csn$, $\Gamma \vdash M \redsn M': A \arrow B$ and $\Gamma \vdash M'~N : B \in \csn$, then $\Gamma \vdash M~N : B\in \csn$.
 \end{lemma}
 
 \begin{proof}
