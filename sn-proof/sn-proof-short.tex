@@ -253,7 +253,10 @@ Let us begin by contrasting weak and strong normalization. A term $M$ is said to
 As pointed out by \cite{Raamsdonk_onnormalisation}, we can easily characterize all weakly normalising terms as follows: a  weakly normalising term is a normal form or can be obtained as the result of some expansion starting in a  normal form. Following this idea, we can then characterize elegantly strongly normalizing terms also as the closure under expansion where expansion is subject to two restrictions: first, the argument of the redex introduced by the expansion step should be in the set of strongly normalising terms, and second, the expansion step should yield a new head redex (backwards closure) or a  new outermost redex in a  term without a  head redex. This idea will form the essence of the closure properties we state next and also gives rise to an inductive definition of strongly normalizing terms which we give in the next section.
 
 \begin{lemma}[Neutral Terms]\label{lm:neu-step}
-If $\Gamma \vdash R : A \arrow B$ is neutral and $\Gamma \vdash R~N \red Q : B$, then $Q$ is neutral\ednote{It might be nice to have a judgment form for ``$M$ is neutral''? -ah}.
+If $\Gamma \vdash R : A \arrow B$ is neutral and $\Gamma \vdash R~N
+\red Q : B$, then $Q$ is neutral\ednote{It might be nice to have a
+  judgment form for ``$M$ is neutral''? -ah Yes, indeed it would be
+  good to add a judgment. - bp}.
 \end{lemma}
 \begin{proof}
 By induction on $\Gamma \vdash R~N \red Q : B$.
