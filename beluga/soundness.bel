@@ -1,3 +1,5 @@
+%coverage
+
 LF ty : type =
    | base : ty
    | arr  : ty -> ty -> ty
@@ -60,8 +62,8 @@ inductive SnRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} ctype =
 
 rec m-trans : (g : cxt) {M1 : [g |- tm A[]]}
               [g |- mstep M1 M] -> [g |- mstep M M2]
-            -> [g |- mstep M1 M2] =
-
+              -> [g |- mstep M1 M2] =
+    / total s1 (m-trans g a m1 m2 m s1) /
 mlam M1 => fn s1, s2 => case s1 of
 | [g |- m-refl] => s2
 | [g |- m-step S MS] =>
@@ -75,6 +77,7 @@ rec subst_red : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
 			 {N : [g |- tm A[]]}
 			 [g, x: tm A[] |- step M M']
 		-> [g |- step M[.., N] M'[.., N]] =
+/ trust /  % Totality checker does not take into account modulo exchange; it only consider direct subterms 
     mlam M => mlam M' => mlam N => fn s => case s of
     | [g, x: tm A[] |- rbeta] => [_ |- rbeta]
 
@@ -139,10 +142,11 @@ rec subst_mred : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
 			  {N': [g |- tm A[]]}
 			  [g |- step N N']
 		 -> [g |- mstep M[.., N] M[.., N']] =
+   / trust / % Totality checker does not take into account modulo exchange; it only consider direct subterms 
     mlam M => mlam N => mlam N' => fn s => case [_, x:tm _ |- M] of
     | [g, x:tm A[] |- x ] => let [g |- S] = s in [g |- m-step S m-refl]
     | [g, x:tm A[] |- #p[..] ] => [g |- m-refl]
-    | [g, x:tm A[] |- abs \x.M] =>
+    | [g, x:tm A[] |- abs \y.M] =>
       let [g |- S] = s in
       let [ g, y: tm _ |- S'] = subst_mred [g, y:tm _ , x:tm A[] |- M[.., x, y]]
 					   [g, y:tm _ |- N[..]] [g, y:tm _ |- N'[..]] [g, y:tm _ |- S[..]]  in
@@ -173,13 +177,23 @@ rec mstep_sn: (g: cxt) {M : [g |- tm A[]]}
 rec lemma442 : (g:cxt) {M: [g, x: tm A[] |- tm B[]]}
 		       Sn [g, x: tm A[] |- M]
 	       -> Sn [g |- abs \x. M] =
-    mlam M => fn sn =>
-    Acc (mlam M' => mlam S => lemma442_helper [_ |- M] [_ |- M'] sn [_ |- S])
+    / trust /  % Totality checker requires that both calls of the recursive function must be decreasing;
+      % however it is sufficient that lemma442_helper decreases
+      % we could rewrite this lemma and inline the code for lemma442_helper, but we would need to make
+      % more arguments explicit in the definition of Acc to be able to inspect and pattern match on the stepping relation.      
+   %   / total (lemma442) /
+    mlam M => fn sn => 
+       Acc (mlam M' => mlam S =>
+	 lemma442_helper [_ |- M] [_ |- M'] sn [_ |- S]
+	)
+
 
 and lemma442_helper : (g:cxt) {M : [g, x: tm A[] |- tm B[]]}
 			      {M' : [g |- tm (arr A[] B[])]}
 			      Sn [g, x: tm A[] |- M] -> [g |- step (abs \x. M) M']
 		      -> Sn [g |- M'] =
+     / trust /
+    % / total s (lemma442_helper g a b m m' s) /
     mlam M => mlam M' => fn sn => fn s =>
     let [g |- rabs (\x. S1)] = s in
     let Acc r = sn in
@@ -193,22 +207,22 @@ rec lemma443a : (g: cxt) {M: [g |- tm (arr A[] B[])]}
 			 {N : [g |- tm A[]]}
 			 Sn [g |- (app M N)]
 		-> Sn [g |- M] =
+    / total s (lemma443a g a b m n s) /
     mlam M => mlam N => fn sn =>
     let Acc r = sn in
     Acc (mlam M' => mlam S =>
-	 let sn' = r [_ |- app M' N] [_ |- rappl S] in
-	 lemma443a [_ |- M'] [_ |- _] sn')
+	 lemma443a [_ |- M'] [_ |- _] (r [_ |- app M' N] [_ |- rappl S]))
 ;
 
 rec lemma443b : (g: cxt) {M: [g |- tm (arr A[] B[])]}
 			 {N : [g |- tm A[]]}
 			 Sn [g |- (app M N)]
 		-> Sn [g |- N] =
+     / total s (lemma443b g a b m n s) /
     mlam M => mlam N => fn sn =>
     let Acc r = sn in
     Acc (mlam N' => mlam S =>
-	 let sn' = r [_ |- app M N'] [_ |- rappr S] in
-	 lemma443b [_ |- M] [_ |- N'] sn')
+	 lemma443b [_ |- M] [_ |- N'] (r [_ |- app M N'] [_ |- rappr S]))
 ;
 
 inductive Neutral: (g: cxt) {M: [g |- tm A[]]} ctype =
@@ -233,15 +247,20 @@ rec lemma49 : (g: cxt) {R: [g |- tm (arr A[] B[])]}
 		       {S: [g |- step (app R N) Q]}
 		       Neutral [g |- R]
 	      -> Neutral [g |- Q] =
-    mlam R => mlam N => mlam Q => mlam S => fn neu =>
-    case [_ |- S] of
-    | [g |- rbeta] => impossible neu
-    | [g |- rappl S'] => (case neu of
-			  | Napp ([g |- R']) ([g |- N']) neu' =>
-			    let neu'' = lemma49 [_ |- R'] [_ |- N'] [_ |- _] [_ |- S'] neu' in
+    / total s (lemma49 g a b r n q s) /
+    mlam R => mlam N => mlam Q => mlam S => fn neu => case neu of 
+   | Nvar [g |- #x ] => 
+     (case [g |- S] of 
+    | [g |- rappl S'] =>  impossible [g |- S']
+    | [g |- rappr S'] => Napp [_ |- R] [_ |- _] neu)
+
+
+   | Napp ([g |- R']) ([g |- N']) neu' => 
+     (case [g |- S] of 
+    | [g |- rappl S'] =>  let neu'' = lemma49 [_ |- R'] [_ |- N'] [_ |- _] [_ |- S'] neu' in
 			    Napp [_ |- _] [_ |- N] neu''
-			 )
-    | [g |- rappr S'] => Napp [_ |- R] [_ |- _] neu
+    | [g |- rappr S'] => Napp [_ |- R] [_ |- _] neu)
+
 ;
 
 % All variables are in sn.
@@ -263,6 +282,7 @@ rec lemma4102 : (g: cxt) {R: [g |- tm (arr A[] B[])]}
 			 {N: [g |- tm A[]]}
 			 Neutral [g |- R] -> Sn [g |- R] -> Sn [g |- N]
 		-> Sn [g |- app R N] =
+    / trust /
     mlam R => mlam N => fn neu => fn sn1 => fn sn2 =>
     Acc (mlam Q, S => lemma4102_aux [_ |- R] [_ |- N] [_ |- Q] [_ |- S] neu sn1 sn2)
 
@@ -272,6 +292,7 @@ and lemma4102_aux : (g: cxt) {R: [g |- tm (arr A[] B[])]}
 			     {S: [g |- step (app R N) Q]}
 			     Neutral [g |- R] -> Sn [g |- R] -> Sn [g |- N]
 		    -> Sn [g |- Q] =
+    / trust /
     mlam R => mlam N => mlam Q => mlam S => fn neu => fn sn1 => fn sn2 =>
     case [_ |- S] of
      | [g |- rbeta] => impossible neu
@@ -293,6 +314,7 @@ rec lemma417 : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
 			{N: [g |- tm A[]]}
 			Sn [g |- M[.., N]] -> Sn [g |- N]
 	       -> Sn [g |- app (abs \x. M) N] =
+    / trust /
     mlam M => mlam N => fn sn1 => fn sn2 =>
     Acc (mlam P, S => lemma417_helper [_ |- M] [_ |- N] [_ |- P] [_ |- S] sn1 sn2)
 
@@ -302,6 +324,7 @@ and lemma417_helper : (g: cxt) {M: [g, x: tm A[] |- tm B[]]}
 			       {S: [g |- step (app (abs \x. M) N) P]}
 			       Sn [g |- M[.., N]] -> Sn [g |- N]
 		      -> Sn [g |- P] =
+        / trust / % requires lexicographic order on sn1 and sn2
     mlam M => mlam N => mlam P => mlam S => fn sn1 => fn sn2 =>
     case [_ |- S] of
     | [g |- rbeta] => sn1
@@ -330,6 +353,7 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}
 			  {S : [g |- step M N']}
 			  SnRed [g |- M] [g |- N]
 		 -> ConfResult [g |- N] [g |- N'] =
+    / total s (confluence g a m n n' s) /
     mlam M => mlam N => mlam N' => mlam S => fn snr =>
     case snr of
     | SnBeta [g, x: tm A[] |- M] sn =>
@@ -369,6 +393,7 @@ rec bc_aux : (g: cxt) {M : [g |- tm (arr A[] B[])]}
 		      {N : [g |- tm A[]]}
 		      Sn [g |- M] -> Sn [g |- N] -> SnRed [g |- M] [g |- M'] -> Sn [g |- app M' N]
 	     -> Sn [g |- app M N] =
+    / trust /
     mlam M => mlam M' => mlam N => fn sn1 => fn sn2 => fn snr => fn sn =>
     Acc (mlam Q, S => bc_aux2 [_ |- M] [_ |- M'] [_ |- N] [_ |- Q] [_ |- S] sn1 sn2 snr sn)
 
@@ -379,6 +404,7 @@ and bc_aux2 : (g: cxt) {M : [g |- tm (arr A[] B[])]}
 		       {S : [g |- step (app M N) Q]}
 		       Sn [g |- M] -> Sn [g |- N] -> SnRed [g |- M] [g |- M'] -> Sn [g |- app M' N]
 	      -> Sn [g |- Q] =
+    / trust / % lexicographic induction on sn1 and sn2 which is currently not supported
     mlam M => mlam M' => mlam N => mlam Q => mlam S => fn sn1 => fn sn2 => fn snr => fn sn =>
     case [_ |- S] of
     | [g |- rbeta] => impossible snr
@@ -402,6 +428,7 @@ rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}
 				 {M': [g |- tm A[]]}
 				 SnRed [g |- M] [g |- M'] -> Sn [g |- M']
 			-> Sn [g |- M] =
+    / total r (backwards_closure g a m m' r) /
     mlam M => mlam M' => fn snr => fn sn =>
     case snr of
     | SnBeta ([g, x: tm A[] |- M]) sn' => lemma417 [_ |- M] [_ |- _] sn sn'
@@ -412,6 +439,7 @@ rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}
 ;
 
 rec soundSN : (g: cxt) {M: [g |- tm A[]]} SN [g |- M] -> Sn [g |- M] =
+    / total s (soundSN g a m s) /
     mlam M => fn sn =>
     case sn of
     | SNeu sne => soundSNe [_ |- M] sne
@@ -421,6 +449,7 @@ rec soundSN : (g: cxt) {M: [g |- tm A[]]} SN [g |- M] -> Sn [g |- M] =
 		      backwards_closure [_ |- M] [_ |- _] snr' sn''
 
 and soundSNe : (g: cxt) {M: [g |- tm A[]]} SNe [g |- M] -> Sn [g |- M] =
+    / total s (soundSNe g a m s) /
     mlam M => fn sne =>
     case sne of
     | SVar [g |- #p] => varSn [g |- #p]
@@ -433,6 +462,7 @@ and soundSNRed : (g: cxt) {M: [g |- tm A[]]}
 			  {M': [g |- tm A[]]}
 			  SNRed [g |- M] [g |- M']
 		 -> SnRed [g |- M] [g |- M'] =
+     / total s (soundSNRed g a m m' s) /
     mlam M => mlam M' => fn snr =>
     case snr of
     | SBeta ([g, x: tm A[] |- M]) sn => let sn' = soundSN [_ |- _] sn in SnBeta [_ |- M] sn'
