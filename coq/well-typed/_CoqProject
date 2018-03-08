@@ -5,3 +5,4 @@ reduction.v
 stlc.v
 sn.v
 sn_inductive.v
+sn_inductive_soundness.v

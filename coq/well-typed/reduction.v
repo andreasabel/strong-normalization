@@ -141,3 +141,9 @@ Lemma sn_rinst {G1 G2 A} (f : ren G1 G2) (s : tm G1 A) :
 Proof.
   elim=> {s} s _ ih. apply: snI => t /step_weak[t' st <-]. exact: ih.
 Qed.
+
+Lemma sn_mstep {G A} (s t : tm G A):
+  mstep s t -> sn s -> sn t.
+Proof.
+  induction 1; eauto. intros []%IHmstep. now apply H1.
+Qed.
