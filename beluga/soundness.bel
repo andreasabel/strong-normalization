@@ -235,30 +235,22 @@ rec neutralSNe : (g: cxt) {R: [g |- tm A[]]} SNe [g |- R] -> Neutral [g |- R] =
     | SApp sne' sn => let neu = neutralSNe [_ |- _] sne' in Napp [_ |- _] [_ |- _] neu
 ;
 
-
-% Lemma 4.9 (modified): If Neutral [g |- R] and [g |- step (app R N) Q], then Neutral [g |- Q].
-rec lemma49 : (g: cxt) {R: [g |- tm (arr A[] B[])]}
-		       {N: [g |- tm A[]]}
-		       {Q: [g |- tm B[]]}
-		       {S: [g |- step (app R N) Q]}
-		       Neutral [g |- R]
-	      -> Neutral [g |- Q] =
-    / total s (lemma49 g a b r n q s) /
-    mlam R => mlam N => mlam Q => mlam S => fn neu => case neu of 
-   | Nvar [g |- #x ] => 
-     (case [g |- S] of 
-    | [g |- rappl S'] =>  impossible [g |- S']
-    | [g |- rappr S'] => Napp [_ |- R] [_ |- _] neu)
-
-   | Napp ([g |- R']) ([g |- N']) neu' => 
-     (case [g |- S] of 
-    | [g |- rappl S'] =>  let neu'' = lemma49 [_ |- R'] [_ |- N'] [_ |- _] [_ |- S'] neu' in
+rec neu-step : (g: cxt) {R  : [g |- tm A[]]}
+			{R' : [g |- tm A[]]}
+			[g |- step R R'] -> Neutral [g |- R]
+	       -> Neutral [g |- R'] =
+    / total s (neu-step g a r r' s n) /
+    mlam R => mlam R' => fn s => fn neu =>
+    case neu of
+    | Nvar [g |- #x] => impossible s
+    | Napp [g |- R''] [g |- N] neu' =>
+      (case s of
+       | [g |- rbeta ] => impossible neu'
+       | [g |- rappl S'] => let neu'' = neu-step [_ |- R''] [_ |- _] [_ |- S'] neu' in
 			    Napp [_ |- _] [_ |- N] neu''
-    | [g |- rappr S'] => Napp [_ |- R] [_ |- _] neu)
-
+       | [g |- rappr S'] => Napp [_ |- R''] [_ |- _] neu'
+      )
 ;
-
-
 
 % All variables are in sn.
 empty: type.
@@ -288,10 +280,8 @@ rec lemma4102 : {g: cxt}{A:[ |- ty]}{B: [ |- ty]}
 	 | [g |- rbeta] => impossible neu
 	 | [g |- rappl S'] => let Acc [g] [ |- arr A B] [g |- R] r = sn1 in
 			      let sn' = r [_ |- _] [_ |- S'] in
-			      let neu' = lemma49 [_ |- _] [_ |- _] [_ |- _] [_ |- S] neu in
-			      (case neu' of
-			       | Napp [g |- M'] [g |- N] neu'' => lemma4102 [g] [ |- A] [|- B ] [g |- _] [g |- N] neu'' sn' sn2
-			      )
+			      let neu' = neu-step [_ |- R] [_ |- _] [_ |- S'] neu in
+			      lemma4102 [g] [ |- A] [|- B ] [g |- _] [g |- N] neu' sn' sn2
 	 | [g |- rappr S'] => let Acc [g] [|- A] [g |- N] r = sn2 in
 			      let sn' = r [_ |- _] [_ |- S'] in
 			      lemma4102 [g] [ |- A] [|- B] [_ |- R] [_ |- _] neu sn1 sn'
