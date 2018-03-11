@@ -45,10 +45,10 @@ and inductive SNRed : (g : cxt) {M : [g |- tm A[]]} {M' : [g |- tm A[]]} ctype =
 | SBeta :  {M:[g, x:tm A[] |- tm B[]]} SN [g |- N]
           -> SNRed [g |- app (abs A[] \x.M) N] [g |- M[..,N]]
 | SAppl  : SNRed [g |- R] [g |- R'] -> SNRed [g |- app R M] [g |- app R' M]
-| SCInl :  SN [g |- M] -> {N1:[g, x:tm A[] |- tm C[]]} SN [g, y: tm B[] |- N2]
+| SCInl :  SN [g |- M] -> SN [g, x:tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
           -> SNRed [g |- match (inl B[] M) (\x.N1) (\y.N2)] [g |- N1[..,M]]
-| SCInr :  SN [g |- M] -> SN [g, x: tm A[] |- N1] -> {N2:[g, y:tm B[] |- tm C[]]}
-             SNRed [g |- match (inr A[] M) (\x.N1) (\y.N2)] [g |- N2[..,M]]
+| SCInr :  SN [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y:tm B[] |- N2]
+          -> SNRed [g |- match (inr A[] M) (\x.N1) (\y.N2)] [g |- N2[..,M]]
 | SCase :  SNRed [g |- M] [g |- M'] -> {N1:[g, x:tm A[] |- tm C[]]} {N2:[g, y:tm B[] |- tm C[]]}
 	     SNRed [g |- match M (\x.N1) (\y.N2)] [g |- match M' (\x.N1) (\y.N2)]
 ;
@@ -84,12 +84,14 @@ mlam g, g', #R, M => fn r => case r of
 | SAppl r' => 
   let SNRed' [_] [_][_ |- _ ] r0 = anti_renameSNRed [g] [g'] [g' |-#R] [_ |- _ ] r' in 
     SNRed' [_] [_] [_ |- _ ] (SAppl r0)
-| SCInl s [g', x:tm A[] |- N1] n2 => let s' = anti_renameSN [_] [_] [_ |- #R] [_ |- _] s in
-				     let s2 = anti_renameSN [g, y:tm _] [_] [g', y:tm _ |- #R[..], y] [_ |- _] n2 in
-				     SNRed' [_] [_] [_ |- _] (SCInl s' [g, x:tm A[] |- _] s2)
-| SCInr s n1 [g', y:tm B[] |- N2] => let s' = anti_renameSN [_] [_] [_ |- #R] [_ |- _] s in
-				     let s1 = anti_renameSN [g, x:tm _] [_] [g', x:tm _ |- #R[..], x] [_ |- _] n1 in
-				     SNRed' [_] [_] [_ |- _] (SCInr s' s1 [g, y:tm B[] |- _])
+| SCInl s n1 n2 => let s' = anti_renameSN [_] [_] [_ |- #R] [_ |- _] s in
+		   let s1 = anti_renameSN [g, x:tm _] [_] [g', x:tm _ |- #R[..], x] [_ |- _] n1 in
+		   let s2 = anti_renameSN [g, y:tm _] [_] [g', y:tm _ |- #R[..], y] [_ |- _] n2 in
+		   SNRed' [_] [_] [_ |- _] (SCInl s' s1 s2)
+| SCInr s n1 n2 => let s' = anti_renameSN [_] [_] [_ |- #R] [_ |- _] s in
+		   let s1 = anti_renameSN [g, x:tm _] [_] [g', x:tm _ |- #R[..], x] [_ |- _] n1 in
+		   let s2 = anti_renameSN [g, y:tm _] [_] [g', y:tm _ |- #R[..], y] [_ |- _] n2 in
+		   SNRed' [_] [_] [_ |- _] (SCInr s' s1 s2)
 | SCase s [g', x:tm _ |- _] [g', y:tm _ |- _] => let SNRed' [_] [_] [_ |- _] s' = anti_renameSNRed [_] [_] [_ |- #R] [_ |- _] s in
 						 SNRed' [_] [_] [_ |- _] (SCase s' [g, x:tm _ |- _] [g, y:tm _ |- _])
 
@@ -138,12 +140,12 @@ and renameSNRed: (g : cxt)(g' : cxt) {#R:[g' |-# g]}{M : [g |- tm A[]]}
 mlam #R, M => fn s => case s of
 | SBeta [g, x:tm A[] |- M] s' => SBeta [_, x:tm A[] |- M[#R[..], x]] (renameSN [_] [_] [_ |- #R] [_ |- _] s')
 | SAppl s' =>    SAppl (renameSNRed [_ |- #R] [_ |- _ ] s')
-| SCInl s' [g, x:tm A[] |- N1] n2 => SCInl (renameSN [_] [_] [_ |- #R] [_ |- _] s')
-					   [_, x:tm A[] |- N1[#R[..], x]]
-					   (renameSN [_, y:tm _] [_, y:tm _] [_, y:tm _ |- #R[..], y] [_, y:tm _ |- _] n2)
-| SCInr s' n1 [g, y:tm B[] |- N2] => SCInr (renameSN [_] [_] [_ |- #R] [_ |- _] s')
-					   (renameSN [_, x:tm _] [_, x:tm _] [_, x:tm _ |- #R[..], x] [_, x:tm _ |- _] n1)
-					   [_, y:tm B[] |- N2[#R[..], y]]
+| SCInl s' n1 n2 => SCInl (renameSN [_] [_] [_ |- #R] [_ |- _] s')
+			  (renameSN [_, x:tm _] [_, x:tm _] [_, x:tm _ |- #R[..], x] [_, x:tm _ |- _] n1)
+			  (renameSN [_, y:tm _] [_, y:tm _] [_, y:tm _ |- #R[..], y] [_, y:tm _ |- _] n2)
+| SCInr s' n1 n2 => SCInr (renameSN [_] [_] [_ |- #R] [_ |- _] s')
+			  (renameSN [_, x:tm _] [_, x:tm _] [_, x:tm _ |- #R[..], x] [_, x:tm _ |- _] n1)
+			  (renameSN [_, y:tm _] [_, y:tm _] [_, y:tm _ |- #R[..], y] [_, y:tm _ |- _] n2)
 | SCase s' [g, x:tm A[] |- N1] [g, y:tm B[] |- N2] => SCase (renameSNRed [_ |- #R] [_ |- _] s')
 							    [_, x:tm A[] |- N1[#R[..], x]]
 							    [_, y:tm B[] |- N2[#R[..], y]]
@@ -344,16 +346,24 @@ and main_ds : {g : cxt}{g' : cxt}{M : [g' |- tm (sum A[] B[])]}
 		    let r2 = main_lemma [_, y:tm _] [_, y:tm _] [_, y:tm _ |- N2] [_ |- #S[..], _]
 					(RCons (red_var [g', y : tm _ ] [g', y : tm _ |- y])
 					       (rename_redS [g'] [g', y : tm _ ] [g', y : tm _ |- ..] rs)) in
+		    let r1' = main_lemma [_, x:tm _] [_, x:tm _] [_, x:tm _ |- N1] [_ |- #S[..], _]
+					 (RCons (red_var [g', x: tm _ ] [g', x: tm _ |- x])
+						(rename_redS [g'] [g', x: tm _ ] [g', x: tm _ |- ..] rs)) in
+		    let sn1 = cr1 [_] [|- _] [_ |- _] r1' in
 		    let sn2 = cr1 [_] [|- _] [_ |- _] r2 in
-		    let snr = SCInl sn0 [_, x:tm _ |- N1[#S[..], x]] sn2 in
+		    let snr = SCInl sn0 sn1 sn2 in
 		    eq_red e (cr3 [_] [|- _] [_ |- _] [_ |- _] snr r1)
     | DSRight r e => let sn0 = cr1 [_] [|- _] [_ |- _] r in
 		     let r1 = main_lemma [_, x:tm _] [_, x:tm _] [_, x:tm _ |- N1] [_ |- #S[..], _]
 					 (RCons (red_var [g', x:tm _] [g', x:tm _ |- x])
 						(rename_redS [g'] [g', x:tm _] [g', x:tm _ |- ..] rs)) in
 		     let r2 = main_lemma [_, y:tm _] [_] [_, y:tm _ |- N2] [_ |- #S[..], _] (RCons r rs) in
+		     let r2' = main_lemma [_, y:tm _] [_, y:tm _] [_, y:tm _ |- N2] [_ |- #S[..], _]
+					  (RCons (red_var [g', y : tm _ ] [g', y : tm _ |- y])
+						 (rename_redS [g'] [g', y : tm _ ] [g', y : tm _ |- ..] rs)) in
 		     let sn1 = cr1 [_] [|- _] [_ |- _] r1 in
-		     let snr = SCInr sn0 sn1 [_, y:tm _ |- N2[#S[..], y]] in
+		     let sn2 = cr1 [_] [|- _] [_ |- _] r2' in
+		     let snr = SCInr sn0 sn1 sn2 in
 		     eq_red e (cr3 [_] [|- _] [_ |- _] [_ |- _] snr r2)
     | DSSNe sne => let r1 = main_lemma [_, x:tm _] [_, x:tm _] [_, x:tm _ |- N1] [_ |- #S[..], _]
 				       (RCons (red_var [g', x:tm _] [g', x:tm _ |- x])

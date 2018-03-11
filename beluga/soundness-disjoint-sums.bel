@@ -65,10 +65,10 @@ and inductive SNRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} ctype =
 		-> SNRed [g |- app (abs \x. M) N] [g |- M[..,N]]
       | SAppl : SNRed [g |- R] [g |- R']
 		-> SNRed [g |- app R M] [g |- app R' M]
-      | SCInl : SN [g |- M] -> {N1: [g, x: tm A[] |- tm C[]]} SN [g, y: tm B[] |- N2]
+      | SCInl : SN [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
 		-> SNRed [g |- match (inl B[] M) (\x. N1) (\y. N2)] [g |- N1[.., M]]
-      | SCInr : SN [g |- M] -> SN [g, x: tm A[] |- N1] -> {N2: [g, y: tm B[] |- tm C[]]}
-		   SNRed [g |- match (inr A[] M) (\x. N1) (\y. N2)] [g |- N2[.., M]]
+      | SCInr : SN [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
+		-> SNRed [g |- match (inr A[] M) (\x. N1) (\y. N2)] [g |- N2[.., M]]
       | SCasR : SNRed [g |- M] [g |- M'] -> {N1: [g, x: tm A[] |- tm C[]]} {N2: [g, y: tm B[] |- tm C[]]}
 		   SNRed [g |- match M (\x. N1) (\y. N2)] [g |- match M' (\x. N1) (\y. N2)]
 ;
@@ -79,10 +79,10 @@ inductive SnRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} ctype =
 	     -> SnRed [g |- app (abs \x. M) N] [g |- M[.., N]]
   | SnAppl : SnRed [g |- M] [g |- M']
 	     -> SnRed [g |- (app M N)] [g |- app M' N]
-  | SnCInl : Sn [g |- M] -> {N1: [g, x: tm A[] |- tm C[]]} Sn [g, y: tm B[] |- N2]
+  | SnCInl : Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g, y: tm B[] |- N2]
 	     -> SnRed [g |- match (inl B[] M) (\x. N1) (\y. N2)] [g |- N1[.., M]]
-  | SnCInr : Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> {N2: [g, y: tm B[] |- tm C[]]}
-	        SnRed [g |- match (inr A[] M) (\x. N1) (\y. N2)] [g |- N2[.., M]]
+  | SnCInr : Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g, y: tm B[] |- N2]
+	     -> SnRed [g |- match (inr A[] M) (\x. N1) (\y. N2)] [g |- N2[.., M]]
   | SnCasR : SnRed [g |- M] [g |- M'] -> {N1: [g, x: tm A[] |- tm C[]]} {N2: [g, y: tm B[] |- tm C[]]}
 		SnRed [g |- match M (\x. N1) (\y. N2)] [g |- match M' (\x. N1) (\y. N2)]
 ;
@@ -131,15 +131,13 @@ rec subst_red : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}
     | [g, x: tm A[] |- rcinr] => [_ |- rcinr]
     | [g, x: tm A[] |- rcase S'] => let [_ |- S''] = subst_red [_ |- _] [_ |- _] [_ |- N] [_ |- S'] in
 				    [_ |- rcase S'']
-    | [g, x: tm A[] |- rcl (\x. S')] =>
-      let [g, x: tm A[] |- match M (\x1. N1) (\x2. N2)] = [_ |- M] in
+    | [_ |- rcl (\y. S')] : [g, x: tm A[] |- step (match M1 (\x. N1) (\y. N2)) (match M1 (\x. N1') (\y. N2))] =>
       let [g, y: tm B[] |- S''] = subst_red [g, y: tm _, x: tm A[] |- N1[.., x, y]]
 					    [_ |- _]
 					    [g, y: tm _ |- N[..]]
 					    [g, y: tm _, x: tm A[] |- S'[.., x, y]] in
       [_ |- rcl (\x. S'')]
-    | [g, x: tm A[] |- rcr (\x. S')] =>
-      let [g, x: tm A[] |- match M (\x1. N1) (\x2. N2)] = [_ |- M] in
+    | [_ |- rcr (\x. S')] : [g, x: tm A[] |- step (match M1 (\x. N1) (\y. N2)) (match M1 (\x. N1) (\y. N2'))] =>
       let [g, y: tm B[] |- S''] = subst_red [g, y: tm _, x: tm A[] |- N2[.., x, y]]
 					    [_ |- _]
 					    [g, y: tm _ |- N[..]]
@@ -521,6 +519,60 @@ rec match_sn : (g: cxt) {R  : [g |- tm (sum A[] B[])]}
 	)
 ;
 
+rec casel_sn : (g: cxt) {M  : [g |- tm A[]]}
+			{N1 : [g, x: tm A[] |- tm C[]]}
+			{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- M] -> Sn [g |- N1[.., M]] -> Sn [g, y: tm B[] |- N2]
+	       -> Sn [g |- match (inl B[] M) (\x. N1) (\y. N2)] =
+    mlam M => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 =>
+    let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
+    let [_ |- N2] : [g, y: tm B[] |- tm C[]] = [_ |- N2] in
+    Acc [g] [|- C] [g |- match (inl B[] M) (\x. N1) (\y. N2)]
+	(mlam P, S =>
+	 case [g |- S] of
+	 | [g |- rcase (rinl S')] => let Acc [g] [|- A] [g |- M] r = sn0 in
+				     let sn0' = r [_ |- _] [_ |- S'] in
+				     let ms = subst_mred [_ |- N1] [_ |- M] [_ |- _] [_ |- S'] in
+				     let sn1' = mstep_sn [_ |- N1[.., M]] [_ |- _] ms sn1 in
+				     casel_sn [_ |- _] [_ |- N1] [_ |- N2] sn0' sn1' sn2
+	 | [g |- rcinl] => sn1
+	 | [g |- rcl (\x. S')] => let [_ |- S''] = subst_red [_ |- N1] [_ |- _] [_ |- M] [_ |- S'] in
+				  let Acc [g] [|- C] [g |- _] r = sn1 in
+				  let sn1' = r [_ |- _] [_ |- S''] in
+				  casel_sn [_ |- M] [_ |- _] [_ |- N2] sn0 sn1' sn2
+	 | [g |- rcr (\y. S')] => let Acc [g, y: tm B[]] [|- C] [g, y: tm B[] |- N2] r = sn2 in
+				  let sn2' = r [_ |- _] [_ |- S'] in
+				  casel_sn [_ |- M] [_ |- N1] [_ |- _] sn0 sn1 sn2'
+	)
+;
+
+rec caser_sn : (g: cxt) {M  : [g |- tm B[]]}
+			{N1 : [g, x: tm A[] |- tm C[]]}
+			{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g |- N2[.., M]]
+	       -> Sn [g |- match (inr A[] M) (\x. N1) (\y. N2)] =
+    mlam M => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 =>
+    let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
+    let [_ |- N2] : [g, y: tm B[] |- tm C[]] = [_ |- N2] in
+    Acc [g] [|- C] [g |- match (inr A[] M) (\x. N1) (\y. N2)]
+	(mlam P, S =>
+	 case [g |- S] of
+	 | [g |- rcase (rinr S')] => let Acc [g] [|- B] [g |- M] r = sn0 in
+				     let sn0' = r [_ |- _] [_ |- S'] in
+				     let ms = subst_mred [_ |- N2] [_ |- M] [_ |- _] [_ |- S'] in
+				     let sn2' = mstep_sn [_ |- N2[.., M]] [_ |- _] ms sn2 in
+				     caser_sn [_ |- _] [_ |- N1] [_ |- N2] sn0' sn1 sn2'
+	 | [g |- rcinr] => sn2
+	 | [g |- rcl (\x. S')] => let Acc [g, x: tm A[]] [|- C] [g, x: tm A[] |- N1] r = sn1 in
+				  let sn1' = r [_ |- _] [_ |- S'] in
+				  caser_sn [_ |- M] [_ |- _] [_ |- N2] sn0 sn1' sn2
+	 | [g |- rcr (\y. S')] => let [_ |- S''] = subst_red [_ |- N2] [_ |- _] [_ |- M] [_ |- S'] in
+				  let Acc [g] [|- C] [g |- _] r = sn2 in
+				  let sn2' = r [_ |- _] [_ |- S''] in
+				  caser_sn [_ |- M] [_ |- N1] [_ |- _] sn0 sn1 sn2'
+	)
+;
+
 
 
 % Lemma 4.17: If Sn [g |- N] and Sn [g |- M[.., N]] then Sn [g |- app (abs \x. M) N].
@@ -596,38 +648,45 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}
 			    Conf (SnAppl r) ms'
       )
 
-    | SnCInl sn [g, x: tm A[] |- N1] sn2 =>
+    | SnCInl sn sn1 sn2 =>
       let Acc [g] [|- sum A1[] A2[]] [g |- M0] r = sn in
       (case [g |- S] of
        | [g |- rcase (rinl S')] => let sn' = r [_ |- _] [_ |- S'] in
-				   let snr' = SnCInl sn' [_ |- N1] sn2 in
+				   let snr' = SnCInl sn' sn1 sn2 in
+				   let Acc [_] [|- _] [_ |- N1] r = sn1 in
 				   let ms = subst_mred [_ |- N1] [_ |- M0] [_ |- _] [_ |- S'] in
 				   Conf snr' ms
        | [g |- rcinl] => Eq
        | [g |- rcl (\x. S')] => let [_ |- S'] : [g, x: tm _ |- step N1 N1'] = [_ |- S'] in
 				let [_ |- S''] = subst_red [_ |- N1] [_ |- N1'] [_ |- M0] [_ |- S'] in
-				let snr' = SnCInl sn [g, x: tm _ |- N1'] sn2 in
+				let Acc [g, x: tm A[]] [|- C] [g, x: tm A[] |- N1] r = sn1 in
+				let sn1' = r [_ |- N1'] [_ |- S'] in
+				let snr' = SnCInl sn sn1' sn2 in
 				Conf snr' [g |- m-step S'' m-refl]
        | [g |- rcr (\y. S')] => let Acc [g, y: tm A2[]] [|- C[]] [g, y: tm A2[] |- N2] r' = sn2 in
 				let sn2' = r' [_ |- _] [_ |- S'] in
-				let snr' = SnCInl sn [_ |- N1] sn2' in
+				let snr' = SnCInl sn sn1 sn2' in
 				Conf snr' [g |- m-refl]
       )
-    | SnCInr sn sn1 [g, y: tm B[] |- N2] =>
+    | SnCInr sn sn1 sn2 =>
       let Acc [g] [|- sum A1[] A2[]] [g |- M0] r = sn in
       (case [g |- S] of
        | [g |- rcase (rinr S')] => let sn' = r [_ |- _] [_ |- S'] in
-				   let snr' = SnCInr sn' sn1 [_ |- N2] in
+				   let Acc [_] [|- _] [_ |- N2] r = sn2 in
+				   let snr' = SnCInr sn' sn1 sn2 in
 				   let ms = subst_mred [_ |- N2] [_ |- M0] [_ |- _] [_ |- S'] in
 				   Conf snr' ms
        | [g |- rcinr] => Eq
        | [g |- rcl (\x. S')] => let Acc [g, x: tm A1[]] [|- C[]] [g, x: tm A1[] |- N1] r' = sn1 in
 				let sn1' = r' [_ |- _] [_ |- S'] in
-				let snr' = SnCInr sn sn1' [_ |- N2] in
+				let Acc [_] [|- _] [_ |- N2] r = sn2 in
+				let snr' = SnCInr sn sn1' sn2 in
 				Conf snr' [g |- m-refl]
        | [g |- rcr (\x. S')] => let [_ |- S'] : [g, x: tm _ |- step N2 N2'] = [_ |- S'] in
 				let [_ |- S''] = subst_red [_ |- N2] [_ |- N2'] [_ |- M0] [_ |- S'] in
-				let snr' = SnCInr sn sn1 [g, x: tm _ |- N2'] in
+				let Acc [g, y: tm B[]] [|- C] [g, y: tm B[] |- N2] r = sn2 in
+				let sn2' = r [_ |- N2'] [_ |- S'] in
+				let snr' = SnCInr sn sn1 sn2' in
 				Conf snr' [g |- m-step S'' m-refl]
       )
     | SnCasR snr' [g, x: tm A[] |- N1] [g, y: tm B[] |- N2] =>
@@ -639,8 +698,8 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}
 			       let [_ |- MS] = mstep_match [_ |- _] [_ |- _] [_ |- N1] [_ |- N2] ms in
 			       Conf (SnCasR snr'' [_ |- N1] [_ |- N2]) [_ |- MS]
 			    )
-       | [g |- rcinl] => ?
-       | [g |- rcinr] => ?
+       | [g |- rcinl] => impossible snr'
+       | [g |- rcinr] => impossible snr'
        | [g |- rcl (\x. S')] =>
 	 let [_ |- S'] : [g, x: tm _ |- step N1 N1'] = [_ |- S'] in
 	 let snr'' = SnCasR snr' [_ |- N1'] [_ |- N2] in
@@ -704,8 +763,8 @@ rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}
 		  let snr = lemma443b [_ |- _] [_ |- _] sn in
 		  bc_aux [_] [ |- _] [ |- _ ] [_ |- _] [_ |- _] [_ |- _] snl snr r sn
 
-    | SnCInl sn [g, x: tm A[] |- N1] sn2 => ?
-    | SnCInr sn sn1 [g, y: tm B[] |- N2] => ?
+    | SnCInl sn sn1 sn2 => ?
+    | SnCInr sn sn1 sn2 => ?
     | SnCasR sn [g, x: tm A[] |- N1] [g, y: tm B[] |- N2] => ?
 ;
 
@@ -746,12 +805,14 @@ and soundSNRed : (g: cxt) {M: [g |- tm A[]]}
     case snr of
     | SBeta ([g, x: tm A[] |- M]) sn => let sn' = soundSN [_ |- _] sn in SnBeta [_ |- M] sn'
     | SAppl snr' => let snr'' = soundSNRed [_ |- _] [_ |- _] snr' in SnAppl snr''
-    | SCInl sn0 [g, x: tm A[] |- N1] sn2 => let sn0' = soundSN [_ |- _] sn0 in
-					    let sn2' = soundSN [_ |- _] sn2 in
-					    SnCInl sn0' [_ |- N1] sn2'
-    | SCInr sn0 sn1 [g, x: tm B[] |- N2] => let sn0' = soundSN [_ |- _] sn0 in
-					    let sn1' = soundSN [_ |- _] sn1 in
-					    SnCInr sn0' sn1' [_ |- N2]
+    | SCInl sn0 sn1 sn2 => let sn0' = soundSN [_ |- _] sn0 in
+			   let sn1' = soundSN [_ |- _] sn1 in
+			   let sn2' = soundSN [_ |- _] sn2 in
+			   SnCInl sn0' sn1' sn2'
+    | SCInr sn0 sn1 sn2 => let sn0' = soundSN [_ |- _] sn0 in
+			   let sn1' = soundSN [_ |- _] sn1 in
+			   let sn2' = soundSN [_ |- _] sn2 in
+			   SnCInr sn0' sn1' sn2'
     | SCasR snr' [g, x: tm A[] |- N1] [g, y: tm B[] |- N2] => let snr'' = soundSNRed [_ |- _] [_ |- _] snr' in
 							      SnCasR snr'' [_ |- N1] [_ |- N2]
 ;
