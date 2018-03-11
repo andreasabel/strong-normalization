@@ -519,11 +519,51 @@ rec match_sn : (g: cxt) {R  : [g |- tm (sum A[] B[])]}
 	)
 ;
 
+rec case_sna : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
+			{N1 : [g, x: tm A[] |- tm C[]]}
+			{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- match M (\x. N1) (\y. N2)]
+	       -> Sn [g |- M] =
+    / total sn (case_sna g a b c m n1 n2 sn) /
+    mlam M => mlam N1 => mlam N2 => fn sn =>
+    let [_ |- M]: [g |- tm (sum A[] B[])] = [_ |- M] in
+    let Acc [g] [|- C] [g |- match M (\x. N1) (\y. N2)] r = sn in
+    Acc [g] [|- sum A[] B[]] [g |- M]
+	(mlam M', S => case_sna [_ |- M'] [_ |- N1] [_ |- N2] (r [_ |- _] [_ |- rcase S]))
+;
+
+rec case_snb : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
+			{N1 : [g, x: tm A[] |- tm C[]]}
+			{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- match M (\x. N1) (\y. N2)]
+	       -> Sn [g, x: tm A[] |- N1] =
+    / total sn (case_snb g a b c m n1 n2 sn) /
+    mlam M => mlam N1 => mlam N2 => fn sn =>
+    let [_ |- N1]: [g, x: tm A[] |- tm C[]] = [_ |- N1] in
+    let Acc [g] [|- C] [g |- match M (\x. N1) (\y. N2)] r = sn in
+    Acc [g, x: tm A[]] [|- C] [g, x: tm A[] |- N1]
+	(mlam N1', S => case_snb [_ |- M] [_ |- N1'] [_ |- N2] (r [_ |- _] [_ |- rcl (\x. S)]))
+;
+
+rec case_snc : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
+			{N1 : [g, x: tm A[] |- tm C[]]}
+			{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- match M (\x. N1) (\y. N2)]
+	       -> Sn [g, y: tm B[] |- N2] =
+    / total sn (case_snc g a b c m n1 n2 sn) /
+    mlam M => mlam N1 => mlam N2 => fn sn =>
+    let [_ |- N2]: [g, y: tm B[] |- tm C[]] = [_ |- N2] in
+    let Acc [g] [|- C] [g |- match M (\x. N1) (\y. N2)] r = sn in
+    Acc [g, y: tm B[]] [|- C] [g, y: tm B[] |- N2]
+	(mlam N2', S => case_snc [_ |- M] [_ |- N1] [_ |- N2'] (r [_ |- _] [_ |- rcr (\y. S)]))
+;
+
 rec casel_sn : (g: cxt) {M  : [g |- tm A[]]}
 			{N1 : [g, x: tm A[] |- tm C[]]}
 			{N2 : [g, y: tm B[] |- tm C[]]}
 			Sn [g |- M] -> Sn [g |- N1[.., M]] -> Sn [g, y: tm B[] |- N2]
 	       -> Sn [g |- match (inl B[] M) (\x. N1) (\y. N2)] =
+    / trust /
     mlam M => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
     let [_ |- N2] : [g, y: tm B[] |- tm C[]] = [_ |- N2] in
@@ -551,6 +591,7 @@ rec caser_sn : (g: cxt) {M  : [g |- tm B[]]}
 			{N2 : [g, y: tm B[] |- tm C[]]}
 			Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g |- N2[.., M]]
 	       -> Sn [g |- match (inr A[] M) (\x. N1) (\y. N2)] =
+    / trust /
     mlam M => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
     let [_ |- N2] : [g, y: tm B[] |- tm C[]] = [_ |- N2] in
@@ -716,12 +757,12 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}
 ;
 
 
-rec bc_aux : {g: cxt}{A : [ |- ty]}{B : [ |- ty]}
-		      {M : [g |- tm (arr A[] B[])]}
-		      {M': [g |- tm (arr A[] B[])]}
-		      {N : [g |- tm A[]]}
-		      Sn [g |- M] -> Sn [g |- N] -> SnRed [g |- M] [g |- M'] -> Sn [g |- app M' N]
-	     -> Sn [g |- app M N] =
+rec bc_aux_app : {g: cxt}{A : [ |- ty]}{B : [ |- ty]}
+			 {M : [g |- tm (arr A[] B[])]}
+			 {M': [g |- tm (arr A[] B[])]}
+			 {N : [g |- tm A[]]}
+			 Sn [g |- M] -> Sn [g |- N] -> SnRed [g |- M] [g |- M'] -> Sn [g |- app M' N]
+		 -> Sn [g |- app M N] =
     / trust / % lexicographic induction on sn1 and sn2 which is currently not supported
     mlam g, A, B, M, M', N => fn sn1 => fn sn2 => fn snr => fn sn =>
     Acc  [g] [ |- B] [g |- app M N]
@@ -730,25 +771,62 @@ rec bc_aux : {g: cxt}{A : [ |- ty]}{B : [ |- ty]}
 	  | [g |- rappl S'] => let conf = confluence [_ |- M] [_ |- M'] [_ |- _] [_ |- S'] snr in
 			       (case conf of
 				| Eq => sn
-				| Conf snr' ms => let ms' = mstep_appl [_ |- M'] [_ |- _] [_ |- N] ms in
-						  let sn' = mstep_sn [_ |- app M' N] [_ |- _] ms' sn in
-						  let Acc [g] [ |- arr A B] [g |- M] r = sn1 in
-						  let sn1' = r [_ |- _] [_ |- S'] in
-						  bc_aux [_] [ |- _] [ |- _ ] [_ |- _] [_ |- _] [_ |- N] sn1' sn2 snr' sn'
+				| Conf snr' ms =>
+				  let ms' = mstep_appl [_ |- M'] [_ |- _] [_ |- N] ms in
+				  let sn' = mstep_sn [_ |- app M' N] [_ |- _] ms' sn in
+				  let Acc [g] [ |- arr A B] [g |- M] r = sn1 in
+				  let sn1' = r [_ |- _] [_ |- S'] in
+				  bc_aux_app [_] [ |- _] [ |- _ ] [_ |- _] [_ |- _] [_ |- N] sn1' sn2 snr' sn'
 			 )
 	  | [g |- rappr S'] => let Acc [g] [ |- B] [g |- app M' N] r = sn in
-			 let sn' = r [_ |- _] [_ |- rappr S'] in
-			 let Acc [g] [ |- A] [g |- N] r' = sn2 in
-			 let sn2' = r' [_ |- _] [_ |- S'] in
-			 bc_aux  [_] [ |- _] [ |- _ ] [_ |- M] [_ |- M'] [_ |- _] sn1 sn2' snr sn'
-
-
+			       let sn' = r [_ |- _] [_ |- rappr S'] in
+			       let Acc [g] [ |- A] [g |- N] r' = sn2 in
+			       let sn2' = r' [_ |- _] [_ |- S'] in
+			       bc_aux_app  [_] [ |- _] [ |- _ ] [_ |- M] [_ |- M'] [_ |- _] sn1 sn2' snr sn'
 	 )
     
 ;
 
-
-
+rec bc_aux_sum : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
+			  {M' : [g |- tm (sum A[] B[])]}
+			  {N1 : [g, x: tm A[] |- tm C[]]}
+			  {N2 : [g, y: tm B[] |- tm C[]]}
+			  Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g, y: tm B[] |- N2]
+		 -> SnRed [g |- M] [g |- M']
+		 -> Sn [g |- match M' (\x. N1) (\y. N2)]
+		 -> Sn [g |- match M  (\x. N1) (\y. N2)] =
+    / trust /
+    mlam M => mlam M' => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 => fn snr => fn sn' =>
+    let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
+    Acc [g] [|- C] [g |- match M (\x. N1) (\y. N2)]
+	(mlam Q, S =>
+	 case [g |- S] of
+	 | [g |- rcase S'] => let conf = confluence [_ |- M] [_ |- M'] [_ |- _] [_ |- S'] snr in
+			      (case conf of
+			       | Eq => sn'
+			       | Conf snr' ms =>
+				 let [_ |- MS] = mstep_match [_ |- M'] [_ |- _] [_ |- N1] [_ |- N2] ms in
+				 let sn'' = mstep_sn [_ |- _] [_ |- _] [_ |- MS] sn' in
+				 let Acc [g] [|- _] [g |- M] r = sn0 in
+				 let sn0' = r [_ |- _] [_ |- S'] in
+				 bc_aux_sum [_ |- _] [_ |- _] [_ |- N1] [_ |- N2] sn0' sn1 sn2 snr' sn''
+			      )
+	 | [g |- rcinl] => impossible snr
+	 | [g |- rcinr] => impossible snr
+	 | [g |- rcl (\x. S')] => let [_ |- S']: [g, x: tm _ |- step N1 N1'] = [_ |- S'] in
+				  let Acc [g] [|- _] [g |- _] r = sn' in
+				  let sn'' = r [g |- match M' (\x. N1') (\y. N2)] [g |- rcl (\x. S')] in
+				  let Acc [g, x: tm _] [|- C] [g, x: tm _ |- N1] r' = sn1 in
+				  let sn1' = r' [_ |- N1'] [_ |- S'] in
+				  bc_aux_sum [_ |- M] [_ |- M'] [_ |- N1'] [_ |- N2] sn0 sn1' sn2 snr sn''
+	 | [g |- rcr (\y. S')] => let [_ |- S']: [g, y: tm _ |- step N2 N2'] = [_ |- S'] in
+				  let Acc [g] [|- _] [g |- _] r = sn' in
+				  let sn'' = r [g |- match M' (\x. N1) (\y. N2')] [g |- rcr (\y. S')] in
+				  let Acc [g, y: tm _] [|- C] [g, y: tm _ |- N2] r' = sn2 in
+				  let sn2' = r' [_ |- N2'] [_ |- S'] in
+				  bc_aux_sum [_ |- M] [_ |- M'] [_ |- N1] [_ |- N2'] sn0 sn1 sn2' snr sn''
+	)
+;
 
 rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}
 				 {M': [g |- tm A[]]}
@@ -761,11 +839,16 @@ rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}
     | SnAppl r => let snl' = lemma443a [_ |- _] [_ |- _] sn in
 		  let snl = backwards_closure [_ |- _] [_ |- _] r snl' in
 		  let snr = lemma443b [_ |- _] [_ |- _] sn in
-		  bc_aux [_] [ |- _] [ |- _ ] [_ |- _] [_ |- _] [_ |- _] snl snr r sn
+		  bc_aux_app [_] [ |- _] [ |- _ ] [_ |- _] [_ |- _] [_ |- _] snl snr r sn
 
-    | SnCInl sn sn1 sn2 => ?
-    | SnCInr sn sn1 sn2 => ?
-    | SnCasR sn [g, x: tm A[] |- N1] [g, y: tm B[] |- N2] => ?
+    | SnCInl sn0 sn1 sn2 => casel_sn [_ |- _] [_ |- _] [_ |- _] sn0 sn sn2
+    | SnCInr sn0 sn1 sn2 => caser_sn [_ |- _] [_ |- _] [_ |- _] sn0 sn1 sn
+    | SnCasR snr' [g, x: tm A[] |- N1] [g, y: tm B[] |- N2] =>
+      let sn' = case_sna [_ |- _] [_ |- N1] [_ |- N2] sn in
+      let sn0 = backwards_closure [_ |- _] [_ |- _] snr' sn' in
+      let sn1 = case_snb [_ |- _] [_ |- N1] [_ |- N2] sn in
+      let sn2 = case_snc [_ |- _] [_ |- N1] [_ |- N2] sn in
+      bc_aux_sum [_ |- _] [_ |- _] [_ |- _] [_ |- _] sn0 sn1 sn2 snr' sn
 ;
 
 
