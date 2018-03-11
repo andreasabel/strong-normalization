@@ -1,4 +1,4 @@
-% coverage
+%coverage
 % step rules rinl and rinr send coverage checker into an infinite loop? -ah
 
 LF ty : type =
