@@ -499,7 +499,7 @@ rec match_sn : (g: cxt) {R  : [g |- tm (sum A[] B[])]}
 			{N2 : [g, y: tm B[] |- tm C[]]}
 			Neutral [g |- R] -> Sn [g |- R] -> Sn [g, x: tm A[] |- N1] -> Sn [g, y: tm B[] |- N2]
 	       -> Sn [g |- match R (\x. N1) (\y. N2)] =
-    / trust / % Lexicographic induction
+    / trust / % Lexicographic induction on sn0, sn1, sn2
     mlam R => mlam N1 => mlam N2 => fn neu => fn sn0 => fn sn1 => fn sn2 =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
     Acc [g] [|- C] [g |- match R (\x. N1) (\y. N2)]
@@ -563,7 +563,7 @@ rec casel_sn : (g: cxt) {M  : [g |- tm A[]]}
 			{N2 : [g, y: tm B[] |- tm C[]]}
 			Sn [g |- M] -> Sn [g |- N1[.., M]] -> Sn [g, y: tm B[] |- N2]
 	       -> Sn [g |- match (inl B[] M) (\x. N1) (\y. N2)] =
-    / trust /
+    / trust / % Lexicographic induction on sn0, sn1, sn2
     mlam M => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
     let [_ |- N2] : [g, y: tm B[] |- tm C[]] = [_ |- N2] in
@@ -591,7 +591,7 @@ rec caser_sn : (g: cxt) {M  : [g |- tm B[]]}
 			{N2 : [g, y: tm B[] |- tm C[]]}
 			Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g |- N2[.., M]]
 	       -> Sn [g |- match (inr A[] M) (\x. N1) (\y. N2)] =
-    / trust /
+    / trust / % Lexicographic induction on sn0, sn1, sn2
     mlam M => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
     let [_ |- N2] : [g, y: tm B[] |- tm C[]] = [_ |- N2] in
@@ -795,7 +795,7 @@ rec bc_aux_sum : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
 		 -> SnRed [g |- M] [g |- M']
 		 -> Sn [g |- match M' (\x. N1) (\y. N2)]
 		 -> Sn [g |- match M  (\x. N1) (\y. N2)] =
-    / trust /
+    / trust / % Lexicographic induction on sn0, sn1, sn2, snr, sn'
     mlam M => mlam M' => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 => fn snr => fn sn' =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
     Acc [g] [|- C] [g |- match M (\x. N1) (\y. N2)]
