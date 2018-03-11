@@ -508,8 +508,8 @@ rec match_sn : (g: cxt) {R  : [g |- tm (sum A[] B[])]}
 			      let sn0' = r [_ |- _] [_ |- S'] in
 			      let neu' = neu_step [_ |- _] [_ |- _] [_ |- S'] neu in
 			      match_sn [_ |- _] [_ |- N1] [_ |- N2] neu' sn0' sn1 sn2
-	 | [g |- rcinl] => ? % Need lemma about substituting neutral terms
-	 | [g |- rcinr] => ? % Need lemma about substituting neutral terms
+	 | [g |- rcinl] => impossible neu
+	 | [g |- rcinr] => impossible neu
 	 | [g |- rcl (\x. S')] => let Acc [g, x: tm A[]] [|- C[]] [g, x: tm A[] |- N1] r = sn1 in
 				  let sn1' = r [_ |- _] [_ |- S'] in
 				  match_sn [_ |- R] [_ |- _] [_ |- N2] neu sn0 sn1' sn2
