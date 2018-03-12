@@ -1,5 +1,4 @@
-% 2017-05-02
-% Strong normalization (SN/SNe) for simply-typed lambda-calculus in Beluga
+% Strong normalization (SN/SNe) for simply-typed lambda-calculus extended with disjoint sums
 % using an inductive definition of SN/SNe
 
 LF ty : type =
@@ -39,18 +38,19 @@ inductive SN : (g : cxt) {M : [ g |- tm A[]] } ctype =
 and inductive SNe : (g : cxt) {M : [ g |- tm A[] ] } ctype =
 | SVar  : {#p:[g |- tm A[]]} SNe [g |- #p]
 | SApp  : SNe [g |- R] -> SN [g |- M] -> SNe [g |- app R M]
-| SCas  : SNe [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y: tm B[] |- N2] -> SNe [g |- match M (\x.N1) (\y.N2)]
+| SCase : SNe [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
+	   -> SNe [g |- match M (\x.N1) (\y.N2)]
 
 and inductive SNRed : (g : cxt) {M : [g |- tm A[]]} {M' : [g |- tm A[]]} ctype = 
-| SBeta :  {M:[g, x:tm A[] |- tm B[]]} SN [g |- N]
-          -> SNRed [g |- app (abs A[] \x.M) N] [g |- M[..,N]]
+| SBeta  : {M:[g, x:tm A[] |- tm B[]]} SN [g |- N]
+           -> SNRed [g |- app (abs A[] \x.M) N] [g |- M[..,N]]
 | SAppl  : SNRed [g |- R] [g |- R'] -> SNRed [g |- app R M] [g |- app R' M]
-| SCInl :  SN [g |- M] -> SN [g, x:tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
-          -> SNRed [g |- match (inl B[] M) (\x.N1) (\y.N2)] [g |- N1[..,M]]
-| SCInr :  SN [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y:tm B[] |- N2]
-          -> SNRed [g |- match (inr A[] M) (\x.N1) (\y.N2)] [g |- N2[..,M]]
-| SCase :  SNRed [g |- M] [g |- M'] -> {N1:[g, x:tm A[] |- tm C[]]} {N2:[g, y:tm B[] |- tm C[]]}
-	     SNRed [g |- match M (\x.N1) (\y.N2)] [g |- match M' (\x.N1) (\y.N2)]
+| SCInl  : SN [g |- M] -> SN [g, x:tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
+           -> SNRed [g |- match (inl B[] M) (\x.N1) (\y.N2)] [g |- N1[..,M]]
+| SCInr  : SN [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y:tm B[] |- N2]
+           -> SNRed [g |- match (inr A[] M) (\x.N1) (\y.N2)] [g |- N2[..,M]]
+| SRCase : SNRed [g |- M] [g |- M'] -> {N1:[g, x:tm A[] |- tm C[]]} {N2:[g, y:tm B[] |- tm C[]]}
+	      SNRed [g |- match M (\x.N1) (\y.N2)] [g |- match M' (\x.N1) (\y.N2)]
 ;
 
 %{
@@ -70,10 +70,10 @@ rec anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} S
    let r' = anti_renameSNe [_ |- #R] [_ |- _] r in 
    let s' = anti_renameSN [_] [_] [_ |- #R] [_ |- _] s in 
     SApp r' s'
-|  SCas s1 s2 s3 => let s1' = anti_renameSNe [_ |- #R] [_ |- _] s1 in
+|  SCase s1 s2 s3 => let s1' = anti_renameSNe [_ |- #R] [_ |- _] s1 in
 		    let s2' = anti_renameSN [_, x:tm _] [_, x:tm _] [_, x:tm _ |- #R[..], x] [_ |- _] s2 in
 		    let s3' = anti_renameSN [_, y:tm _] [_, y:tm _] [_, y:tm _ |- #R[..], y] [_ |- _] s3 in
-		    SCas s1' s2' s3'
+		    SCase s1' s2' s3'
 
 and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N'] -> SNRed' [g' |- #R] [g |- M] [g' |- N'] =
     / total s (anti_renameSNRed g g' a r m s) / 
@@ -92,8 +92,9 @@ mlam g, g', #R, M => fn r => case r of
 		   let s1 = anti_renameSN [g, x:tm _] [_] [g', x:tm _ |- #R[..], x] [_ |- _] n1 in
 		   let s2 = anti_renameSN [g, y:tm _] [_] [g', y:tm _ |- #R[..], y] [_ |- _] n2 in
 		   SNRed' [_] [_] [_ |- _] (SCInr s' s1 s2)
-| SCase s [g', x:tm _ |- _] [g', y:tm _ |- _] => let SNRed' [_] [_] [_ |- _] s' = anti_renameSNRed [_] [_] [_ |- #R] [_ |- _] s in
-						 SNRed' [_] [_] [_ |- _] (SCase s' [g, x:tm _ |- _] [g, y:tm _ |- _])
+| SRCase s [g', x:tm _ |- _] [g', y:tm _ |- _] =>
+  let SNRed' [_] [_] [_ |- _] s' = anti_renameSNRed [_] [_] [_ |- #R] [_ |- _] s in
+  SNRed' [_] [_] [_ |- _] (SRCase s' [g, x:tm _ |- _] [g, y:tm _ |- _])
 
 and anti_renameSN   : {h : cxt}{h' : cxt} {#R : [h' |-# h]}{M : [h |- tm A[]]} SN [h' |- M[#R]] -> SN [h |- M]  =
     / total s (anti_renameSN h h' a r m s) / 
@@ -130,7 +131,7 @@ mlam #R, M => fn s => case s of
 | SVar [g |- #p] => SVar [_ |- #p[#R]]
 | SApp s1 s2 =>  SApp (renameSNe [_ |- #R] [_ |- _ ] s1)
                      (renameSN [_] [_] [_ |- #R] [_ |- _ ] s2)
-| SCas s1 s2 s3 => SCas (renameSNe [_ |- #R] [_ |- _] s1)
+| SCase s1 s2 s3 => SCase (renameSNe [_ |- #R] [_ |- _] s1)
 			(renameSN [_, x:tm _] [_, x:tm _] [_, x:tm _ |- #R[..], x] [_, x:tm _ |- _] s2)
 			(renameSN [_, y:tm _] [_, y:tm _] [_, y:tm _ |- #R[..], y] [_, y:tm _ |- _] s3)
 
@@ -146,7 +147,7 @@ mlam #R, M => fn s => case s of
 | SCInr s' n1 n2 => SCInr (renameSN [_] [_] [_ |- #R] [_ |- _] s')
 			  (renameSN [_, x:tm _] [_, x:tm _] [_, x:tm _ |- #R[..], x] [_, x:tm _ |- _] n1)
 			  (renameSN [_, y:tm _] [_, y:tm _] [_, y:tm _ |- #R[..], y] [_, y:tm _ |- _] n2)
-| SCase s' [g, x:tm A[] |- N1] [g, y:tm B[] |- N2] => SCase (renameSNRed [_ |- #R] [_ |- _] s')
+| SRCase s' [g, x:tm A[] |- N1] [g, y:tm B[] |- N2] => SRCase (renameSNRed [_ |- #R] [_ |- _] s')
 							    [_, x:tm A[] |- N1[#R[..], x]]
 							    [_, y:tm B[] |- N2[#R[..], y]]
 ;
@@ -182,12 +183,11 @@ stratified Red : {A : [ |- ty ]} (g : cxt) {M : [ g |- tm A[] ]} ctype =
          -> Red [ |- arr A B ] [g |- M]
   | RSum  : DSClosure [g |- M] -> Red [|- sum A B] [g |- M]
 
-% Closure under SNRed
+% Closure under SNRed for disjoint sums
 and inductive DSClosure : (g : cxt) {M : [ g |- tm (sum A[] B[]) ]} ctype =
   | DSLeft  : Red [|- A] [g |- N] -> Eq [g |- inl B[] N] [g |- M] -> DSClosure [g |- M]
   | DSRight : Red [|- B] [g |- N] -> Eq [g |- inr A[] N] [g |- M] -> DSClosure [g |- M]
   | DSSNe   : SNe [g |- M] -> DSClosure [g |- M]
-  % Why is this allowed?
   | DSRed   : DSClosure [g |- M] -> SNRed [g |- N] [g |- M] -> DSClosure [g |- N]
   ;
 
@@ -302,7 +302,8 @@ rec fundVar : {g : cxt} {#p : [g |- tm A[]]}
       | [g, x : tm A[] |- #q[..]] => let RCons r s' = s in fundVar [g] [g |- #q] s'
 ;
 
-rec eq_red : Eq [g |- M] [g |- N] -> Red [ |- C] [g |- match M (\x.N1) (\y.N2)] -> Red [ |- C] [g |- match N (\x.N1) (\y.N2)] = 
+rec eq_red : Eq [g |- M] [g |- N] -> Red [ |- C] [g |- match M (\x.N1) (\y.N2)]
+	     -> Red [ |- C] [g |- match N (\x.N1) (\y.N2)] =
 / total (eq_red) /
 fn e => fn r => let Refl = e in r;
 
@@ -373,11 +374,11 @@ and main_ds : {g : cxt}{g' : cxt}{M : [g' |- tm (sum A[] B[])]}
 					      (rename_redS [g'] [g', y : tm _ ] [g', y : tm _ |- ..] rs)) in
 		   let sn1 = cr1 [_] [|- _] [_ |- _] r1 in
 		   let sn2 = cr1 [_] [|- _] [_ |- _] r2 in
-		   let sne' = SCas sne sn1 sn2 in
+		   let sne' = SCase sne sn1 sn2 in
 		   cr2 [_] [|- _] [_ |- _] sne'
     | DSRed d' r => let (r : SNRed [_ |- _] [g' |- M']) = r in
 		    let r' = main_ds [g] [g'] [g' |- M'] [g, x:tm _ |- N1] [g, y:tm _ |- N2] [_ |- #S] rs d' in
-		    let snr = SCase r [g', x:tm _ |- N1[#S[..], x]] [g', y:tm _ |- N2[#S[..], y]] in
+		    let snr = SRCase r [g', x:tm _ |- N1[#S[..], x]] [g', y:tm _ |- N2[#S[..], y]] in
 		    cr3 [_] [|- _] [_ |- _] [_ |- _] snr r'
   ;
 
