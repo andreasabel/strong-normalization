@@ -24,7 +24,14 @@ LF step : tm A -> tm A -> type =
   | rabs  : ({x : tm A} step (M x) (M' x)) -> step (abs _ M) (abs _ M')
   | rappl : step M M' -> step (app M N) (app M' N)
   | rappr : step N N' -> step (app M N) (app M N')
-  ;
+  | rinl  : step M N -> step (inl B M) (inl B N)
+  | rinr  : step M N -> step (inr A M) (inr A N)
+  | rcase : step M M' -> step (match M N1 N2) (match M' N1 N2)
+  | rcinl : step (match (inl B M) N1 N2) (N1 M)
+  | rcinr : step (match (inr A M) N1 N2) (N2 M)
+  | rcl   : ({x : tm A} step (N x) (N' x)) -> step (match M N N2) (match M N' N2)
+  | rcr   : ({x : tm B} step (N x) (N' x)) -> step (match M N1 N) (match M N1 N')
+;
 
 
 inductive SN : (g : cxt) {M : [ g |- tm A[]] } ctype = 
