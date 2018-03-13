@@ -17,7 +17,7 @@ LF tm : ty -> type =
   ;
 %name tm M.
 
-schema cxt = tm A; % some [a : ty] block tm a;
+schema cxt = tm A;
 
 LF step : tm A -> tm A -> type =
   | rbeta : step (app (abs _ M) N) (M N)
