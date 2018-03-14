@@ -295,13 +295,12 @@ rec app_sn : {g: cxt}{A:[ |- ty]}{B: [ |- ty]}
 	 | [g |- rappl S'] => let Acc [g] [ |- arr A B] [g |- R] r = sn1 in
 %			      let sn' = r [_ |- _] [_ |- S'] in
 			      let neu' = neu-step [_ |- R] [_ |- _] [_ |- S'] neu in
-			      app_sn [g] [ |- A] [|- B ] [g |- _] [g |- N] neu'  ( r [_ |- _] [_ |- S'])   sn2
+			      app_sn [g] [ |- A] [|- B ] [g |- _] [g |- N] neu' (r [_ |- _] [_ |- S']) sn2
 	 | [g |- rappr S'] => let Acc [g] [|- A] [g |- N] r = sn2 in
 %			      let sn' = r [_ |- _] [_ |- S'] in
-			      app_sn [g] [ |- A] [|- B] [_ |- R] [_ |- _] neu sn1  (r [_ |- _] [_ |- S'])
+			      app_sn [g] [ |- A] [|- B] [_ |- R] [_ |- _] neu sn1 (r [_ |- _] [_ |- S'])
 	)
 ;
-
 
 % Confluence of sn
 
@@ -366,20 +365,23 @@ rec bc_aux : {g: cxt}{A : [ |- ty]}{B : [ |- ty]}
     Acc  [g] [ |- B] [g |- app M N]
          (mlam Q, S => case [g |- S] of
 	  | [g |- rbeta] => impossible snr
-	  | [g |- rappl S'] => let conf = confluence [_ |- M] [_ |- M'] [_ |- _] [_ |- S'] snr in
-			       (case conf of
-				| Eq => sn
-				| Conf snr' ms => let ms' = mstep_appl [_ |- M'] [_ |- _] [_ |- N] ms in
-						  let sn' = mstep_sn [_ |- app M' N] [_ |- _] ms' sn in
-						  let Acc [g] [ |- arr A B] [g |- M] r = sn1 in
-%						  let sn1' = r [_ |- _] [_ |- S'] in
-						  bc_aux [_] [ |- _] [ |- _ ] [_ |- _] [_ |- _] [_ |- N] (r [_ |- _] [_ |- S']) sn2 snr' sn'
-			 )
-	  | [g |- rappr S'] => let Acc [g] [ |- B] [g |- app M' N] r = sn in
-			 let sn' = r [_ |- _] [_ |- rappr S'] in
-			 let Acc [g] [ |- A] [g |- N] r' = sn2 in
-%			 let sn2' = r' [_ |- _] [_ |- S'] in
-			 bc_aux  [_] [ |- _] [ |- _ ] [_ |- M] [_ |- M'] [_ |- _] sn1 (r' [_ |- _] [_ |- S']) snr sn'
+	  | [g |- rappl S'] =>
+	    let conf = confluence [_ |- M] [_ |- M'] [_ |- _] [_ |- S'] snr in
+	    (case conf of
+	     | Eq => sn
+	     | Conf snr' ms =>
+	       let ms' = mstep_appl [_ |- M'] [_ |- _] [_ |- N] ms in
+	       let sn' = mstep_sn [_ |- app M' N] [_ |- _] ms' sn in
+	       let Acc [g] [ |- arr A B] [g |- M] r = sn1 in
+%	       let sn1' = r [_ |- _] [_ |- S'] in
+	       bc_aux [_] [ |- _] [ |- _ ] [_ |- _] [_ |- _] [_ |- N] (r [_ |- _] [_ |- S']) sn2 snr' sn'
+	    )
+	  | [g |- rappr S'] =>
+	    let Acc [g] [ |- B] [g |- app M' N] r = sn in
+	    let sn' = r [_ |- _] [_ |- rappr S'] in
+	    let Acc [g] [ |- A] [g |- N] r' = sn2 in
+%     	    let sn2' = r' [_ |- _] [_ |- S'] in
+	    bc_aux  [_] [ |- _] [ |- _ ] [_ |- M] [_ |- M'] [_ |- _] sn1 (r' [_ |- _] [_ |- S']) snr sn'
 	 )
 ;
 

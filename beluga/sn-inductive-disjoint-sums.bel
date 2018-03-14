@@ -78,9 +78,9 @@ rec anti_renameSNe  : (g : cxt)(g' : cxt) {#R : [g' |-# g]}{M : [g |- tm A[]]} S
    let s' = anti_renameSN [_] [_] [_ |- #R] [_ |- _] s in 
     SApp r' s'
 |  SCase s1 s2 s3 => let s1' = anti_renameSNe [_ |- #R] [_ |- _] s1 in
-		    let s2' = anti_renameSN [_, x:tm _] [_, x:tm _] [_, x:tm _ |- #R[..], x] [_ |- _] s2 in
-		    let s3' = anti_renameSN [_, y:tm _] [_, y:tm _] [_, y:tm _ |- #R[..], y] [_ |- _] s3 in
-		    SCase s1' s2' s3'
+		     let s2' = anti_renameSN [_, x:tm _] [_, x:tm _] [_, x:tm _ |- #R[..], x] [_ |- _] s2 in
+		     let s3' = anti_renameSN [_, y:tm _] [_, y:tm _] [_, y:tm _ |- #R[..], y] [_ |- _] s3 in
+		     SCase s1' s2' s3'
 
 and anti_renameSNRed: {g : cxt}{g' : cxt} {#R : [g' |-# g]}{M : [g |- tm A[]]} SNRed [g' |- M[#R]] [g' |- N'] -> SNRed' [g' |- #R] [g |- M] [g' |- N'] =
     / total s (anti_renameSNRed g g' a r m s) / 
