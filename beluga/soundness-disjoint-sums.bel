@@ -60,16 +60,16 @@ and inductive SNe : (g: cxt) {M: [ g |- tm A[]]} ctype =
 		-> SNe [g |- match M (\x. N1) (\y. N2)]
 
 and inductive SNRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]} ctype =
-      | SBeta : {M: [g, x: tm A[] |- tm B[]]} SN [g |- N]
-		-> SNRed [g |- app (abs \x. M) N] [g |- M[..,N]]
-      | SAppl : SNRed [g |- R] [g |- R']
-		-> SNRed [g |- app R M] [g |- app R' M]
-      | SCInl : SN [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
-		-> SNRed [g |- match (inl B[] M) (\x. N1) (\y. N2)] [g |- N1[.., M]]
-      | SCInr : SN [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
-		-> SNRed [g |- match (inr A[] M) (\x. N1) (\y. N2)] [g |- N2[.., M]]
-      | SCasR : SNRed [g |- M] [g |- M'] -> {N1: [g, x: tm A[] |- tm C[]]} {N2: [g, y: tm B[] |- tm C[]]}
-		   SNRed [g |- match M (\x. N1) (\y. N2)] [g |- match M' (\x. N1) (\y. N2)]
+      | SBeta  : {M: [g, x: tm A[] |- tm B[]]} SN [g |- N]
+		 -> SNRed [g |- app (abs \x. M) N] [g |- M[..,N]]
+      | SAppl  : SNRed [g |- R] [g |- R']
+		 -> SNRed [g |- app R M] [g |- app R' M]
+      | SCInl  : SN [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
+		 -> SNRed [g |- match (inl B[] M) (\x. N1) (\y. N2)] [g |- N1[.., M]]
+      | SCInr  : SN [g |- M] -> SN [g, x: tm A[] |- N1] -> SN [g, y: tm B[] |- N2]
+		 -> SNRed [g |- match (inr A[] M) (\x. N1) (\y. N2)] [g |- N2[.., M]]
+      | SRCase : SNRed [g |- M] [g |- M'] -> {N1: [g, x: tm A[] |- tm C[]]} {N2: [g, y: tm B[] |- tm C[]]}
+		    SNRed [g |- match M (\x. N1) (\y. N2)] [g |- match M' (\x. N1) (\y. N2)]
 ;
 
 % Strong head reduction
@@ -890,7 +890,7 @@ and soundSNRed : (g: cxt) {M: [g |- tm A[]]}
 			   let sn1' = soundSN [_ |- _] sn1 in
 			   let sn2' = soundSN [_ |- _] sn2 in
 			   SnCInr sn0' sn1' sn2'
-    | SCasR snr' [g, x: tm A[] |- N1] [g, y: tm B[] |- N2] => let snr'' = soundSNRed [_ |- _] [_ |- _] snr' in
+    | SRCase snr' [g, x: tm A[] |- N1] [g, y: tm B[] |- N2] => let snr'' = soundSNRed [_ |- _] [_ |- _] snr' in
 							      SnCasR snr'' [_ |- N1] [_ |- N2]
 ;
 
