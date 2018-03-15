@@ -233,7 +233,7 @@ rec app_abs_sn : {g: cxt} {A : [ |- ty]} {B : [ |- ty]}
 			  {N: [g |- tm A[]]}
 			  Sn [g |- M[.., N]] -> Sn [g |- N]
 		 -> Sn [g |- app (abs \x. M) N] =
-    / trust /   % requires lexicographic order on sn1 and sn2
+   / total {sn1 sn2} (app_abs_sn g a b m n sn1 sn2) /
    mlam g, A, B, M, N => fn sn1 => fn sn2 =>
    Acc [g] [|- B] [g |- app (abs \x. M) N]
        (mlam P, S => case [_ |- S] of
@@ -242,14 +242,12 @@ rec app_abs_sn : {g: cxt} {A : [ |- ty]} {B : [ |- ty]}
 			     let [_ |- S''] : [g, x: tm _ |- step M M'] = [_ |- S''] in
 			     let [_ |- S'''] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S''] in
 			     let Acc [g] [ |- B] [g |- _ ] r = sn1 in
-			     let sn = r [_ |- M'[.., N]] [_ |- S'''] in
-			     app_abs_sn [g] [|- _] [|- _] [_ |- M'] [_ |- N] sn sn2
+			     app_abs_sn [g] [|- _] [|- _] [_ |- M'] [_ |- N] (r [_ |- M'[.., N]] [_ |- S''']) sn2
 	| [g |- rappr S'] => let Acc [g] [ |- A] [g |- N] r = sn2 in
 			     let [_ |- S'] : [_ |- step N N'] = [_ |- S'] in
-			     let sn = r [_ |- N'] [_ |- S'] in
 			     let [_ |- MS''] = subst_mred [_ |- M] [_ |- N] [_ |- N'] [_ |- S'] in
 			     let sn' = mstep_sn [_ |- M[.., N]] [_ |- M[.., N']] [_ |- MS''] sn1 in
-			     app_abs_sn [g] [|- _] [|- _] [_ |- M] [_ |- N'] sn' sn
+			     app_abs_sn [g] [|- _] [|- _] [_ |- M] [_ |- N'] sn' (r [_ |- N'] [_ |- S'])
        )
 ;
 
@@ -286,18 +284,15 @@ rec app_sn : {g: cxt}{A:[ |- ty]}{B: [ |- ty]}
 		     {N: [g |- tm A[]]}
 		     Neutral [g |- R] -> Sn [g |- R] -> Sn [g |- N]
 	     -> Sn [g |- app R N] =
-%    / trust / % Require lexicographic induction on sn1 and sn2 
      / total {sn1 sn2} (app_sn g a b r n neu sn1 sn2) /
     mlam g, A, B, R, N => fn neu => fn sn1 => fn sn2 =>
     Acc [g] [ |- B] [g |- app R N]
 	(mlam Q, S => case [g |- S] of
 	 | [g |- rbeta] => impossible neu
 	 | [g |- rappl S'] => let Acc [g] [ |- arr A B] [g |- R] r = sn1 in
-%			      let sn' = r [_ |- _] [_ |- S'] in
 			      let neu' = neu-step [_ |- R] [_ |- _] [_ |- S'] neu in
 			      app_sn [g] [ |- A] [|- B ] [g |- _] [g |- N] neu' (r [_ |- _] [_ |- S']) sn2
 	 | [g |- rappr S'] => let Acc [g] [|- A] [g |- N] r = sn2 in
-%			      let sn' = r [_ |- _] [_ |- S'] in
 			      app_sn [g] [ |- A] [|- B] [_ |- R] [_ |- _] neu sn1 (r [_ |- _] [_ |- S'])
 	)
 ;
@@ -358,8 +353,6 @@ rec bc_aux : {g: cxt}{A : [ |- ty]}{B : [ |- ty]}
 		     {N : [g |- tm A[]]}
 		     Sn [g |- M] -> Sn [g |- N] -> SnRed [g |- M] [g |- M'] -> Sn [g |- app M' N]
 	     -> Sn [g |- app M N] =
-%     / trust /
- % lexicographic induction on sn1 and sn2 which is currently not supported
  / total {sn1 sn2} (bc_aux g a b m m' n sn1 sn2) /
     mlam g, A, B, M, M', N => fn sn1 => fn sn2 => fn snr => fn sn =>
     Acc  [g] [ |- B] [g |- app M N]
@@ -373,14 +366,12 @@ rec bc_aux : {g: cxt}{A : [ |- ty]}{B : [ |- ty]}
 	       let ms' = mstep_appl [_ |- M'] [_ |- _] [_ |- N] ms in
 	       let sn' = mstep_sn [_ |- app M' N] [_ |- _] ms' sn in
 	       let Acc [g] [ |- arr A B] [g |- M] r = sn1 in
-%	       let sn1' = r [_ |- _] [_ |- S'] in
 	       bc_aux [_] [ |- _] [ |- _ ] [_ |- _] [_ |- _] [_ |- N] (r [_ |- _] [_ |- S']) sn2 snr' sn'
 	    )
 	  | [g |- rappr S'] =>
 	    let Acc [g] [ |- B] [g |- app M' N] r = sn in
 	    let sn' = r [_ |- _] [_ |- rappr S'] in
 	    let Acc [g] [ |- A] [g |- N] r' = sn2 in
-%     	    let sn2' = r' [_ |- _] [_ |- S'] in
 	    bc_aux  [_] [ |- _] [ |- _ ] [_ |- M] [_ |- M'] [_ |- _] sn1 (r' [_ |- _] [_ |- S']) snr sn'
 	 )
 ;
