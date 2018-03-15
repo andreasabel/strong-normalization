@@ -39,10 +39,8 @@ and soundSNe : (g: cxt) {M: [g |- tm A[]]} SNe [g |- M] -> Sn [g |- M] =
 			    let sn2 = soundSN [_ |- _] snr in
 			    match_sn [_ |- _] [_ |- _] [_ |- _] neu sn0 sn1 sn2
 
-and soundSNRed : (g: cxt) {M: [g |- tm A[]]}
-			  {M': [g |- tm A[]]}
-			  SNRed [g |- M] [g |- M']
-		 -> SnRed [g |- M] [g |- M'] =
+and soundSNRed : (g: cxt) {M: [g |- tm A[]]} {M': [g |- tm A[]]}
+			  SNRed [g |- M] [g |- M'] -> SnRed [g |- M] [g |- M'] =
      / total s (soundSNRed g a m m' s) /
     mlam M => mlam M' => fn snr =>
     case snr of

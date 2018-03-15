@@ -590,8 +590,7 @@ rec caser_sn : (g: cxt) {M  : [g |- tm B[]]}
 			{N2 : [g, y: tm B[] |- tm C[]]}
 			Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g |- N2[.., M]]
 	       -> Sn [g |- match (inr A[] M) (\x. N1) (\y. N2)] =
-    / trust / % Lexicographic induction on sn0, sn1, sn2
-    % / total {sn0 sn1 sn2} (caser_sn g b a c m n1 n2 sn0 sn1 sn2) /
+     / total {sn0 sn1 sn2} (caser_sn g b a c m n1 n2 sn0 sn1 sn2) /
     % Totality declaration gives a type error when all 3 of sn0, sn1, sn2 are in it.
     mlam M => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
@@ -600,18 +599,17 @@ rec caser_sn : (g: cxt) {M  : [g |- tm B[]]}
 	(mlam P, S =>
 	 case [g |- S] of
 	 | [g |- rcase (rinr S')] => let Acc [g] [|- B] [g |- M] r = sn0 in
-				     let sn0' = r [_ |- _] [_ |- S'] in
 				     let ms = subst_mred [_ |- N2] [_ |- M] [_ |- _] [_ |- S'] in
 				     let sn2' = mstep_sn [_ |- N2[.., M]] [_ |- _] ms sn2 in
-				     caser_sn [_ |- _] [_ |- N1] [_ |- N2] sn0' sn1 sn2'
+				     caser_sn [_ |- _] [_ |- N1] [_ |- N2] (r [_ |- _] [_ |- S']) sn1 sn2'
 	 | [g |- rcinr] => sn2
+
 	 | [g |- rcl (\x. S')] => let Acc [g, x: tm A[]] [|- C] [g, x: tm A[] |- N1] r = sn1 in
-				  let sn1' = r [_ |- _] [_ |- S'] in
-				  caser_sn [_ |- M] [_ |- _] [_ |- N2] sn0 sn1' sn2
+				  caser_sn [_ |- M] [_ |- _] [_ |- N2] sn0 (r [_ |- _] [_ |- S']) sn2
+
 	 | [g |- rcr (\y. S')] => let [_ |- S''] = subst_red [_ |- N2] [_ |- _] [_ |- M] [_ |- S'] in
 				  let Acc [g] [|- C] [g |- _] r = sn2 in
-				  let sn2' = r [_ |- _] [_ |- S''] in
-				  caser_sn [_ |- M] [_ |- N1] [_ |- _] sn0 sn1 sn2'
+				  caser_sn [_ |- M] [_ |- N1] [_ |- _] sn0 sn1 (r [_ |- _] [_ |- S''] )
 	)
 ;
 

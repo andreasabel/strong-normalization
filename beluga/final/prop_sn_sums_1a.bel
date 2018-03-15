@@ -10,8 +10,7 @@ rec varSn : (g:cxt) {#p: [g |- tm A[]]} Sn [g |- #p] =
 ;
 
 % If Sn [g, x: tm A[] |- M] then Sn [g |- abs \x. M].
-rec abs_sn : {g:cxt} {A : [ |- ty]}{B : [ |- ty]}
-		       {M : [g, x: tm A[] |- tm B[]]}
+rec abs_sn : {g:cxt} {A : [ |- ty]}{B : [ |- ty]}{M : [g, x: tm A[] |- tm B[]]}
 		       Sn [g, x: tm A[] |- M] -> Sn [g |- (abs \x. M)] =
      / total s (abs_sn g a b m  s) /
     mlam g, A, B => mlam M => fn sn => 
@@ -26,20 +25,16 @@ rec abs_sn : {g:cxt} {A : [ |- ty]}{B : [ |- ty]}
 ;
 
 % If Sn [g |- app M N] then Sn [g |- M] and Sn [g |- N].
-rec app_sna : (g: cxt) {M: [g |- tm (arr A[] B[])]}
-			 {N : [g |- tm A[]]}
-			 Sn [g |- (app M N)]
-		-> Sn [g |- M] =
+rec app_sna : (g: cxt) {M: [g |- tm (arr A[] B[])]}{N : [g |- tm A[]]}
+			 Sn [g |- (app M N)] -> Sn [g |- M] =
     / total s (app_sna g a b m n s) /
     mlam M => mlam N => fn sn =>
     let Acc  [g] [ |- B[]] [g |- app M N] r = sn in
     Acc [_] [_ |- _ ] [_ |- _ ] (mlam M' => mlam S =>
 	 app_sna [_ |- M'] [_ |- _] (r [_ |- app M' N] [_ |- rappl S]))
 ;
-rec app_snb : (g: cxt) {M: [g |- tm (arr A[] B[])]}
-			 {N : [g |- tm A[]]}
-			 Sn [g |- (app M N)]
-		-> Sn [g |- N] =
+rec app_snb : (g: cxt) {M: [g |- tm (arr A[] B[])]}{N : [g |- tm A[]]}
+			 Sn [g |- (app M N)] -> Sn [g |- N] =
      / total s (app_snb g a b m n s) /
     mlam M => mlam N => fn sn =>
     let Acc [g] [ |- B[]] [g |- app M N] r = sn in
@@ -48,10 +43,8 @@ rec app_snb : (g: cxt) {M: [g |- tm (arr A[] B[])]}
 ;
 
 % If Sn [g |- M] then Sn [g |- inl M].
-rec inl_sn : (g: cxt) {M: [g |- tm A[]]}
-		      {B: [|- ty]}
-		      Sn [g |- M]
-	     -> Sn [g |- inl B[] M] =
+rec inl_sn : (g: cxt) {M: [g |- tm A[]]}{B: [|- ty]}
+		      Sn [g |- M] -> Sn [g |- inl B[] M] =
     / total sn (inl_sn g a m b sn) /
     mlam M => mlam B => fn sn =>
     let Acc [g] [|- A[]] [g |- M] r = sn in
@@ -63,10 +56,8 @@ rec inl_sn : (g: cxt) {M: [g |- tm A[]]}
 ;
 
 % If Sn [g |- M] then Sn [g |- inr M].
-rec inr_sn : (g: cxt) {M: [g |- tm B[]]}
-		      {A: [|- ty]}
-		      Sn [g |- M]
-	     -> Sn [g |- inr A[] M] =
+rec inr_sn : (g: cxt) {M: [g |- tm B[]]}{A: [|- ty]}
+		      Sn [g |- M] -> Sn [g |- inr A[] M] =
     / total sn (inr_sn g b m a sn) /
     mlam M => mlam A => fn sn =>
     let Acc [g] [|- B[]] [g |- M] r = sn in
@@ -78,11 +69,8 @@ rec inr_sn : (g: cxt) {M: [g |- tm B[]]}
 
 % If Sn [g |- match M (\x. N1) (\y. N2) then Sn [g |- M] and Sn [g, x: tm A[] |- N1]
 % and Sn [g, y: tm B[] |- N2].
-rec case_sna : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
-			{N1 : [g, x: tm A[] |- tm C[]]}
-			{N2 : [g, y: tm B[] |- tm C[]]}
-			Sn [g |- match M (\x. N1) (\y. N2)]
-	       -> Sn [g |- M] =
+rec case_sna : (g: cxt) {M  : [g |- tm (sum A[] B[])]}{N1 : [g, x: tm A[] |- tm C[]]}{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- match M (\x. N1) (\y. N2)]  -> Sn [g |- M] =
     / total sn (case_sna g a b c m n1 n2 sn) /
     mlam M => mlam N1 => mlam N2 => fn sn =>
     let [_ |- M]: [g |- tm (sum A[] B[])] = [_ |- M] in
@@ -90,11 +78,8 @@ rec case_sna : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
     Acc [g] [|- sum A[] B[]] [g |- M]
 	(mlam M', S => case_sna [_ |- M'] [_ |- N1] [_ |- N2] (r [_ |- _] [_ |- rcase S]))
 ;
-rec case_snb : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
-			{N1 : [g, x: tm A[] |- tm C[]]}
-			{N2 : [g, y: tm B[] |- tm C[]]}
-			Sn [g |- match M (\x. N1) (\y. N2)]
-	       -> Sn [g, x: tm A[] |- N1] =
+rec case_snb : (g: cxt) {M  : [g |- tm (sum A[] B[])]}{N1 : [g, x: tm A[] |- tm C[]]}{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- match M (\x. N1) (\y. N2)] -> Sn [g, x: tm A[] |- N1] =
     / total sn (case_snb g a b c m n1 n2 sn) /
     mlam M => mlam N1 => mlam N2 => fn sn =>
     let [_ |- N1]: [g, x: tm A[] |- tm C[]] = [_ |- N1] in
@@ -102,11 +87,8 @@ rec case_snb : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
     Acc [g, x: tm A[]] [|- C] [g, x: tm A[] |- N1]
 	(mlam N1', S => case_snb [_ |- M] [_ |- N1'] [_ |- N2] (r [_ |- _] [_ |- rcl (\x. S)]))
 ;
-rec case_snc : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
-			{N1 : [g, x: tm A[] |- tm C[]]}
-			{N2 : [g, y: tm B[] |- tm C[]]}
-			Sn [g |- match M (\x. N1) (\y. N2)]
-	       -> Sn [g, y: tm B[] |- N2] =
+rec case_snc : (g: cxt) {M  : [g |- tm (sum A[] B[])]}{N1 : [g, x: tm A[] |- tm C[]]}{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- match M (\x. N1) (\y. N2)]  -> Sn [g, y: tm B[] |- N2] =
     / total sn (case_snc g a b c m n1 n2 sn) /
     mlam M => mlam N1 => mlam N2 => fn sn =>
     let [_ |- N2]: [g, y: tm B[] |- tm C[]] = [_ |- N2] in
@@ -116,11 +98,8 @@ rec case_snc : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
 ;
 
 % If Sn [g |- N] and Sn [g |- M[.., N]] then Sn [g |- app (abs \x. M) N].
-rec app_abs_sn : {g: cxt} {A : [ |- ty]}{B : [ |- ty]}
-		        {M: [g, x: tm A[] |- tm B[]]}
-			{N: [g |- tm A[]]}
-			Sn [g |- M[.., N]] -> Sn [g |- N]
-	       -> Sn [g |- app (abs \x. M) N] =
+rec app_abs_sn : {g: cxt} {A : [ |- ty]}{B : [ |- ty]}{M: [g, x: tm A[] |- tm B[]]}{N: [g |- tm A[]]}
+			Sn [g |- M[.., N]] -> Sn [g |- N] -> Sn [g |- app (abs \x. M) N] =
   / total {sn1 sn2} (app_abs_sn g a b m n sn1 sn2) /
    mlam g, A, B, M, N => fn sn1 => fn sn2 =>
    Acc [g] [ |- B] [g |- app (abs \x. M) N]
@@ -154,10 +133,8 @@ inductive Neutral: (g: cxt) {M: [g |- tm A[]]} ctype =
 % Closure properties of neutral terms
 
 % If Neutral [g |- R] and [g |- step R R'] then Neutral [g |- R'].
-rec neu_step : (g: cxt) {R  : [g |- tm A[]]}
-			{R' : [g |- tm A[]]}
-			[g |- step R R'] -> Neutral [g |- R]
-	       -> Neutral [g |- R'] =
+rec neu_step : (g: cxt) {R  : [g |- tm A[]]}{R' : [g |- tm A[]]}
+			[g |- step R R'] -> Neutral [g |- R] -> Neutral [g |- R'] =
     / total s (neu_step g a r r' s n) /
     mlam R => mlam R' => fn s => fn neu =>
     case neu of
@@ -181,11 +158,8 @@ rec neu_step : (g: cxt) {R  : [g |- tm A[]]}
 ;
 
 % If Neutral [g |- R] and Sn [g |- R] and Sn [g |- N] then Sn [g |- app R N].
-rec app_sn : {g: cxt}{A:[ |- ty]}{B: [ |- ty]}
-		     {R: [g |- tm (arr A[] B[])]}
-		     {N: [g |- tm A[]]}
-		     Neutral [g |- R] -> Sn [g |- R] -> Sn [g |- N]
-		-> Sn [g |- app R N] =
+rec app_sn : {g: cxt}{A:[ |- ty]}{B: [ |- ty]}{R: [g |- tm (arr A[] B[])]}{N: [g |- tm A[]]}
+		     Neutral [g |- R] -> Sn [g |- R] -> Sn [g |- N] -> Sn [g |- app R N] =
     / total {sn1 sn2} (app_sn g a b r n neu sn1 sn2) /
     mlam g, A, B, R, N => fn neu => fn sn1 => fn sn2 =>
     Acc [g] [ |- B] [g |- app R N]
@@ -201,11 +175,9 @@ rec app_sn : {g: cxt}{A:[ |- ty]}{B: [ |- ty]}
 
 % If Neutral [g |- R], Sn [g |- R], Sn [g, x: tm A[] |- N1], and Sn [g, y: tm B[] |- N2], then
 % Sn [g |- match R (\x. N1) (\y. N2)].
-rec match_sn : (g: cxt) {R  : [g |- tm (sum A[] B[])]}
-			{N1 : [g, x: tm A[] |- tm C[]]}
-			{N2 : [g, y: tm B[] |- tm C[]]}
+rec match_sn : (g: cxt) {R  : [g |- tm (sum A[] B[])]}{N1 : [g, x: tm A[] |- tm C[]]}{N2 : [g, y: tm B[] |- tm C[]]}
 			Neutral [g |- R] -> Sn [g |- R] -> Sn [g, x: tm A[] |- N1] -> Sn [g, y: tm B[] |- N2]
-	       -> Sn [g |- match R (\x. N1) (\y. N2)] =
+ 	              -> Sn [g |- match R (\x. N1) (\y. N2)] =
     / total {sn0 sn1 sn2} (match_sn g a b c r n1 n2 neu sn0 sn1 sn2) /
     mlam R => mlam N1 => mlam N2 => fn neu => fn sn0 => fn sn1 => fn sn2 =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
@@ -225,11 +197,8 @@ rec match_sn : (g: cxt) {R  : [g |- tm (sum A[] B[])]}
 
 % If Sn [g |- M] and Sn [g |- [M/x]N1] and Sn [g, y: tm B[] |- N2]
 % then Sn [g |- match (inl M) (\x. N1) (\y. N2)].
-rec casel_sn : (g: cxt) {M  : [g |- tm A[]]}
-			{N1 : [g, x: tm A[] |- tm C[]]}
-			{N2 : [g, y: tm B[] |- tm C[]]}
-			Sn [g |- M] -> Sn [g |- N1[.., M]] -> Sn [g, y: tm B[] |- N2]
-	       -> Sn [g |- match (inl B[] M) (\x. N1) (\y. N2)] =
+rec casel_sn : (g: cxt) {M  : [g |- tm A[]]}{N1 : [g, x: tm A[] |- tm C[]]}{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- M] -> Sn [g |- N1[.., M]] -> Sn [g, y: tm B[] |- N2] -> Sn [g |- match (inl B[] M) (\x. N1) (\y. N2)] =
     / total {sn0 sn1 sn2} (casel_sn g a b c m n1 n2 sn0 sn1 sn2) /
     mlam M => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
@@ -252,13 +221,10 @@ rec casel_sn : (g: cxt) {M  : [g |- tm A[]]}
 
 % If Sn [g |- M] and Sn [g, x: tm A[] |- N1] and Sn [g |- [M/y]N2]
 % then Sn [g |- match (inr M) (\x. N1) (\y. N2)].
-rec caser_sn : (g: cxt) {M  : [g |- tm B[]]}
-			{N1 : [g, x: tm A[] |- tm C[]]}
-			{N2 : [g, y: tm B[] |- tm C[]]}
-			Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g |- N2[.., M]]
-	       -> Sn [g |- match (inr A[] M) (\x. N1) (\y. N2)] =
-    / trust / % Lexicographic induction on sn0, sn1, sn2
-    % / total {sn0 sn1 sn2} (caser_sn g b a c m n1 n2 sn0 sn1 sn2) /
+rec caser_sn : (g: cxt) {M  : [g |- tm B[]]}{N1 : [g, x: tm A[] |- tm C[]]}{N2 : [g, y: tm B[] |- tm C[]]}
+			Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g |- N2[.., M]]   -> Sn [g |- match (inr A[] M) (\x. N1) (\y. N2)] =  
+%    / trust / % Lexicographic induction on sn0, sn1, sn2
+     / total {sn0 sn1 sn2} (caser_sn g b a c m n1 n2 sn0 sn1 sn2) /
     % Totality declaration gives a type error when all 3 of sn0, sn1, sn2 are in it.
     mlam M => mlam N1 => mlam N2 => fn sn0 => fn sn1 => fn sn2 =>
     let [_ |- N1] : [g, x: tm A[] |- tm C[]] = [_ |- N1] in
@@ -267,18 +233,15 @@ rec caser_sn : (g: cxt) {M  : [g |- tm B[]]}
 	(mlam P, S =>
 	 case [g |- S] of
 	 | [g |- rcase (rinr S')] => let Acc [g] [|- B] [g |- M] r = sn0 in
-				     let sn0' = r [_ |- _] [_ |- S'] in
-				     let ms = subst_mred [_ |- N2] [_ |- M] [_ |- _] [_ |- S'] in
-				     let sn2' = mstep_sn [_ |- N2[.., M]] [_ |- _] ms sn2 in
-				     caser_sn [_ |- _] [_ |- N1] [_ |- N2] sn0' sn1 sn2'
+				     let ms = subst_mred [g, x:tm B[] |- N2] [g |- M[..]] [g |- _] [g |- S'] in
+				     let sn2' = mstep_sn [g |- N2[.., M]] [g |- _] ms sn2 in
+				     caser_sn [g |- _] [g, x:tm A[] |- N1] [g, x:tm B[] |- N2] (r [g |- _] [g |- S']) sn1 sn2'
 	 | [g |- rcinr] => sn2
 	 | [g |- rcl (\x. S')] => let Acc [g, x: tm A[]] [|- C] [g, x: tm A[] |- N1] r = sn1 in
-				  let sn1' = r [_ |- _] [_ |- S'] in
-				  caser_sn [_ |- M] [_ |- _] [_ |- N2] sn0 sn1' sn2
+				  caser_sn [_ |- M] [_ |- _] [_ |- N2] sn0 ( r [_ |- _] [_ |- S']) sn2
 	 | [g |- rcr (\y. S')] => let [_ |- S''] = subst_red [_ |- N2] [_ |- _] [_ |- M] [_ |- S'] in
 				  let Acc [g] [|- C] [g |- _] r = sn2 in
-				  let sn2' = r [_ |- _] [_ |- S''] in
-				  caser_sn [_ |- M] [_ |- N1] [_ |- _] sn0 sn1 sn2'
+				  caser_sn [_ |- M] [_ |- N1] [_ |- _] sn0 sn1 (r [_ |- _] [_ |- S''])
 	)
 ;
 
@@ -289,12 +252,8 @@ inductive ConfResult : (g: cxt) {N: [g |- tm A[]]} {N': [g |- tm A[]]} ctype =
   | Conf  : SnRed [g |- N'] [g |- Q] -> [g |- mstep N Q] -> ConfResult [g |- N] [g |- N']
 ;
 
-rec confluence : (g: cxt) {M : [g |- tm A[]]}
-			  {N : [g |- tm A[]]}
-			  {N': [g |- tm A[]]}
-			  {S : [g |- step M N']}
-			  SnRed [g |- M] [g |- N]
-		 -> ConfResult [g |- N] [g |- N'] =
+rec confluence : (g: cxt) {M : [g |- tm A[]]}{N : [g |- tm A[]]}{N': [g |- tm A[]]}{S : [g |- step M N']}
+			  SnRed [g |- M] [g |- N] -> ConfResult [g |- N] [g |- N'] =
     / total s (confluence g a m n n' s) /
     mlam M => mlam N => mlam N' => mlam S => fn snr =>
     case snr of
@@ -398,12 +357,8 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}
 
 % Backward closure of sn
 
-rec bc_aux_app : {g: cxt}{A : [ |- ty]}{B : [ |- ty]}
-			 {M : [g |- tm (arr A[] B[])]}
-			 {M': [g |- tm (arr A[] B[])]}
-			 {N : [g |- tm A[]]}
-			 Sn [g |- M] -> Sn [g |- N] -> SnRed [g |- M] [g |- M'] -> Sn [g |- app M' N]
-		 -> Sn [g |- app M N] =
+rec bc_aux_app : {g: cxt}{A : [ |- ty]}{B : [ |- ty]}{M : [g |- tm (arr A[] B[])]}{M': [g |- tm (arr A[] B[])]}{N : [g |- tm A[]]}
+			 Sn [g |- M] -> Sn [g |- N] -> SnRed [g |- M] [g |- M'] -> Sn [g |- app M' N] -> Sn [g |- app M N] =
   / total {sn1 sn2} (bc_aux_app g a b m m' n sn1 sn2) /
     mlam g, A, B, M, M', N => fn sn1 => fn sn2 => fn snr => fn sn =>
     Acc  [g] [ |- B] [g |- app M N]
@@ -427,12 +382,8 @@ rec bc_aux_app : {g: cxt}{A : [ |- ty]}{B : [ |- ty]}
 	 )
 ;
 
-rec bc_aux_sum : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
-			  {M' : [g |- tm (sum A[] B[])]}
-			  {N1 : [g, x: tm A[] |- tm C[]]}
-			  {N2 : [g, y: tm B[] |- tm C[]]}
-			  Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g, y: tm B[] |- N2]
-		 -> SnRed [g |- M] [g |- M']
+rec bc_aux_sum : (g: cxt) {M  : [g |- tm (sum A[] B[])]}{M' : [g |- tm (sum A[] B[])]}{N1 : [g, x: tm A[] |- tm C[]]}{N2 : [g, y: tm B[] |- tm C[]]}
+			  Sn [g |- M] -> Sn [g, x: tm A[] |- N1] -> Sn [g, y: tm B[] |- N2]  -> SnRed [g |- M] [g |- M']
 		 -> Sn [g |- match M' (\x. N1) (\y. N2)]
 		 -> Sn [g |- match M  (\x. N1) (\y. N2)] =
    / total {sn0 sn1 sn2} (bc_aux_sum g a b c m m' n1 n2 sn0 sn1 sn2) /
@@ -468,10 +419,8 @@ rec bc_aux_sum : (g: cxt) {M  : [g |- tm (sum A[] B[])]}
 	)
 ;
 
-rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}
-				 {M': [g |- tm A[]]}
-				 SnRed [g |- M] [g |- M'] -> Sn [g |- M']
-			-> Sn [g |- M] =
+rec backwards_closure : (g: cxt) {M : [g |- tm A[]]}{M': [g |- tm A[]]}
+				 SnRed [g |- M] [g |- M'] -> Sn [g |- M']	-> Sn [g |- M] =
     / total r (backwards_closure g a m m' r) /
     mlam M => mlam M' => fn snr => fn sn =>
     case snr of
