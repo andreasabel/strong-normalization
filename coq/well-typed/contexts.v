@@ -1,7 +1,6 @@
 Require Import base.
 
 (** ** Types *)
-
 Inductive ty := Base | Fun (A B : ty).
 Definition ctx := seq ty.
 
@@ -12,9 +11,7 @@ Fixpoint at_ty (G : ctx) (A : ty) : Type :=
   end.
 
 (** ** Environment structure *)
-
-Definition env (G : ctx) (T : ty -> Type) :=
-  forall A, at_ty G A -> T A.
+Definition env (G : ctx) (T : ty -> Type) := forall A, at_ty G A -> T A.
 Definition ren (G1 G2 : ctx) := env G1 (at_ty G2).
 
 Definition scons {G : ctx} {P : ty -> Type} {A : ty} (hd : P A) (tl : env G P) : env (A :: G) P :=
@@ -35,22 +32,14 @@ Definition shift {G : ctx} {B : ty} : ren G (B :: G) :=
 
 Definition idren {G : ctx} : ren G G := fun A i => i.
 
-(*Lemma scons0 G P A hd tl : @scons G P A hd tl A var0 = hd.
-Proof. by []. Qed.
-
-*)
-
 (** ** Environment simplification *)
-
-Lemma scons_eta G P A (f : env (A :: G) P) :
-  f A var0 .: shift >> f = f.
+Lemma scons_eta G P A (f : env (A :: G) P) : f A var0 .: shift >> f = f.
 Proof. fext=>/=B -[]//= E. by destruct E. Qed.
 
 Lemma scons_eta_id G A : var0 .: shift = @idren (A :: G).
 Proof. fext=>/=B -[]// E. by destruct E. Qed.
 
-Lemma scons_comp G P Q A (x : P A) (f : env G P) (g : forall A, P A -> Q A) :
-  (x .: f) >> g = (g A x) .: f >> g.
+Lemma scons_comp G P Q A (x : P A) (f : env G P) (g : forall A, P A -> Q A) : (x .: f) >> g = (g A x) .: f >> g.
 Proof. fext=>/=B-[]//E. by destruct E. Qed.
 
 Ltac fsimpl :=

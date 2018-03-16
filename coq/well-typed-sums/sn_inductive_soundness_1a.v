@@ -1,10 +1,28 @@
 (** * Different Characterisations Strong Normalisation *)
 
-Require Import base contexts stlc reduction sn_inductive.
-Set Implicit Arguments.
-Unset Strict Implicit.
+Require Import base contexts stlc reduction sn_defs.
 
 (** ** Closure Properties of sn *)
+Lemma sn_preimage {G1 G2 A1 A2} (f : tm G1 A1 -> tm G2 A2) (s : tm G1 A1) :
+  (forall t u, step t u -> step (f t) (f u)) ->
+  sn (f s) -> sn s.
+Proof.
+  move=> H sns. dependent induction sns. apply: snI => t st.
+  apply: H0; last by reflexivity. apply: H. eassumption. exact: H.
+Qed.
+
+Lemma sn_appL {G A B} (s : tm G (Fun A B)) (t : tm G A) :
+  sn (app s t) -> sn s.
+Proof.
+  apply: (@sn_preimage _ _ _ _ (app^~ t)); eauto using @step.
+Qed.
+
+Lemma sn_inst {G1 G2 A} (f : subst G1 G2) (s : tm G1 A) :
+  sn (inst f s) -> sn s.
+Proof.
+  apply: sn_preimage. exact: step_inst.
+Qed.
+
 Lemma closed_lam {g} A B (s : tm (A ::g)  B) :
   sn (lam s) <-> sn s.
 Proof.
@@ -44,12 +62,7 @@ Inductive redsn : forall g A,  tm g A -> tm g A -> Prop :=
  | redsn_app g A B (R R' : tm g (Fun A B)) (M : tm g A) : redsn R R' -> redsn (app R M) (app R' M)
  | redsn_or g A B C (M M' : tm g (Plus A B)) (N1 : tm (A ::g) C) N2: redsn M M' -> redsn (orelim M N1 N2) (orelim M' N1 N2)
  | redsn_caseL G A B C (s: tm G A) t t' (u: tm (B :: G) C) : sn s -> sn t -> sn u -> t' = (inst (s.:ids) t) -> redsn (orelim (inl s) t u) t'
-| redsn_caseR G A B C (s: tm G B) (t: tm (A :: G) C) u u': sn s -> sn t -> sn u -> u' = (inst (s.:ids) u) ->  redsn (orelim (inr s) t u) u'
-.
-
-Lemma redsn_step g A (M N : tm g A) :
-  redsn M N -> step M N.
-Proof. induction 1; subst;  (now repeat econstructor). Qed.
+| redsn_caseR G A B C (s: tm G B) (t: tm (A :: G) C) u u': sn s -> sn t -> sn u -> u' = (inst (s.:ids) u) ->  redsn (orelim (inr s) t u) u'.
 
 Lemma fundamental_backwards g A B (M: tm (A::g) B) (N: tm g A):
    sn N -> sn (inst (N.: ids) M) -> sn (app (lam M) N).
@@ -58,7 +71,7 @@ Proof.
   assert (H: sn M) by (now apply sn_inst in sn_M').
   revert M H sn_M'. induction sn_N as [N sn_N IH_N].
   induction 1 as [M sn_M IH_M]. intros H. constructor. intros M' C. inv C.
-  - constructor. intros M' H'. inv H. now apply H.
+  - assumption.
   - inv C. rename b2 into M'. eapply IH_M. assumption.
     eauto using sn_mstep, mstep_beta, mstep_step.
   - eapply IH_N; eauto.
@@ -74,7 +87,7 @@ Proof.
   induction sn_s as [s sn_s IHs].
   induction 1 as [u sn_u IHu].
   induction 1 as [t sn_t IHt].  intros H. constructor. intros s' D. inv D.
-  - inv D. apply IHs; eauto. now constructor. now constructor.
+  - inv D. apply IHs. assumption. now constructor. now constructor.
     eauto using sn_mstep, mstep_beta, mstep_step.
   - apply IHu; eauto. now constructor. eauto using sn_mstep, mstep_beta, mstep_step.
   - eapply IHt; eauto.
@@ -137,14 +150,14 @@ Qed.
 Lemma sn_confluence g A (M: tm g A):
   forall M' M'', redsn M M' -> step M M'' -> M' = M'' \/ exists M''', redsn M'' M''' /\ mstep M' M'''.
 Proof.
-  induction M as [x | T M IHM | M1 IHM1 M2 IHM2| M1 IHM1 | M1 IHM1 | M IHM N1 IHN1 N2 IHN2]; intros M' M'' D E; inv D; inv E.
+  induction M as [g A x | g A B M IHM N IHN |g A B M IHM| g A B M IHM | g A B M IHM | g A B C M IHM N1 IHN1 N2 IHN2]; intros M' M'' D E; inv D; inv E.
   - now left.
   - inv E. right. eexists. split.
     + now constructor.
     + apply mstep_inst. eauto using mstep_step.
   - right. eexists. split. econstructor. inv H; eauto. apply mstep_beta; eauto using mstep_step.
   - inv D.
-  - destruct (IHM1 _ _ D E) as [IH|(M''&IH1&IH2)].
+  - destruct (IHM _ _ D E) as [IH|(M''&IH1&IH2)].
     + subst. now left.
     + right. eexists. split.
       * econstructor. eassumption.
@@ -152,32 +165,32 @@ Proof.
   - right. eexists. split.
     + constructor. eassumption.
     + eapply mstep_app. constructor. eauto using mstep_step.
-  - destruct (IHN2 _ _ D E) as [-> | (M''&IH1&IH2)].
+  - destruct (IHM _ _ D E) as [-> | (M''&IH1&IH2)].
     + now left.
-    + right. exists (orelim M'' M1 M2). split; [now constructor|].
+    + right. exists (orelim M'' N1 N2). split; [now constructor|].
       eauto using mstep_orelim.
-  - right. exists (orelim M' t2 M2). split.
+  - right. exists (orelim M' t2 N2). split.
     + now constructor.
     + eauto using mstep_orelim, mstep_step.
-  - right. exists (orelim M' M1 u2). split.
+  - right. exists (orelim M' N1 u2). split.
     * now constructor.
     * eauto using mstep_orelim, mstep_step.
   - inv D.
   - inv D.
-  - inv E. right. exists (inst (s0 .: ids) M1). split.
+  - inv E. right. exists (inst (s0 .: ids) N1). split.
     + constructor; auto. inv H. now apply H.
     + apply mstep_beta; eauto using mstep_step.
   - right. exists (inst (s .: ids) t2). split.
     + constructor; eauto. inv H0. now apply H0.
     + apply mstep_beta; eauto using mstep_step.
-  - right.  exists (inst (s .: ids) M1). split.
+  - right.  exists (inst (s .: ids) N1). split.
     + constructor; auto. inv H1. now apply H1.
     + constructor.
   - now left.
-  - inv E. right. exists (inst (s0 .: ids) M2). split.
+  - inv E. right. exists (inst (s0 .: ids) N2). split.
     + constructor; auto. inv H. now apply H.
     + apply mstep_beta; eauto using mstep_step.
-  - right. exists (inst (s .: ids) M2). split.
+  - right. exists (inst (s .: ids) N2). split.
     + constructor; auto. inv H0. now apply H0.
     + constructor.
   - right. exists (inst (s .: ids) u2). split.
@@ -221,28 +234,4 @@ Proof.
    + inv H.
  - subst. intros H'. now apply fundamental_backwards_orl.
  - subst. intros H'. now apply fundamental_backwards_orr.
-Qed.
-
-Lemma SN_sn :
-  (forall g A (M: tm g A), SN M -> sn M)
-/\ (forall g A (M: tm g A), SNe M -> sn M /\ neutral M)
-/\ (forall g A (M: tm g A) M', SNRed M M' -> redsn M M') .
-Proof.
-  apply SN_multind; intros.
-  - intuition.
-  - now apply closed_lam.
-  - now apply closed_inl.
-  - now apply closed_inr.
-  - eauto using redsn_backwards.
-  - split; [|now constructor].
-    + constructor. intros M H. inv H.
-  - split; [|intuition].
-    + apply sn_case_neutral; intuition.
-  - split; [|intuition].
-    + now apply sn_app_neutral.
-  - subst. now constructor.
-  - now constructor.
-  - now constructor.
-  - subst. now constructor.
-  - subst. now constructor.
 Qed.
