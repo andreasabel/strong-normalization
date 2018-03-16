@@ -1,4 +1,5 @@
-% Properties of strongly normalizing terms
+% Mechanization of POPLMARK Reloaded challenge:
+% Sec 2.3 Challenge 1a:  Properties of Sn
 
 % All variables are in sn.
 empty: type.
@@ -100,7 +101,7 @@ rec case_snc : (g: cxt) {M  : [g |- tm (sum A[] B[])]}{N1 : [g, x: tm A[] |- tm 
 % If Sn [g |- N] and Sn [g |- M[.., N]] then Sn [g |- app (abs \x. M) N].
 rec app_abs_sn : {g: cxt} {A : [ |- ty]}{B : [ |- ty]}{M: [g, x: tm A[] |- tm B[]]}{N: [g |- tm A[]]}
 			Sn [g |- M[.., N]] -> Sn [g |- N] -> Sn [g |- app (abs \x. M) N] =
-  / total {sn1 sn2} (app_abs_sn g a b m n sn1 sn2) /
+  / total {sn2 sn1} (app_abs_sn g a b m n sn1 sn2) /
    mlam g, A, B, M, N => fn sn1 => fn sn2 =>
    Acc [g] [ |- B] [g |- app (abs \x. M) N]
        (mlam P, S => case [_ |- S] of

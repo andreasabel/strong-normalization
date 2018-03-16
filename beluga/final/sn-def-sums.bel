@@ -1,3 +1,6 @@
+% Mechanization of POPLMARK Reloaded challenge:
+% Section 2.2 Defining Strong Normalization Extended with Disjoint Sums
+
 
 % Accessibility definition
 inductive Sn : (g: cxt) {M: [g |- tm A[]]} ctype =

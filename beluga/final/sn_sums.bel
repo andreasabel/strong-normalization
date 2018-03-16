@@ -1,3 +1,7 @@
+% Mechanization of POPLMARK Reloaded challenge:
+% Section 2.6 Challenge 2b: Strong Normalization Proof using Logical Predicate
+%             Extended with Disjoint Sums
+
 inductive Eq: (g: cxt) [g |- tm A[]] -> [g |- tm A[]] -> ctype =
   Refl : Eq [g |- M] [g |- M];
 

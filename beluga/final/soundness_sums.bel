@@ -1,3 +1,7 @@
+% Mechanization of POPLMARK Reloaded challenge:
+% Sec 2.4 : Challenge 1b: Soundness of inductive  definition of strongly normalizing terms
+%           Extended with Disjoint Sums
+
 % If SNe [g |- R] then Neutral [g |- R].
 rec neutralSNe : (g: cxt) {R: [g |- tm A[]]} SNe [g |- R] -> Neutral [g |- R] =
     / total sne (neutralSNe g a r sne) /

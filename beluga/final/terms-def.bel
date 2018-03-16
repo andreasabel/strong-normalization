@@ -1,4 +1,6 @@
-% Corresponding to Sec 2.1
+% Mechanization of POPLMARK Reloaded challenge:
+% Sec 2.1: Well-typed Terms and Reductions
+
 %coverage
 
 LF ty : type =

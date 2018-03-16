@@ -1,5 +1,8 @@
+% Mechanization of POPLMARK Reloaded challenge:
+% Section 2.6 Challenge 2b: Strong Normalization Proof using Logical Predicate
 
-% Semanti_SN Typing / Reducibility 
+
+% Semantic_SN Typing / Reducibility 
 stratified Red : {A : [ |- ty ]} (g : cxt) {M : [ g |- tm A[] ]} ctype =
   | RBase : SN [g |- M] -> Red [ |- base ] [g |- M]
   | RArr  : ({g' : cxt} {#S : [g' |-# g]} {N : [g' |- tm A[]]}

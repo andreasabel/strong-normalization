@@ -1,4 +1,5 @@
-% Section 2.2
+% Mechanization of POPLMARK Reloaded challenge:
+% Section 2.2 Defining Strong Normalization
 
 % Accessibility definition
 inductive Sn : (g: cxt) {M: [g |- tm A[]]} ctype =

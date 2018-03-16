@@ -1,4 +1,7 @@
-% Sec 2.1 Well-typed terms and reductions
+% Mechanization of POPLMARK Reloaded challenge:
+% Sec 2.1: Well-typed Terms and Reductions
+%          Extended with Disjoint Sums
+
 LF ty : type =
    | base : ty
    | arr  : ty -> ty -> ty
