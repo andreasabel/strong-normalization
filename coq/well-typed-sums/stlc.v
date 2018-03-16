@@ -67,12 +67,9 @@ Qed.
 
 Lemma inst_ids {G A} (s : tm G A) :
   inst ids s = s.
-Proof.
-  by rewrite -{2}[s]rinst_idren rinst_inst.
-Qed.
+Proof.  by rewrite -{2}[s]rinst_idren rinst_inst. Qed.
 
 (** ** Composition of instantiations *)
-
 Lemma inst_rinst_comp {G1 G2 G3 A} (f : ren G1 G2) (g : subst G2 G3) (s : tm G1 A) :
   inst g (rinst f s) = inst (f >> g) s.
 Proof.
@@ -119,7 +116,6 @@ Proof.
 Qed.
 
 (* Automation comp *)
-
 Lemma comp_rinst_inst g g' g'' (xi: ren g g') (sigma : subst g' g'') :
   @rinst g g' xi >> @inst g' g'' sigma = @inst g g'' ((xi >> ids) >> @inst _ _ sigma).
 Proof. fext. intros A s. unfold scomp. now rewrite inst_rinst_comp. Qed.
@@ -132,12 +128,19 @@ Lemma sconsS G P A hd tl : shift >> @scons G P A hd tl = tl.
 Proof. by []. Qed.
 
 (** ** Automation *)
-
 Lemma rinst_idrenE G : @rinst G G idren = (fun A x => x).
 Proof. fext=> A s. exact: rinst_idren. Qed.
 
 Lemma inst_idsE G : @inst G G ids = (fun A x => x).
 Proof. fext=> A s. exact: inst_ids. Qed.
+
+Lemma inst_up_beta {G1 G2 A B} (f : subst G1 G2) (s : tm (B :: G1) A) t :
+  inst (inst f t .: ids) (inst (up f) s) =
+  inst f (inst (t .: ids) s).
+Proof.
+  rewrite !inst_comp. f_equal. fext=> C /=-[E|i]; first by destruct E.
+  fsimpl. cbn. by rewrite/scomp inst_rinst_comp inst_ids.
+Qed.
 
 Ltac asimpl :=
   repeat first [progress rewrite ?comp_rinst_inst ?sconsS ?comp_idl ?rinst_idrenE ?inst_ids ?rinst_inst_comp ?inst_rinst_comp ?inst_comp /up|fsimpl].

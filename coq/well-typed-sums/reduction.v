@@ -1,7 +1,6 @@
 Require Import base contexts stlc.
 
 (** ** Single-step reduction *)
-
 Inductive step : forall {G A}, tm G A -> tm G A -> Prop :=
 | step_beta G A B (b : tm (A :: G) B) (t : tm G A) :
     step (app (lam b) t) (inst (t .: ids) b)
@@ -22,8 +21,7 @@ Inductive step : forall {G A}, tm G A -> tm G A -> Prop :=
 | step_caseR G A B C (s: tm G B) (t: tm (A :: G) C) u: step (orelim (inr s) t u) (inst (s.:ids) u)
 .
 
-Definition ImPred {T1 T2} (P : T1 -> Prop) (f : T1 -> T2) (y : T2) :=
-  exists2 x : T1, P x & f x = y.
+Definition ImPred {T1 T2} (P : T1 -> Prop) (f : T1 -> T2) (y : T2) :=  exists2 x : T1, P x & f x = y.
 
 Notation "[ 'Pred' s | x 'in' P ]" :=
   (ImPred (fun x => P) (fun x => s)) : form_scope.
@@ -34,14 +32,6 @@ Ltac inv H := dependent destruction H.
 Lemma im_predI {T1 T2} (P : T1 -> Prop) (f : T1 -> T2) (x : T1) :
   P x -> f x ∈ [Pred f x' | x' in P x'].
 Proof. move=> px. by exists x. Qed.
-
-Lemma inst_up_beta {G1 G2 A B} (f : subst G1 G2) (s : tm (B :: G1) A) t :
-  inst (inst f t .: ids) (inst (up f) s) =
-  inst f (inst (t .: ids) s).
-Proof.
-  rewrite !inst_comp. f_equal. fext=> C /=-[E|i]; first by destruct E.
-  fsimpl. cbn. by rewrite/scomp inst_rinst_comp inst_ids.
-Qed.
 
 Lemma step_weak {G1 G2 A} (f : ren G1 G2) (s : tm G1 A) (t : tm G2 A) :
   step (rinst f s) t -> t ∈ [Pred rinst f s' | s' in step s s'].
@@ -85,7 +75,6 @@ Proof.
 Qed.
 
 (** ** Multi-step reduction *)
-
 Inductive mstep {G A} (s : tm G A) : tm G A -> Prop :=
 | mstep_refl : mstep s s
 | mstep_step t u : mstep s t -> step t u -> mstep s u.
@@ -93,9 +82,7 @@ Hint Resolve mstep_refl.
 
 Lemma mstep_trans G A (s t u : tm G A) :
   mstep s t -> mstep t u -> mstep s u.
-Proof.
-  move=> st. elim=> //{u} u v _. exact: mstep_step.
-Qed.
+Proof.  move=> st. elim=> //{u} u v _. exact: mstep_step. Qed.
 
 Lemma mstep_lam G A B (s t : tm (A :: G) B) :
   mstep s t -> mstep (lam s) (lam t).
@@ -167,41 +154,4 @@ Lemma mstep_beta G A B (s1 s2 : tm (A :: G) B) (t1 t2 : tm G A) :
 Proof.
   move=> st1 st2. apply: mstep_subst st1 _ => {B s1 s2} B /=[E|i]//.
   by destruct E.
-Qed.
-
-(** ** Strong normalization *)
-
-Inductive sn {G A} (s : tm G A) : Prop :=
-| snI : (forall t, step s t -> sn t) -> sn s.
-
-Lemma sn_preimage {G1 G2 A1 A2} (f : tm G1 A1 -> tm G2 A2) (s : tm G1 A1) :
-  (forall t u, step t u -> step (f t) (f u)) ->
-  sn (f s) -> sn s.
-Proof.
-  move=> H sns. dependent induction sns. apply: snI => t st.
-  apply: H0; last by reflexivity. apply: H. eassumption. exact: H.
-Qed.
-
-Lemma sn_appL {G A B} (s : tm G (Fun A B)) (t : tm G A) :
-  sn (app s t) -> sn s.
-Proof.
-  apply: (@sn_preimage _ _ _ _ (app^~ t)); eauto using @step.
-Qed.
-
-Lemma sn_inst {G1 G2 A} (f : subst G1 G2) (s : tm G1 A) :
-  sn (inst f s) -> sn s.
-Proof.
-  apply: sn_preimage. exact: step_inst.
-Qed.
-
-Lemma sn_rinst {G1 G2 A} (f : ren G1 G2) (s : tm G1 A) :
-  sn s -> sn (rinst f s).
-Proof.
-  elim=> {s} s _ ih. apply: snI => t /step_weak[t' st <-]. exact: ih.
-Qed.
-
-Lemma sn_mstep {G A} (s t : tm G A):
-  mstep s t -> sn s -> sn t.
-Proof.
-  induction 1; eauto. intros []%IHmstep. now apply H1.
 Qed.

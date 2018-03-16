@@ -1,7 +1,6 @@
 Require Import base.
 
 (** ** Types *)
-
 Inductive ty := Base | Fun (A B : ty) | Plus (A B : ty).
 Definition ctx := seq ty.
 
@@ -12,9 +11,7 @@ Fixpoint at_ty (G : ctx) (A : ty) : Type :=
   end.
 
 (** ** Environment structure *)
-
-Definition env (G : ctx) (T : ty -> Type) :=
-  forall A, at_ty G A -> T A.
+Definition env (G : ctx) (T : ty -> Type) := forall A, at_ty G A -> T A.
 Definition ren (G1 G2 : ctx) := env G1 (at_ty G2).
 
 Definition scons {G : ctx} {P : ty -> Type} {A : ty} (hd : P A) (tl : env G P) : env (A :: G) P :=
@@ -25,22 +22,13 @@ Definition scons {G : ctx} {P : ty -> Type} {A : ty} (hd : P A) (tl : env G P) :
     end.
 Notation "hd .: tl" := (@scons _ _ _ hd tl) (at level 55).
 
-Definition scomp {P Q R : ty -> Type} (f : forall A, P A -> Q A) (g : forall A, Q A -> R A) :
-  forall A, P A -> R A := fun A x => g A (f A x).
+Definition scomp {P Q R : ty -> Type} (f : forall A, P A -> Q A) (g : forall A, Q A -> R A) :  forall A, P A -> R A := fun A x => g A (f A x).
 Notation "eta >> eps" := (scomp eta eps) (at level 40).
 
 Definition var0 {G : ctx} {A : ty} : at_ty (A :: G) A := inl erefl.
-Definition shift {G : ctx} {B : ty} : ren G (B :: G) :=
-  fun A i => inr i.
+Definition shift {G : ctx} {B : ty} : ren G (B :: G) := fun A i => inr i.
 
 Definition idren {G : ctx} : ren G G := fun A i => i.
-
-(*Lemma scons0 G P A hd tl : @scons G P A hd tl A var0 = hd.
-Proof. by []. Qed.
-
-*)
-
-(** ** Environment simplification *)
 
 Lemma scons_eta G P A (f : env (A :: G) P) :
   f A var0 .: shift >> f = f.
