@@ -2,6 +2,6 @@
 ARS.v
 axioms.v
 fintype.v
-graded.v
 stlc.v
 sn.v
+sn_inductive_soundness.v

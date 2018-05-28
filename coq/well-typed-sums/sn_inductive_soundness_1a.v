@@ -7,34 +7,34 @@ Lemma sn_preimage {G1 G2 A1 A2} (f : tm G1 A1 -> tm G2 A2) (s : tm G1 A1) :
   (forall t u, step t u -> step (f t) (f u)) ->
   sn (f s) -> sn s.
 Proof.
-  move=> H sns. dependent induction sns. apply: snI => t st.
-  apply: H0; last by reflexivity. apply: H. eassumption. exact: H.
+  intros H sns. dependent induction sns. apply snI. intros t st.
+  eapply H0; [|now apply H |reflexivity]. now apply H.
 Qed.
 
 Lemma sn_appL {G A B} (s : tm G (Fun A B)) (t : tm G A) :
   sn (app s t) -> sn s.
 Proof.
-  apply: (@sn_preimage _ _ _ _ (app^~ t)); eauto using @step.
+  apply (@sn_preimage _ _ _ _ (fun s => app s t)); eauto using @step.
 Qed.
 
 Lemma sn_inst {G1 G2 A} (f : subst G1 G2) (s : tm G1 A) :
   sn (inst f s) -> sn s.
 Proof.
-  apply: sn_preimage. exact: step_inst.
+  apply sn_preimage. apply step_inst.
 Qed.
 
 Lemma closed_lam {g} A B (s : tm (A ::g)  B) :
   sn (lam s) <-> sn s.
 Proof.
   split.
-  - eapply sn_preimage. exact: step_abs.
+  - eapply sn_preimage. apply step_abs.
   - induction 1 as [M H IH].
     constructor. intros M' C. inv C. auto.
 Qed.
 
 Lemma closed_appR g A B (M: tm g (Fun A B)) (N: tm g A)  :
   sn (app M N) -> sn N.
-Proof. eapply sn_preimage. apply step_appR. Qed.
+Proof. eapply sn_preimage, step_appR. Qed.
 
 Lemma closed_inl g A B (M: tm g A)  :
   sn M -> sn (inl (B := B) M).
@@ -112,9 +112,9 @@ Qed.
 (* Neutral terms *)
 Fixpoint neutral g A (M: tm g A) :=
   match M with
-  | var _ x => True
-  | app _ _  s t => neutral s
-  | orelim _ _ _ s t u => neutral s
+  | var x => True
+  | app  s t => neutral s
+  | orelim s t u => neutral s
   | _ => False
   end.
 

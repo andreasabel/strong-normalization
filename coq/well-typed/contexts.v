@@ -1,13 +1,14 @@
 Require Import base.
+Require Export Lists.List.
 
 (** ** Types *)
 Inductive ty := Base | Fun (A B : ty).
-Definition ctx := seq ty.
+Definition ctx := list ty.
 
 Fixpoint at_ty (G : ctx) (A : ty) : Type :=
   match G with
-  | [::] => False
-  | B :: G' => (A = B) + at_ty G' A
+  | nil => False
+  | (B :: G') => (A = B) + at_ty G' A
   end.
 
 (** ** Environment structure *)
@@ -26,7 +27,7 @@ Definition scomp {P Q R : ty -> Type} (f : forall A, P A -> Q A) (g : forall A, 
   forall A, P A -> R A := fun A x => g A (f A x).
 Notation "eta >> eps" := (scomp eta eps) (at level 40).
 
-Definition var0 {G : ctx} {A : ty} : at_ty (A :: G) A := inl erefl.
+Definition var0 {G : ctx} {A : ty} : at_ty (A :: G) A := inl eq_refl.
 Definition shift {G : ctx} {B : ty} : ren G (B :: G) :=
   fun A i => inr i.
 
@@ -34,13 +35,13 @@ Definition idren {G : ctx} : ren G G := fun A i => i.
 
 (** ** Environment simplification *)
 Lemma scons_eta G P A (f : env (A :: G) P) : f A var0 .: shift >> f = f.
-Proof. fext=>/=B -[]//= E. by destruct E. Qed.
+Proof. fext. intros B [->|]; auto. Qed.
 
 Lemma scons_eta_id G A : var0 .: shift = @idren (A :: G).
-Proof. fext=>/=B -[]// E. by destruct E. Qed.
+Proof. fext. intros B [->|]; auto. Qed.
 
 Lemma scons_comp G P Q A (x : P A) (f : env G P) (g : forall A, P A -> Q A) : (x .: f) >> g = (g A x) .: f >> g.
-Proof. fext=>/=B-[]//E. by destruct E. Qed.
+Proof. fext. intros B [->|]; auto. Qed.
 
 Ltac fsimpl :=
   repeat match goal with
@@ -56,5 +57,5 @@ Ltac fsimpl :=
         change x2 with (f _ var0); rewrite (@scons_eta _ _ _ f)
     | [|- context[?f _ var0 .: ?g]] =>
         change g with (shift >> f); rewrite scons_eta
-    | _ => progress (rewrite ?scons_comp ?scons_eta_id)
+    | _ => first [progress (rewrite scons_comp) | progress (rewrite scons_eta_id)]
   end.

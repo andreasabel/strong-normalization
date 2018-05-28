@@ -22,7 +22,7 @@ Lemma rename_red G1 A (s : tm G1 A) :
 Proof.
   revert G1 s. induction A as [|A IHA B IHB|A IHA B IHB]; intros g s H G2 f; simpl in *.
   - now apply rename.
-  - intros. rewrite rinst_comp. exact: H.
+  - intros. rewrite rinst_comp. now apply H.
   - induction H.
     + apply CRefl. destruct H as [(M'&->&H2)|(M'&->&H2)]; [left|right].
       * exists (rinst f M'). split; [reflexivity|now apply IHA].
@@ -49,7 +49,7 @@ Proof.
       eapply ext_SN, IHB, H. apply IHA, (SVar _ A var0).
     + intros g' R N H'. apply IHB.
       * apply SApp. now apply rename.
-      * intuition.
+       intuition.
     + intros g' R N rn. apply IHB with (M' := app (rinst R M') N).
      * constructor. now apply rename.
      * apply H0, rn.

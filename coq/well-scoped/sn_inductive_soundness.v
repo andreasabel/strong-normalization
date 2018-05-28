@@ -1,33 +1,29 @@
 (** * Different Characterisations Strong Normalisation *)
 
-From mathcomp Require Import ssreflect.all_ssreflect.
-Require Import axioms fintype graded stlc ARS sn.
+Require Import axioms fintype stlc ARS sn.
 Set Implicit Arguments.
 Unset Strict Implicit.
 
-(** This is a simple implementation of the rewriting technique of Autosubst. *)
-Local Ltac asimpl :=
-  repeat progress (cbn; fsimpl; gsimpl; tm_simpl).
 Ltac inv H := inversion H; subst; clear H.
 
 (** ** Closure Properties of sn *)
-Lemma closed_lam {n} T (s : tm n.+1) :
-  sn (Tm.lam T s) <-> sn s.
+Lemma closed_lam {n} T (s : tm (S n)) :
+  sn (lam T s) <-> sn s.
 Proof.
   split.
-  - eapply sn_preimage. exact: step_abs.
+  - eapply sn_preimage. apply step_abs.
   - induction 1 as [M H IH].
     constructor. intros M' A. inv A. auto.
 Qed.
 
 Lemma closed_appR {n} (M N : tm n) :
-  sn (Tm.app M N) -> sn N.
+  sn (app M N) -> sn N.
 Proof. eapply sn_preimage. apply step_appR. Qed.
 
 (* Weak Head Reduction *)
 Inductive redsn {n} :  tm n -> tm n -> Prop :=
- | redsn_beta T M (N: tm n) : sn N -> redsn (Tm.app (Tm.lam T M) N) (M.[N.:Tm.var])%tm
- | redsn_app (R R' M : tm n) : redsn R R' -> redsn (Tm.app R M) (Tm.app R' M).
+ | redsn_beta T M (N: tm n) : sn N -> redsn (app (lam T M) N) (M.[N.:var_tm])
+ | redsn_app (R R' M : tm n) : redsn R R' -> redsn (app R M) (app R' M).
 
 Lemma redsn_step {n} (M N : tm n) :
   redsn M N -> step M N.
@@ -38,9 +34,9 @@ Lemma sn_red k (M M' : tm k):
 Proof. intros A. induction 1; auto. inv IHstar; auto. Qed.
 
 Lemma fundamental_backwards n M T (N: tm n):
-   sn N -> sn (M.[N.: Tm.var])%tm -> sn (Tm.app (Tm.lam T M) N).
+   sn N -> sn (M.[N.: var_tm]) -> sn (app (lam T M) N).
 Proof.
-  intros sn_N sn_M'. remember (M.[N.: Tm.var])%tm as M'.
+  intros sn_N sn_M'. remember (M.[N.: var_tm]) as M'.
   revert M' sn_M' T M HeqM'. induction sn_N as [N sn_N IH_N].
   intros M' sn_M'; revert N sn_N IH_N. induction sn_M' as [M' sn_M' IH_M']; intros N sn_N IH_N T M A; subst.
   constructor. intros M' A. inv A.
@@ -94,8 +90,8 @@ Qed.
 (* Neutral terms *)
 Fixpoint neutral {n} (M: tm n) :=
   match M with
-  | Tm.var x => True
-  | Tm.app s t => neutral s
+  | var_tm x => True
+  | app s t => neutral s
   | _ => False
   end.
 
@@ -104,7 +100,7 @@ Lemma neutral_preservation {n} (M N: tm n):
 Proof. intros A. induction 1; simpl in *; intuition. Qed.
 
 Lemma sn_app_neutral {n} (N : tm n) :
-   sn N -> forall M, neutral M -> sn M -> sn (Tm.app M N).
+   sn N -> forall M, neutral M -> sn M -> sn (app M N).
 Proof.
   induction 1 as [N sn_N IH_N].
   induction 2 as [M sn_M IH_M].
@@ -116,17 +112,17 @@ Qed.
 
 (** ** Definition à la van Raamsdonk *)
 Inductive SNe : forall n, tm n -> Prop :=
- |SNe_var n (x: fin n)  : SNe (Tm.var x)
- |SNe_app n (R M: tm n) : SNe R -> SN M -> SNe (Tm.app R M)
+ |SNe_var_tm n (x: fin n)  : SNe (var_tm x)
+ |SNe_app n (R M: tm n) : SNe R -> SN M -> SNe (app R M)
  with
  SN : forall n, tm n -> Prop :=
- | SN_lam n (M: tm n .+1) T: SN M -> SN (Tm.lam T M)
+ | SN_lam n (M: tm (S n)) T: SN M -> SN (lam T M)
  | SN_SNe n (M: tm n) : SNe M -> SN M
  | SN_step n (M M': tm n) : redSN M M' ->  SN M' -> SN M
  with
  redSN : forall n, tm n -> tm n -> Prop :=
- | redSN_beta n T M (N: tm n) : SN N -> redSN (Tm.app (Tm.lam T M) N) (M.[N.:Tm.var])%tm
- | redSN_app n (R R' M : tm n) : redSN R R' -> redSN (Tm.app R M) (Tm.app R' M).
+ | redSN_beta n T M (N: tm n) : SN N -> redSN (app (lam T M) N) (M.[N.:var_tm])
+ | redSN_app n (R R' M : tm n) : redSN R R' -> redSN (app R M) (app R' M).
 
 (* Generated Induction Principle of Coq *)
 Scheme SNe_ind_2 := Minimality for SNe Sort Prop

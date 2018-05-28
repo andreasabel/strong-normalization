@@ -26,9 +26,9 @@ Proof.
     eauto using SRed.
   - exists (inst (M'0_2 .: ids) M'0_1).
     split. now asimpl. eauto using SNRed.
-  - destruct (H0 _ _ _ (erefl (rinst R0 M'1))) as (N'&->&A2).
+  - destruct (H0 _ _ _ (eq_refl (rinst R0 M'1))) as (N'&->&A2).
     exists (app N' M'2). split; [reflexivity| now constructor].
-  - destruct (H0 _ _ _ (erefl (rinst R M'0_1))) as (N'&->&A2).
+  - destruct (H0 _ _ _ (eq_refl (rinst R M'0_1))) as (N'&->&A2).
     exists (orelim N' M'0_2 M'0_3). split; [reflexivity|now constructor].
   - exists (inst (M'1 .: ids) M'2). split.
     + now asimpl.

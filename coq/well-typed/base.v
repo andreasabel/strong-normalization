@@ -1,4 +1,3 @@
-Require Export mathcomp.ssreflect.all_ssreflect.
 Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Logic.PropExtensionality.
 Require Import Program.Tactics.
@@ -27,10 +26,10 @@ Ltac fext := nointr repeat (
 Lemma pext {P Q : Prop} :
   (P -> Q) -> (Q -> P) -> P = Q.
 Proof.
-  move=> pq qp. exact: propositional_extensionality.
+  intros pq qp. now apply propositional_extensionality.
 Qed.
 
 Lemma pi {P : Prop} (p q : P) : p = q.
 Proof.
-  have e: P = True by exact: pext. move: p q. by rewrite e => -[] [].
+  assert (e: P = True) by (now apply pext). subst. now destruct p, q.
 Qed.

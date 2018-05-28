@@ -1,19 +1,28 @@
 (** * Finite Types and Mappings
     Our development utilises well-scoped de Bruijn syntax. This means that the de Bruijn indices are taken from finite types. As a consequence, any kind of substitution or environment used in conjunction with well-scoped syntax takes the form of a mapping from some finite type _I^n_. In particular, _renamings_ are mappings _I^n -> I^m_. Here we develop the theory of how these parts interact.
 *)
-From mathcomp Require Import ssreflect.all_ssreflect.
-Require Import axioms.
+Require Export axioms.
 Set Implicit Arguments.
 Unset Strict Implicit.
 
-(** *** Forward Function Composition
+Definition ap {X Y} (f : X -> Y) {x y : X} (p : x = y) : f x = f y :=
+  match p with eq_refl => eq_refl end.
+
+Definition apc {X Y} {f g : X -> Y} {x y : X} (p : f = g) (q : x = y) : f x = g y :=
+  match q with eq_refl => match p with eq_refl => eq_refl end end.
+
+(** ** Forward Function Composition
     Substitutions represented as functions are ubiquitious in this development and we often have to compose them, without talking about their pointwise behaviour.
     That is, we are interested in the forward compostion of functions, _f o g_, for which we introduce a convenient notation, "f >> g". The direction of the arrow serves as a reminder of the _forward_ nature of this composition, that is first apply _f_, then _g_. *)
 
-Notation "f >> g" := (funcomp tt g f) (*fun x => g (f x)*) (at level 50) : subst_scope.
+(* TODO : Having both funcomp and comp doesn't make sense. *)
+Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=
+  fun x => g (f x).
+
+Notation "f >> g" := (funcomp g f) (*fun x => g (f x)*) (at level 50) : subst_scope.
 Open Scope subst_scope.
 
-(** *** Finite Types
+(** ** Finite Types
     We implement the finite type with _n_ elements, _I^n_, as the _n_-fold iteration of the Option Type. _I^0_ is implemented as the empty type.
 *)
 
@@ -38,84 +47,83 @@ Notation "x .: f" := (@scons _ _ x f) (at level 55) : subst_scope.
 *)
 Definition ren (m n : nat) : Type := fin m -> fin n.
 
-(** _Injective renamings_ are renamings packaged witha a proof of injectivity. *)
-Set Primitive Projections.
-Structure iren (m n : nat) := IRen {
-  iren_fun :> fin m -> fin n;
-  iren_inj : injective iren_fun
-}.
-Arguments IRen {m n} iren_fun iren_inj.
-
-(** Functional extensionality lifts to injective renamings, courtesy of proof irrelevance. *)
-Lemma iren_eq {m n} (f g : iren m n) :
-  (forall x, f x = g x) -> f = g.
-Proof.
-  move: f g => -[f fP] [g gP] /= H. have E: f = g by fext.
-  destruct E. f_equal. exact: pi.
-Qed.
 
 (** We give a special name, _bound_, to the newest element in a non-empty finite type, as it usually corresponds to a freshly bound variable. We also concisely capture that _I^0_ really is empty with an exfalso proof principle. *)
-Definition bound {n : nat} : fin n.+1 := None.
+Definition bound {n : nat} : fin (S n) := None.
 Definition null {T} (i : fin 0) : T := match i with end.
 
-(** We define forward composition for injective renamings, which has to compose the renamings and combine the injectivity proofs. *)
-Definition rcomp {m n k : nat} (f : iren m n) (g : iren n k) : iren m k :=
-  @IRen m k (f >> g) (fun x y e => iren_inj (iren_inj e)).
-Notation "f >>> g" := (rcomp f g) (at level 50) : subst_scope.
+Definition shift {n : nat} : ren n (S n) :=
+  Some.
 
-(** We identify the identity function as an injective renaming. *)
-Definition idren {n : nat} : iren n n :=
-  @IRen n n id (fun x y e => e).
+Definition up_ren m n (xi : ren m n) : ren (S m) (S n) :=
+  bound .: xi >> shift.
 
-(** The _shift_ operation of the sigma-calculus is also an injective renaming. *)
-Definition shift {n : nat} : iren n n.+1 :=
-  @IRen n n.+1 Some (fun x y e => f_equal (fun o => if o is Some z then z else x) e).
-Arguments shift {n} : simpl never.
+Definition var_zero {n : nat} : fin (S n) := None.
 
-(** With _shift_ and _bound_ we can implement the _up_ operation which constitutes the adjustment of renamings that are moved underneath a binder. *)
-Definition up {m n : nat} (f : iren m n) : iren m.+1 n.+1.
-  refine (@IRen m.+1 n.+1 (bound .: f >>> shift) _).
-  abstract (by move=>/=[x|] [y|] //= [/iren_inj->]).
-Defined.
+Definition idren {k: nat} : ren k k :=
+  fun x => x.
 
-(** We now establish the relevant interactions of _extension_, _composition_, _shift_ and  _up_. *)
-Lemma shift_up {m n} (f : iren m n) :
-  shift >>> up f = f >>> shift.
-Proof. exact: iren_eq. Qed.
+Definition comp := @funcomp.
 
-Lemma scons_eta {T} {n : nat} (f : fin n.+1 -> T) :
+Lemma up_ren_ren k l m (xi: ren k l) (zeta : ren l m) (rho: ren k m) (E: forall x, (xi >> zeta) x = rho x) :
+  forall x, (up_ren xi >> up_ren zeta) x = up_ren rho x.
+Proof.
+  intros [x|].
+  - simpl. unfold funcomp. now rewrite <- E.
+  - reflexivity.
+Qed.
+
+Arguments up_ren_ren {k l m} xi zeta rho E.
+
+(** Lemmas for one sort. **)
+(* AsimplConsEta *)
+Lemma scons_eta {T} {n : nat} (f : fin (S n) -> T) :
   f bound .: shift >> f = f.
-Proof. by fext=>/=;case. Qed.
+Proof. fext. intros [x|]; reflexivity.  Qed.
 
-Lemma scons_eta_id {n : nat} : bound .: shift = id :> (fin n.+1 -> fin n.+1).
-Proof. by fext=>/=;case. Qed.
+Definition id {X} (x : X) := x.
 
-Lemma scons_comp {T1 T2} {n : nat} (x : T1) (f : fin n -> T1) (g : T1 -> T2) :
-  (x .: f) >> g = (g x) .: f >> g.
-Proof. by fext=>/=;case. Qed.
+Lemma scons_eta_id {n : nat} : bound .: shift = id :> (fin (S n) -> fin (S n)).
+Proof. fext. intros [x|]; reflexivity. Qed.
 
-(** Lastly we provide a tactic that simplifies expressions containing the structures defined here with the help of the associated properties. *)
+Lemma scons_comp (T: Type) U {m} (s: T) (sigma: fin m -> T) (tau: T -> U ) :
+  (s .: sigma) >> tau = (tau s) .: (sigma >> tau) .
+Proof.
+  fext. intros [x|]. reflexivity. simpl. reflexivity.
+Qed.
+
 Ltac fsimpl :=
   repeat match goal with
-    | [|- context[id >> ?f]] => change (id >> f) with f
-    | [|- context[?f >> id]] => change (f >> id) with f
-    | [|- context[(?f >> ?g) >> ?h]] =>
-        change ((f >> g) >> h) with (f >> (g >> h))
-    | [|- context[idren >>> ?f]] => change (idren >>> f) with f
-    | [|- context[?f >>> idren]] => change (f >>> idren) with f
-    | [|- context[(?f >>> ?g) >>> ?h]] =>
-        change ((f >>> g) >>> h) with (f >>> (g >>> h))
-    | [|- context[?f >> (?x .: ?g)]] =>
-        change (f >> (x .: g)) with g
-    (*| [|- context[shift >> (?x1 .: ?xr)]] =>
-        change (shift >> (x1 .: xr)) with xr*)
-    (*| [|- context[Some >> (?x1 .: ?xr)]] =>
-        change (Some >> (x1 .: xr)) with xr*)
-    | [|- context[?x2 .: shift >> ?f]] =>
-        change x2 with (f bound); rewrite (@scons_eta _ _ f)
-    | [|- context[?f bound .: ?g]] =>
-        change g with (shift >> f); rewrite scons_eta
-    (*| [|- context[?x2 .: Some >> ?f]] =>
-        change x2 with (f bound); rewrite (@scons_eta _ _ f)*)
-    | _ => progress (rewrite ?scons_comp ?scons_eta_id)
-  end.
+         | [|- context[id >> ?f]] => change (id >> f) with f (* AsimplCompIdL *)
+         | [|- context[?f >> id]] => change (f >> id) with f (* AsimplCompIdR *)
+         | [|- context [id ?s]] => change (id s) with s
+         | [|- context[comp ?f ?g]] => change (comp f g) with (g >> f) (* AsimplCompIdL *)
+         | [|- context[(?f >> ?g) >> ?h]] =>
+           change ((f >> g) >> h) with (f >> (g >> h)) (* AsimplComp *)
+         | [|- context[(?s.:?sigma) var_zero]] => change ((s.:sigma) var_zero) with s
+         | [|- context[(?s.:?sigma) bound]] => change ((s.:sigma) bound) with s
+         | [|- context[(?s.:?sigma) (shift ?m)]] => change ((s.:sigma) (shift m)) with (sigma m)
+         | [|- context[idren >> ?f]] => change (idren >> f) with f
+         | [|- context[?f >> idren]] => change (f >> idren) with f
+         | [|- context[(?f >> ?g) >> ?h]] =>
+           change ((f >> g) >> h) with (f >> (g >> h))
+         | [|- context[?f >> (?x .: ?g)]] =>
+           change (f >> (x .: g)) with g
+         | [|- context[?x2 .: shift >> ?f]] =>
+           change x2 with (f bound); rewrite (@scons_eta _ _ f)
+         | [|- context[?f bound .: ?g]] =>
+           change g with (shift >> f); rewrite scons_eta
+         | _ => first [progress (rewrite scons_comp) | progress (rewrite scons_eta_id)]
+         end.
+
+
+Opaque scons.
+Opaque bound.
+Opaque null.
+Opaque shift.
+Opaque up_ren.
+Opaque var_zero.
+Opaque idren.
+Opaque comp.
+Opaque funcomp.
+Opaque id.

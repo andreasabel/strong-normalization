@@ -14,8 +14,9 @@ Definition RedS g g' (S: subst g g') :=
 Lemma rename_red G1 G2 A (f : ren G1 G2) (s : tm G1 A) :
   Red s -> Red (rinst f s).
 Proof.
-  case: A s => [|A B] s /=. { intros H. now apply rename. }
-  move=> H G3 g t lt. rewrite rinst_comp. exact: H.
+  revert s. destruct A as [| A B]; intros s; cbn.
+  - intros H. now apply rename.
+  - intros H G3 g t lt. rewrite rinst_comp. now apply H.
 Qed.
 
 Lemma rename_redS g g' h  (R: ren g' h) (S: subst g g'):
@@ -34,8 +35,7 @@ Proof.
     + eapply anti_rename with (R := shift) (M := rinst shift M); [|reflexivity].
       eapply ext_SN, IHB, H. apply IHA, (SVar _ A var0).
     + intros g' R N H'. apply IHB.
-      * apply SApp. now apply rename.
-      * intuition.
+      apply SApp. now apply rename. now intuition.
     + intros g' R N rn. apply IHB with (M' := app (rinst R M') N).
      * constructor. now apply rename.
      * apply H0, rn.
