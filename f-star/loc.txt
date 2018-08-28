@@ -1,0 +1,9 @@
+Prelude.fst	194
+Base.fst	1073
+PropSN.fst	247
+PropSN2.fst	119	
+Sound.fst	99
+StrongNorm.fst	151
+
+
+awk '!/\/\// &&  !/^$/{c++}END{print c}' f-star/<name>.fst 
