@@ -1,0 +1,12 @@
+terms_def.bel	77
+sn_def.bel	30
+prop_sn_1a.bel	163
+prop_SN_2a.bel	69
+soundness.bel	29
+sn.bel		79
+
+
+
+
+
+awk '!/^%/ && !/total/ && !/;/ && !/^$/{c++}END{print c}' <name>.bel
