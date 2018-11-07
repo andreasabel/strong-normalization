@@ -109,7 +109,7 @@ rec app_abs_sn : {g: cxt} {A : [ |- ty]}{B : [ |- ty]}{M: [g, x: tm A[] |- tm B[
 	| [g |- rbeta] => sn1
 	| [g |- rappl S'] => let [_ |- rabs (\x. S'')] = [_ |- S'] in
 			     let [_ |- S''] : [g, x: tm _ |- step M M'] = [_ |- S''] in
-			     let [_ |- S'''] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S''] in
+			     let [_ |- S'''] = [_ |- S''[.., N]] in
 			     let Acc [g] [ |- B] [g |- _ ] r = sn1 in
 			     app_abs_sn [g] [|- _] [|- _] [_ |- M'] [_ |- N] (r [_ |- M'[.., N]] [_ |- S''']) sn2
 	| [g |- rappr S'] => let Acc [g] [ |- A] [g |- N] r = sn2 in
@@ -213,7 +213,7 @@ rec casel_sn : (g: cxt) {M  : [g |- tm A[]]}{N1 : [g, x: tm A[] |- tm C[]]}{N2 :
 				     let sn1' = mstep_sn [_ |- N1[.., M]] [_ |- _] ms sn1 in
 				     casel_sn [_ |- _] [_ |- N1] [_ |- N2] (r [_ |- _] [_ |- S']) sn1' sn2
 	 | [g |- rcinl] => sn1
-	 | [g |- rcl (\x. S')] => let [_ |- S''] = subst_red [_ |- N1] [_ |- _] [_ |- M] [_ |- S'] in
+	 | [g |- rcl (\x. S')] => let [_ |- S''] = [_ |- S'[.., M]] in
 				  let Acc [g] [|- C] [g |- _] r = sn1 in
 				  casel_sn [_ |- M] [_ |- _] [_ |- N2] sn0 (r [_ |- _] [_ |- S'']) sn2
 	 | [g |- rcr (\y. S')] => let Acc [g, y: tm B[]] [|- C] [g, y: tm B[] |- N2] r = sn2 in
@@ -241,7 +241,7 @@ rec caser_sn : (g: cxt) {M  : [g |- tm B[]]}{N1 : [g, x: tm A[] |- tm C[]]}{N2 :
 	 | [g |- rcinr] => sn2
 	 | [g |- rcl (\x. S')] => let Acc [g, x: tm A[]] [|- C] [g, x: tm A[] |- N1] r = sn1 in
 				  caser_sn [_ |- M] [_ |- _] [_ |- N2] sn0 ( r [_ |- _] [_ |- S']) sn2
-	 | [g |- rcr (\y. S')] => let [_ |- S''] = subst_red [_ |- N2] [_ |- _] [_ |- M] [_ |- S'] in
+	 | [g |- rcr (\y. S')] => let [_ |- S''] = [_ |- S'[.., M]] in
 				  let Acc [g] [|- C] [g |- _] r = sn2 in
 				  caser_sn [_ |- M] [_ |- N1] [_ |- _] sn0 sn1 (r [_ |- _] [_ |- S''])
 	)
@@ -266,7 +266,7 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}{N : [g |- tm A[]]}{N': [g |- tm A[
 			    let [_ |- S''] : [g, x: tm _ |- step M M'] = [_ |- S''] in
 			    let snr' = SnBeta [g, x: tm _ |- M'] sn in
 			    let sn : Sn [g |- N] = sn in
-			    let [_ |- R] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S''] in
+			    let [_ |- R] = [_ |- S''[.., N]] in
 			    Conf snr' [g |- m-step R m-refl]
        | [g |- rappr S'] => let [_ |- S'] : [_ |- step N N'] = [_ |- S'] in
 			    let ms = subst_mred [_ |- M] [_ |- N] [_ |- N'] [_ |- S'] in
@@ -300,7 +300,7 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}{N : [g |- tm A[]]}{N': [g |- tm A[
 				   Conf snr' ms
        | [g |- rcinl] => Eq
        | [g |- rcl (\x. S')] => let [_ |- S'] : [g, x: tm _ |- step N1 N1'] = [_ |- S'] in
-				let [_ |- S''] = subst_red [_ |- N1] [_ |- N1'] [_ |- M0] [_ |- S'] in
+				let [_ |- S''] = [_ |- S'[.., M0]] in
 				let Acc [g, x: tm A[]] [|- C] [g, x: tm A[] |- N1] r = sn1 in
 				let sn1' = r [_ |- N1'] [_ |- S'] in
 				let snr' = SnCInl sn sn1' sn2 in
@@ -325,7 +325,7 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}{N : [g |- tm A[]]}{N': [g |- tm A[
 				let snr' = SnCInr sn sn1' sn2 in
 				Conf snr' [g |- m-refl]
        | [g |- rcr (\x. S')] => let [_ |- S'] : [g, x: tm _ |- step N2 N2'] = [_ |- S'] in
-				let [_ |- S''] = subst_red [_ |- N2] [_ |- N2'] [_ |- M0] [_ |- S'] in
+				let [_ |- S''] = [_ |- S'[.., M0]] in
 				let Acc [g, y: tm B[]] [|- C] [g, y: tm B[] |- N2] r = sn2 in
 				let sn2' = r [_ |- N2'] [_ |- S'] in
 				let snr' = SnCInr sn sn1 sn2' in

@@ -39,49 +39,6 @@ LF mstep : tm A -> tm A -> type =
    | m-step : step M N -> mstep N M' -> mstep M M'
 ;
 
-
-% Substitution property of typed reductions
-rec subst_red : (g: cxt) {M : [g, x: tm A[] |- tm B[]]}{M': [g, x: tm A[] |- tm B[]]} {N : [g |- tm A[]]}
-			 [g, x: tm A[] |- step M M'] -> [g |- step M[.., N] M'[.., N]] =
-/ trust /  % Totality checker does not take into account modulo exchange; it only consider direct subterms 
-    mlam M => mlam M' => mlam N => fn s => case s of
-    | [g, x: tm A[] |- rbeta] => [_ |- rbeta]
-
-    | [g, x: tm A[] |- rabs (\y. S')] =>
-      let [_ |- S'] : [g, x: tm A[], y: tm A'[] |- step M M'] = [_ |- S'] in
-      let [g, y:tm A'[] |- S''] =  subst_red [g, y:tm A'[], x : tm A[] |- M[.., x, y]]
-                                             [g, y:tm A'[], x : tm A[] |- M'[.., x, y]]
-                                             [g, y:tm A'[] |- N[..]]
-                                             [g, y:tm A'[], x:tm A[] |- S'[.., x,y]]
-      in [g |- rabs \y.S'']
-
-    | [g, x: tm A[] |- rappl S'] => let [_ |- S''] = subst_red [_ |- _] [_ |- _] [_ |- N] [_ |- S'] in
-				    [_ |- rappl S'']
-    | [g, x: tm A[] |- rappr S'] => let [_ |- S''] = subst_red [_ |- _] [_ |- _] [_ |- N] [_ |- S'] in
-				    [_ |- rappr S'']
-
-    | [g, x: tm A[] |- rinl S'] => let [_ |- S''] = subst_red [_ |- _] [_ |- _] [_ |- N] [_ |- S'] in
-				   [_ |- rinl S'']
-    | [g, x: tm A[] |- rinr S'] => let [_ |- S''] = subst_red [_ |- _] [_ |- _] [_ |- N] [_ |- S'] in
-				   [_ |- rinr S'']
-    | [g, x: tm A[] |- rcinl] => [_ |- rcinl]
-    | [g, x: tm A[] |- rcinr] => [_ |- rcinr]
-    | [g, x: tm A[] |- rcase S'] => let [_ |- S''] = subst_red [_ |- _] [_ |- _] [_ |- N] [_ |- S'] in
-				    [_ |- rcase S'']
-    | [_ |- rcl (\y. S')] : [g, x: tm A[] |- step (match M1 (\x. N1) (\y. N2)) (match M1 (\x. N1') (\y. N2))] =>
-      let [g, y: tm B[] |- S''] = subst_red [g, y: tm _, x: tm A[] |- N1[.., x, y]]
-					    [_ |- _]
-					    [g, y: tm _ |- N[..]]
-					    [g, y: tm _, x: tm A[] |- S'[.., x, y]] in
-      [_ |- rcl (\x. S'')]
-    | [_ |- rcr (\x. S')] : [g, x: tm A[] |- step (match M1 (\x. N1) (\y. N2)) (match M1 (\x. N1) (\y. N2'))] =>
-      let [g, y: tm B[] |- S''] = subst_red [g, y: tm _, x: tm A[] |- N2[.., x, y]]
-					    [_ |- _]
-					    [g, y: tm _ |- N[..]]
-					    [g, y: tm _, x: tm A[] |- S'[.., x, y]] in
-      [_ |- rcr (\x. S'')]
-;
-
 % Properties of multi-step reductions
 
 % Transitivity of multi-step reductions
