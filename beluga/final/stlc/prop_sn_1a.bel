@@ -61,7 +61,7 @@ rec app_abs_sn : {g: cxt} {A : [ |- ty]} {B : [ |- ty]}
 	| [g |- rbeta] => sn1
 	| [g |- rappl S'] => let [_ |- rabs (\x. S'')] = [_ |- S'] in
 			     let [_ |- S''] : [g, x: tm _ |- step M M'] = [_ |- S''] in
-			     let [_ |- S'''] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S''] in
+			     let [_ |- S'''] = [_ |- S''[.., N]] in
 			     let Acc [g] [ |- B] [g |- _ ] r = sn1 in
 			     app_abs_sn [g] [|- _] [|- _] [_ |- M'] [_ |- N] (r [_ |- M'[.., N]] [_ |- S''']) sn2
 	| [g |- rappr S'] => let Acc [g] [ |- A] [g |- N] r = sn2 in
@@ -142,7 +142,7 @@ rec confluence : (g: cxt) {M : [g |- tm A[]]}
 			    let [_ |- S''] : [g, x: tm _ |- step M M'] = [_ |- S''] in
 			    let snr' = SnBeta [g, x: tm _ |- M'] sn in
 			    let sn : Sn [g |- N] = sn in
-			    let [_ |- R] = subst_red [_ |- M] [_ |- M'] [_ |- N] [_ |- S''] in
+			    let [_ |- R] = [_ |- S''[.., N]] in
 			    Conf snr' [g |- m-step R m-refl]
        | [g |- rappr S'] => let [_ |- S'] : [_ |- step N N'] = [_ |- S'] in
 			    let ms = subst_mred [_ |- M] [_ |- N] [_ |- N'] [_ |- S'] in
